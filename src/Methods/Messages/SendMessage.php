@@ -3,13 +3,13 @@
 namespace Jove\Methods\Messages;
 
 use Amp\Promise;
-use function Amp\call;
 
 trait SendMessage
 {
     /**
      * @param $chat_id
      * @param $text
+     * @param null $parse_mode
      * @return Promise
      */
     public function sendMessage(

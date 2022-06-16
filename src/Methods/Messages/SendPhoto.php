@@ -7,6 +7,13 @@ use Amp\Promise;
 trait SendPhoto
 {
 
+    /**
+     * @param int $chat_id
+     * @param string $photo
+     * @param string|null $caption
+     * @param string|null $parse_mode
+     * @return Promise
+     */
     public function sendPhoto(
         int $chat_id,
         string $photo,

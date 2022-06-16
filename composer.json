@@ -22,6 +22,7 @@
         "amphp/http": "^1.6",
         "amphp/http-server-router": "^1.0",
         "vlucas/phpdotenv": "^5.4",
-        "amphp/http-client": "^4.6"
+        "amphp/http-client": "^4.6",
+        "amphp/file": "^2.0"
     }
 }

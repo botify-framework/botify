@@ -39,7 +39,7 @@ Amp\Loop::run(function () {
     $handler = new CallableRequestHandler(function () {
         $api = new TelegramAPI();
 
-        yield $api->sendMessage(-1001187469156, 'Hi');
+        yield $api->sendPhoto(342929908, __DIR__ .'/storage/images/cat.png');
 
         $fn = fn ($id) => call(function () use ($api, $id) {
             $chat = yield $api->getChatMember(-1001679931840, $id);

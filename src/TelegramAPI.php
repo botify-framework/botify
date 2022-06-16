@@ -41,12 +41,11 @@ class TelegramAPI
     private function generateRequest($uri, array $data = []): Request
     {
         $request = new Request(
-            $this->generateUri($uri, $data), 'POST'
+            $this->generateUri($uri), 'POST'
         );
-//        $request->setBody(
-//            $this->generateBody($data)
-//        );
-        $request->addHeader('Content-Type', 'multipart/form-data');
+        $request->setBody(
+            $this->generateBody($data)
+        );
         return $request;
     }
 
@@ -85,19 +84,4 @@ class TelegramAPI
 
         return $url;
     }
-
-//    public function __call($name, array $arguments = [])
-//    {
-//        $name = strtolower($name);
-//
-//        if(str_ends_with($name, 'async')) {
-//            $name = substr($name, 0, -5);
-//            dump($name);
-//            array_unshift($arguments, $name);
-//
-//            return call(
-//                fn () => yield $this->post(... $arguments)
-//            );
-//        }
-//    }
 }
