@@ -1,4 +1,15 @@
 {
+    "name": "jove/async-php-bot",
+    "description": "Create your own Telegram API bot asynchronously in PHP",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Jove\\": "src/"
+        },
+        "files": [
+            "utilities/functions.php"
+        ]
+    },
     "require-dev": {
         "symfony/var-dumper": "^6.1"
     },

@@ -4,6 +4,7 @@ require_once __DIR__ .'/bootstrap/app.php';
 
 
 use Amp\ByteStream\ResourceOutputStream;
+use Amp\Delayed;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
@@ -13,7 +14,11 @@ use Amp\Http\Status;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Socket;
+use Jove\Middlewares\TrustIsTelegram;
 use Monolog\Logger;
+
+use function Amp\Http\Server\Middleware\stack;
+use function Amp\Promise\all;
 
 // Run this script, then visit http://localhost:1337/ in your browser.
 
@@ -28,15 +33,14 @@ Amp\Loop::run(function () {
     $logger = new Logger('server');
     $logger->pushHandler($logHandler);
     $router = new Router;
-    
-    $router->addRoute('GET', '/', new CallableRequestHandler(function () {
-        dump(1);
+
+    $handler = new CallableRequestHandler(function () {
+        yield all([new Delayed(3000), new Delayed(3000)]);
+
         return new Response(Status::OK, ['content-type' => 'text/plain'], 'Hello, world!');
-    }));
-    $router->addRoute('GET', '/{name}', new CallableRequestHandler(function (Request $request) {
-        $args = $request->getAttribute(Router::class);
-        return new Response(Status::OK, ['content-type' => 'text/plain'], "Hello, {$args['name']}!");
-    }));
+    });
+    
+    $router->addRoute('GET', '/', stack($handler, new TrustIsTelegram()));
 
     $server = new Server($servers, $router, $logger);
     yield $server->start();
