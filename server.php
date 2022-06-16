@@ -15,8 +15,10 @@ use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Socket;
 use Jove\Middlewares\TrustIsTelegram;
+use Jove\TelegramAPI;
 use Monolog\Logger;
 
+use function Amp\call;
 use function Amp\Http\Server\Middleware\stack;
 use function Amp\Promise\all;
 
@@ -35,9 +37,22 @@ Amp\Loop::run(function () {
     $router = new Router;
 
     $handler = new CallableRequestHandler(function () {
-        yield all([new Delayed(3000), new Delayed(3000)]);
+        $api = new TelegramAPI();
 
-        return new Response(Status::OK, ['content-type' => 'text/plain'], 'Hello, world!');
+        yield $api->sendMessage(-1001187469156, 'Hi');
+
+        $fn = fn ($id) => call(function () use ($api, $id) {
+            $chat = yield $api->getChatMember(-1001679931840, $id);
+
+            return yield $api->sendMessage(-1001679931840, var_export($chat, true));
+        });
+
+        foreach([342929908, 156829329, 357377817, 277969532, 1692387237, 343434] as $i)
+            $promises[] = $fn($i);
+        
+        dump(yield all($promises));
+
+        return new Response(Status::OK, ['content-type' => 'application/json'], getenv('BOT_TOKEN'));
     });
     
     $router->addRoute('GET', '/', stack($handler, new TrustIsTelegram()));
