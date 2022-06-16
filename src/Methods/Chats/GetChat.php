@@ -2,7 +2,10 @@
 
 namespace Jove\Methods\Chats;
 
-class GetChat
+trait GetChat
 {
+    public function getChat()
+    {
 
+    }
 }

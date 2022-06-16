@@ -2,7 +2,9 @@
 
 namespace Jove\Methods;
 
-class Methods
-{
+use Jove\Methods\Chats\Chats;
 
+trait Methods
+{
+    use Chats;
 }
