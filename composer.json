@@ -1,0 +1,14 @@
+{
+    "require-dev": {
+        "symfony/var-dumper": "^6.1"
+    },
+    "require": {
+        "amphp/http-server": "^2.1",
+        "amphp/amp": "^2.6",
+        "amphp/socket": "^1.2",
+        "amphp/byte-stream": "^1.8",
+        "amphp/log": "^1.1",
+        "amphp/http": "^1.6",
+        "amphp/http-server-router": "^1.0"
+    }
+}
