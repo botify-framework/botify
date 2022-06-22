@@ -49,7 +49,6 @@ use LazyJsonMapper\LazyJsonMapper;
  * @method Sticker getSticker()
  * @method SuccessfulPayment getSuccessfulPayment()
  * @method bool getSupergroupChatCreated()
- * @method string getText()
  * @method Venue getVenue()
  * @method Video getVideo()
  * @method VideoNote getVideoNote()
@@ -291,44 +290,40 @@ class Message extends LazyJsonMapper
         'group_chat_created'        => 'bool',
         'supergroup_chat_created'   => 'bool',
         'channel_chat_created'      => 'bool',
-        'migrate_to_chat_id'        => 'int',
-        'migrate_from_chat_id'      => 'int',
-        'pinned_message'            => 'Message',
-        'invoice'                   => 'Invoice',
-        'successful_payment'        => 'SuccessfulPayment',
-        'connected_website'         => 'string',
-        'passport_data'             => 'PassportData',
-        'reply_markup'              => 'InlineKeyboardMarkup',
+        'migrate_to_chat_id' => 'int',
+        'migrate_from_chat_id' => 'int',
+        'pinned_message' => 'Message',
+        'invoice' => 'Invoice',
+        'successful_payment' => 'SuccessfulPayment',
+        'connected_website' => 'string',
+        'passport_data' => 'PassportData',
+        'reply_markup' => 'InlineKeyboardMarkup',
     ];
 
-    function getText(){
-        $text = $this->_getProperty('text');
-        $numberPersian = [
-            '۰'=>'0',
-            '۱'=>'1',
-            '۲'=>'2',
-            '۳'=>'3',
-            '۴'=>'4',
-            '۵'=>'5',
-            '۶'=>'6',
-            '۷'=>'7',
-            '۸'=>'8',
-            '۹'=>'9',
-        ];
-        $numberArabic = [
-            '٠'=>'0',
-            '١'=>'1',
-            '٢'=>'2',
-            '٣'=>'3',
-            '٤'=>'4',
-            '٥'=>'5',
-            '٦'=>'6',
-            '٧'=>'7',
-            '٨'=>'8',
-            '٩'=>'9',
-        ];
-        $text = strtr($text, $numberPersian);
-        $text = strtr($text, $numberArabic);
-        return $text;
+    public function getText(): string
+    {
+        return strtr(strtr($this->_getProperty('text'), [
+            '۰' => '0',
+            '۱' => '1',
+            '۲' => '2',
+            '۳' => '3',
+            '۴' => '4',
+            '۵' => '5',
+            '۶' => '6',
+            '۷' => '7',
+            '۸' => '8',
+            '۹' => '9',
+        ]), [
+            '٠' => '0',
+            '١' => '1',
+            '٢' => '2',
+            '٣' => '3',
+            '٤' => '4',
+            '٥' => '5',
+            '٦' => '6',
+            '٧' => '7',
+            '٨' => '8',
+            '٩' => '9',
+        ]);
     }
 }
