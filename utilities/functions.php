@@ -1,6 +1,7 @@
 <?php
 
 use Amp\Delayed;
+use Amp\Promise;
 
 if (!function_exists('retry')) {
     /**
@@ -44,10 +45,12 @@ if (!function_exists('asleep')) {
     /**
      * @param $time
      * @param $value
-     * @return Delayed
+     * @return Promise
      */
-    function asleep($time, $value = null): Delayed
+    function asleep($time, $value = null): Promise
     {
-        return new Delayed($time, $value);
+        return \Amp\call(function () use ($time, $value) {
+            new Delayed($time, $value);
+        });
     }
 }
