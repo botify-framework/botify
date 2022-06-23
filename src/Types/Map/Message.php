@@ -381,21 +381,28 @@ class Message extends LazyJsonMapper
     }
 
     /**
+     * Delete current message
      * @return Promise
      */
     public function delete(): Promise
     {
         return $this->api->deleteMessage(
             $this->chat->id,
-            $this->id,
+            $this->message_id,
         );
     }
 
+    /**
+     * Edit current message
+     *
+     * @param $text
+     * @return Promise
+     */
     public function edit($text): Promise
     {
         return $this->api->editMessageText(
             $this->chat->id,
-            $this->id,
+            $this->message_id,
             $text
         );
     }
