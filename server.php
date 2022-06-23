@@ -4,6 +4,7 @@ require_once __DIR__ .'/bootstrap/app.php';
 
 
 use Amp\ByteStream\ResourceOutputStream;
+use Amp\Delayed;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
@@ -37,13 +38,17 @@ Amp\Loop::run(function () {
         $api = new TelegramAPI();
 
         $fn = fn($id) => call(function () use ($api, $id) {
-            return $api->sendMessage(-1001187469156, 'کس نگو @SudoJahan');
+            $message = yield $api->sendMessage(-1001187469156, var_export('Test', true));
+            yield new Delayed(1000);
+            $edited = yield $message->edit('Hi');
+            yield new Delayed(1000);
+            return $edited->delete();
         });
 
         foreach (range(1, 5) as $i)
             $promises[] = $fn($i);
 
-        yield all($promises);
+        dump(yield all($promises));
 
         return new Response(Status::OK, ['content-type' => 'application/json'], getenv('BOT_TOKEN'));
     });
