@@ -1,6 +1,7 @@
 <?php
 namespace Jove\Types\Map;
 
+use Amp\Promise;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -249,15 +250,17 @@ use Jove\Utils\LazyJsonMapper;
  */
 class Message extends LazyJsonMapper
 {
+    public int $id;
+
     const JSON_PROPERTY_MAP = [
-        'message_id'                => 'string',
-        'from'                      => 'User',
-        'date'                      => 'int',
-        'chat'                      => 'Chat',
-        'forward_from'              => 'User',
-        'forward_from_chat'         => 'Chat',
-        'forward_from_message_id'   => 'int',
-        'forward_signature'         => 'string',
+        'message_id' => 'string',
+        'from' => 'User',
+        'date' => 'int',
+        'chat' => 'Chat',
+        'forward_from' => 'User',
+        'forward_from_chat' => 'Chat',
+        'forward_from_message_id' => 'int',
+        'forward_signature' => 'string',
         'forward_sender_name'       => 'string',
         'forward_date'              => 'int',
         'reply_to_message'          => 'Message',
@@ -299,6 +302,33 @@ class Message extends LazyJsonMapper
         'passport_data' => 'PassportData',
         'reply_markup' => 'InlineKeyboardMarkup',
     ];
+
+    public function _init()
+    {
+        parent::_init();
+
+        $this->id = $this->_getProperty('message_id');
+    }
+
+    /**
+     * @return Promise
+     */
+    public function delete(): Promise
+    {
+        return $this->api->deleteMessage(
+            $this->chat->id,
+            $this->id,
+        );
+    }
+
+    public function edit($text): Promise
+    {
+        return $this->api->editMessageText(
+            $this->chat->id,
+            $this->id,
+            $text
+        );
+    }
 
     /**
      * @return int
