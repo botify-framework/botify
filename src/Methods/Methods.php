@@ -7,5 +7,5 @@ use Jove\Methods\Messages\Messages;
 
 trait Methods
 {
-    use Chats, Messages;
+    use Chats, Messages, GetUpdates;
 }
