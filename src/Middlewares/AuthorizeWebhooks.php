@@ -6,10 +6,9 @@ use Amp\Http\Server\Middleware;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Promise;
-
 use function Amp\call;
 
-class TrustIsTelegram implements Middleware
+class AuthorizeWebhooks implements Middleware
 {
 
     /**

@@ -4,8 +4,6 @@ require_once __DIR__ .'/bootstrap/app.php';
 
 
 use Amp\ByteStream\ResourceOutputStream;
-use Amp\Delayed;
-use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
@@ -14,10 +12,9 @@ use Amp\Http\Status;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Socket;
-use Jove\Middlewares\TrustIsTelegram;
+use Jove\Middlewares\AuthorizeWebhooks;
 use Jove\TelegramAPI;
 use Monolog\Logger;
-
 use function Amp\call;
 use function Amp\Http\Server\Middleware\stack;
 use function Amp\Promise\all;
@@ -39,23 +36,19 @@ Amp\Loop::run(function () {
     $handler = new CallableRequestHandler(function () {
         $api = new TelegramAPI();
 
-        yield $api->sendPhoto(342929908, __DIR__ .'/storage/images/cat.png');
-
-        $fn = fn ($id) => call(function () use ($api, $id) {
-            $chat = yield $api->getChatMember(-1001679931840, $id);
-
-            return yield $api->sendMessage(-1001679931840, var_export($chat, true));
+        $fn = fn($id) => call(function () use ($api, $id) {
+            return $api->sendMessage(-1001187469156, 'کس نگو @SudoJahan');
         });
 
-        foreach([342929908, 156829329, 357377817, 277969532, 1692387237, 343434] as $i)
+        foreach (range(1, 5) as $i)
             $promises[] = $fn($i);
-        
-        dump(yield all($promises));
+
+        yield all($promises);
 
         return new Response(Status::OK, ['content-type' => 'application/json'], getenv('BOT_TOKEN'));
     });
-    
-    $router->addRoute('GET', '/', stack($handler, new TrustIsTelegram()));
+
+    $router->addRoute('GET', '/', stack($handler, new AuthorizeWebhooks()));
 
     $server = new Server($servers, $router, $logger);
     yield $server->start();
