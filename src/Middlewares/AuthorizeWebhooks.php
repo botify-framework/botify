@@ -19,7 +19,10 @@ class AuthorizeWebhooks implements Middleware
      * @param RequestHandler $next
      * @return Promise
      */
-    public function handleRequest(Request $request, RequestHandler $next): Promise
+    public function handleRequest(
+        Request        $request,
+        RequestHandler $next
+    ): Promise
     {
         /**
          * In the latest version of telegram the "secret_token" field was added when setting the webhook.
@@ -28,14 +31,14 @@ class AuthorizeWebhooks implements Middleware
         return call(function () use ($request, $next) {
             $next = fn() => $next->handleRequest($request, $next);
 
-            if ('production' === strtolower(getenv('APP_ENV'))) {
-                if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === getenv('SECURE_TOKEN')) {
+            if ('production' === \strtolower(\getenv('APP_ENV'))) {
+                if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === \getenv('SECURE_TOKEN')) {
                     return $next();
                 }
 
                 return new Response(403, [
                     'Content-Type' => 'application/json;charset=utf-8'
-                ], json_encode([
+                ], \json_encode([
                     'success' => false,
                     'message' => 'You are not allowed.',
                 ]));

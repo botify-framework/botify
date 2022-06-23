@@ -18,7 +18,7 @@ if (!function_exists('retry')) {
             return $callback($attempts);
         } catch (Exception $e) {
             if ($times < 1) throw $e;
-            $sleep && sleep($sleep);
+            $sleep && \sleep($sleep);
             goto beginning;
         }
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Jove\Types\Map;
+namespace Jove\Types;
 
 use Jove\Utils\LazyJsonMapper;
 
@@ -7,20 +7,20 @@ use Jove\Utils\LazyJsonMapper;
  * Update
  *
  * @method Int getUpdateId()
- * @method Message getMessage()
- * @method Message getEditedMessage()
- * @method Message getChannelPost()
- * @method Message getEditedChannelPost()
- * @method InlineQuery getInlineQuery()
- * @method ChosenInlineResult getChosenInlineResult()
- * @method CallbackQuery getCallbackQuery()
- * @method ShippingQuery getShippingQuery()
- * @method PreCheckoutQuery getPreCheckoutQuery()
- * @method Poll getPoll()
- * @method PollAnswer getPollAnswer()
- * @method ChatMemberUpdated getMyChatMember()
- * @method ChatMemberUpdated getChatMember()
- * @method ChatJoinRequest getChatJoinRequest()
+ * @method Map\Message getMessage()
+ * @method Map\Message getEditedMessage()
+ * @method Map\Message getChannelPost()
+ * @method Map\Message getEditedChannelPost()
+ * @method Map\InlineQuery getInlineQuery()
+ * @method Map\ChosenInlineResult getChosenInlineResult()
+ * @method Map\CallbackQuery getCallbackQuery()
+ * @method Map\ShippingQuery getShippingQuery()
+ * @method Map\PreCheckoutQuery getPreCheckoutQuery()
+ * @method Map\Poll getPoll()
+ * @method Map\PollAnswer getPollAnswer()
+ * @method Map\ChatMemberUpdated getMyChatMember()
+ * @method Map\ChatMemberUpdated getChatMember()
+ * @method Map\ChatJoinRequest getChatJoinRequest()
  *
  * @method bool isUpdateId()
  * @method bool isMessage()
@@ -39,20 +39,20 @@ use Jove\Utils\LazyJsonMapper;
  * @method bool isChatJoinRequest()
  *
  * @method $this setUpdateId(int $value)
- * @method $this setMessage(Message $value)
- * @method $this setEditedMessage(Message $value)
- * @method $this setChannelPost(Message $value)
- * @method $this setEditedChannelPost(Message $value)
- * @method $this setInlineQuery(InlineQuery $value)
- * @method $this setChosenInlineResult(ChosenInlineResult $value)
- * @method $this setCallbackQuery(CallbackQuery $value)
- * @method $this setShippingQuery(ShippingQuery $value)
- * @method $this setPreCheckoutQuery(PreCheckoutQuery $value)
- * @method $this setPoll(Poll $value)
- * @method $this setPollAnswer(PollAnswer $value)
- * @method $this setMyChatMember(ChatMemberUpdated $value)
- * @method $this setChatMember(ChatMemberUpdated $value)
- * @method $this setChatJoinRequest(ChatJoinRequest $value)
+ * @method $this setMessage(Map\Message $value)
+ * @method $this setEditedMessage(Map\Message $value)
+ * @method $this setChannelPost(Map\Message $value)
+ * @method $this setEditedChannelPost(Map\Message $value)
+ * @method $this setInlineQuery(Map\InlineQuery $value)
+ * @method $this setChosenInlineResult(Map\ChosenInlineResult $value)
+ * @method $this setCallbackQuery(Map\CallbackQuery $value)
+ * @method $this setShippingQuery(Map\ShippingQuery $value)
+ * @method $this setPreCheckoutQuery(Map\PreCheckoutQuery $value)
+ * @method $this setPoll(Map\Poll $value)
+ * @method $this setPollAnswer(Map\PollAnswer $value)
+ * @method $this setMyChatMember(Map\ChatMemberUpdated $value)
+ * @method $this setChatMember(Map\ChatMemberUpdated $value)
+ * @method $this setChatJoinRequest(Map\ChatJoinRequest $value)
  *
  * @method $this unsetUpdateId()
  * @method $this unsetMessage()
@@ -71,22 +71,39 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetChatJoinRequest()
  *
  * @property Int $update_id
- * @property Message $message
- * @property Message $edited_message
- * @property Message $channel_post
- * @property Message $edited_channel_post
- * @property InlineQuery $inline_query
- * @property ChosenInlineResult $chosen_inline_result
- * @property CallbackQuery $callback_query
- * @property ShippingQuery $shipping_query
- * @property PreCheckoutQuery $pre_checkout_query
- * @property Poll $poll
- * @property PollAnswer $poll_answer
- * @property ChatMemberUpdated $my_chat_member
- * @property ChatMemberUpdated $chat_member
- * @property ChatJoinRequest $chat_join_request
+ * @property Map\Message $message
+ * @property Map\Message $edited_message
+ * @property Map\Message $channel_post
+ * @property Map\Message $edited_channel_post
+ * @property Map\InlineQuery $inline_query
+ * @property Map\ChosenInlineResult $chosen_inline_result
+ * @property Map\CallbackQuery $callback_query
+ * @property Map\ShippingQuery $shipping_query
+ * @property Map\PreCheckoutQuery $pre_checkout_query
+ * @property Map\Poll $poll
+ * @property Map\PollAnswer $poll_answer
+ * @property Map\ChatMemberUpdated $my_chat_member
+ * @property Map\ChatMemberUpdated $chat_member
+ * @property Map\ChatJoinRequest $chat_join_request
  */
+class Update extends LazyJsonMapper
+{
 
-class Update extends LazyJsonMapper{
-	const JSON_PROPERTY_MAP = [		'update_id' => 'int',		'message' => 'Message',		'edited_message' => 'Message',		'channel_post' => 'Message',		'edited_channel_post' => 'Message',		'inline_query' => 'InlineQuery',		'chosen_inline_result' => 'ChosenInlineResult',		'callback_query' => 'CallbackQuery',		'shipping_query' => 'ShippingQuery',		'pre_checkout_query' => 'PreCheckoutQuery',		'poll' => 'Poll',		'poll_answer' => 'PollAnswer',		'my_chat_member' => 'ChatMemberUpdated',		'chat_member' => 'ChatMemberUpdated',		'chat_join_request' => 'ChatJoinRequest',	];
+    const JSON_PROPERTY_MAP = [
+        'update_id' => 'int',
+        'message' => 'Map\Message',
+        'edited_message' => 'Map\Message',
+        'channel_post' => 'Map\Message',
+        'edited_channel_post' => 'Map\Message',
+        'inline_query' => 'Map\InlineQuery',
+        'chosen_inline_result' => 'Map\ChosenInlineResult',
+        'callback_query' => 'Map\CallbackQuery',
+        'shipping_query' => 'Map\ShippingQuery',
+        'pre_checkout_query' => 'Map\PreCheckoutQuery',
+        'poll' => 'Map\Poll',
+        'poll_answer' => 'Map\PollAnswer',
+        'my_chat_member' => 'Map\ChatMemberUpdated',
+        'chat_member' => 'Map\ChatMemberUpdated',
+        'chat_join_request' => 'Map\ChatJoinRequest',
+    ];
 }
