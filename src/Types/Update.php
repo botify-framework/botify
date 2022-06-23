@@ -2,7 +2,7 @@
 
 namespace Jove\Types;
 
-use LazyJsonMapper\LazyJsonMapper;
+use Jove\Utils\LazyJsonMapper;
 
 class Update extends LazyJsonMapper
 {

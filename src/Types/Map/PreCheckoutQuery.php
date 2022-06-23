@@ -1,7 +1,7 @@
 <?php
 namespace Jove\Types\Map;
 
-use LazyJsonMapper\LazyJsonMapper;
+use Jove\Utils\LazyJsonMapper;
 
 /**
  * PreCheckoutQuery.
