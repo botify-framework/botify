@@ -408,6 +408,23 @@ class Message extends LazyJsonMapper
     }
 
     /**
+     * Replying on current message
+     *
+     * @param $text
+     * @return Promise
+     */
+    public function reply($text): Promise
+    {
+        return $this->api->sendMessage(
+            $this->chat->id,
+            $text,
+            extra: [
+                'reply_to_message_id' => $this->message_id
+            ]
+        );
+    }
+
+    /**
      * @return int
      */
     public function getId(): int
