@@ -4,6 +4,7 @@ namespace Jove\Methods\Chats;
 
 use Amp\Promise;
 use Jove\Types\Map\Chat;
+use Jove\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetChat
@@ -20,7 +21,9 @@ trait GetChat
                 'chat_id'
             ));
 
-            return new Chat($response['result']);
+            return isset($response['result'])
+                ? new Chat($response['result'])
+                : new FallbackResponse($response);
         });
     }
 }

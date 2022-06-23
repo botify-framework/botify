@@ -19,8 +19,8 @@ trait DeleteMessage
             $response = yield $this->post('deleteMessage', compact(
                 'chat_id', 'message_id'
             ));
-            #Todo
-            return $response['result'];
+            
+            return $response['result'] ?? false;
         });
     }
 }

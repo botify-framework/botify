@@ -4,6 +4,7 @@ namespace Jove\Methods\Chats;
 
 use Amp\Promise;
 use Jove\Types\Map\User;
+use Jove\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetChatMember
@@ -24,7 +25,9 @@ trait GetChatMember
                 'chat_id', 'user_id'
             ));
 
-            return new User($response['result']);
+            return isset($response['result'])
+                ? new User($response['result'])
+                : new FallbackResponse($response);
         });
     }
 }

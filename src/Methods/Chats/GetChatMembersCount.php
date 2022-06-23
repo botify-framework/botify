@@ -18,8 +18,8 @@ trait GetChatMembersCount
             $response = yield $this->post('getChatMembersCount', compact(
                 'chat_id'
             ));
-            #Todo
-            return $response['result'];
+
+            return $response['result'] ?? false;
         });
     }
 }

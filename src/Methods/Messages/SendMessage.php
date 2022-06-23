@@ -4,6 +4,7 @@ namespace Jove\Methods\Messages;
 
 use Amp\Promise;
 use Jove\Types\Map\Message;
+use Jove\Utils\FallbackResponse;
 use function Amp\call;
 
 trait SendMessage
@@ -29,7 +30,9 @@ trait SendMessage
                 'chat_id', 'text', 'parse_mode'
             ));
 
-            return new Message($response['result']);
+            return isset($response['result'])
+                ? new Message($response['result'])
+                : new FallbackResponse($response);
         });
     }
 }

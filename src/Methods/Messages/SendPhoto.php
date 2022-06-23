@@ -4,6 +4,7 @@ namespace Jove\Methods\Messages;
 
 use Amp\Promise;
 use Jove\Types\Map\Message;
+use Jove\Utils\FallbackResponse;
 use function Amp\call;
 
 trait SendPhoto
@@ -33,7 +34,9 @@ trait SendPhoto
                 'chat_id', 'photo', 'caption', 'parse_mode'
             ));
 
-            return new Message($response['result']);
+            return isset($response['result'])
+                ? new Message($response['result'])
+                : new FallbackResponse($response);
         });
     }
 }
