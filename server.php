@@ -38,19 +38,20 @@ Amp\Loop::run(function () {
         $api = new TelegramAPI();
 
         $fn = fn($id) => call(function () use ($api, $id) {
-            $message = yield $api->sendMessage(-1001187469156, var_export('Test', true));
+            $message = yield $api->sendPhoto(-1001187469156, __DIR__ . '/storage/images/cat2.png');
             if ($message->isOk()) {
                 yield new Delayed(1000);
-                $edited = yield $message->edit('Hi');
-                if ($edited->isOk()) {
-                    yield new Delayed(1000);
-                    return $edited->delete();
-                }
+                $edited = yield $message->reply('Hi');
+                dump(yield $message->edit('Message caption was edited'));
+//                if ($edited->isOk()) {
+//                    yield new Delayed(1000);
+//                    return $edited->delete();
+//                }
             }
 
         });
 
-        foreach (range(1, 5) as $i)
+        foreach (range(1, 1) as $i)
             $promises[] = $fn($i);
 
         dump(yield all($promises));
