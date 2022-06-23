@@ -1,6 +1,7 @@
 <?php
 namespace Jove\Types\Map;
 
+use Amp\Promise;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -307,6 +308,133 @@ use Jove\Utils\LazyJsonMapper;
  * @property InlineKeyboardMarkup $reply_markup
  */
 
+
 class Message extends LazyJsonMapper{
-	const JSON_PROPERTY_MAP = [		'message_id' => 'int',		'from' => 'User',		'sender_chat' => 'Chat',		'date' => 'int',		'chat' => 'Chat',		'forward_from' => 'User',		'forward_from_chat' => 'Chat',		'forward_from_message_id' => 'int',		'forward_signature' => 'string',		'forward_sender_name' => 'string',		'forward_date' => 'int',		'is_automatic_forward' => 'Bool',		'reply_to_message' => 'Message',		'via_bot' => 'User',		'edit_date' => 'int',		'has_protected_content' => 'Bool',		'media_group_id' => 'string',		'author_signature' => 'string',		'text' => 'string',		'entities' => 'MessageEntity[]',		'animation' => 'Animation',		'audio' => 'Audio',		'document' => 'Document',		'photo' => 'PhotoSize[]',		'sticker' => 'Sticker',		'video' => 'Video',		'video_note' => 'VideoNote',		'voice' => 'Voice',		'caption' => 'string',		'caption_entities' => 'MessageEntity[]',		'contact' => 'Contact',		'dice' => 'Dice',		'game' => 'Game',		'poll' => 'Poll',		'venue' => 'Venue',		'location' => 'Location',		'new_chat_members' => 'User[]',		'left_chat_member' => 'User',		'new_chat_title' => 'string',		'new_chat_photo' => 'PhotoSize[]',		'delete_chat_photo' => 'Bool',		'group_chat_created' => 'Bool',		'supergroup_chat_created' => 'Bool',		'channel_chat_created' => 'Bool',		'message_auto_delete_timer_changed' => 'MessageAutoDeleteTimerChanged',		'migrate_to_chat_id' => 'int',		'migrate_from_chat_id' => 'int',		'pinned_message' => 'Message',		'invoice' => 'Invoice',		'successful_payment' => 'SuccessfulPayment',		'connected_website' => 'string',		'passport_data' => 'PassportData',		'proximity_alert_triggered' => 'ProximityAlertTriggered',		'video_chat_scheduled' => 'VideoChatScheduled',		'video_chat_started' => 'VideoChatStarted',		'video_chat_ended' => 'VideoChatEnded',		'video_chat_participants_invited' => 'VideoChatParticipantsInvited',		'web_app_data' => 'WebAppData',		'reply_markup' => 'InlineKeyboardMarkup',	];
+
+	const JSON_PROPERTY_MAP = [
+		'message_id' => 'int',
+		'from' => 'User',
+		'sender_chat' => 'Chat',
+		'date' => 'int',
+		'chat' => 'Chat',
+		'forward_from' => 'User',
+		'forward_from_chat' => 'Chat',
+		'forward_from_message_id' => 'int',
+		'forward_signature' => 'string',
+		'forward_sender_name' => 'string',
+		'forward_date' => 'int',
+		'is_automatic_forward' => 'Bool',
+		'reply_to_message' => 'Message',
+		'via_bot' => 'User',
+		'edit_date' => 'int',
+		'has_protected_content' => 'Bool',
+		'media_group_id' => 'string',
+		'author_signature' => 'string',
+		'text' => 'string',
+		'entities' => 'MessageEntity[]',
+		'animation' => 'Animation',
+		'audio' => 'Audio',
+		'document' => 'Document',
+		'photo' => 'PhotoSize[]',
+		'sticker' => 'Sticker',
+		'video' => 'Video',
+		'video_note' => 'VideoNote',
+		'voice' => 'Voice',
+		'caption' => 'string',
+		'caption_entities' => 'MessageEntity[]',
+		'contact' => 'Contact',
+		'dice' => 'Dice',
+		'game' => 'Game',
+		'poll' => 'Poll',
+		'venue' => 'Venue',
+		'location' => 'Location',
+		'new_chat_members' => 'User[]',
+		'left_chat_member' => 'User',
+		'new_chat_title' => 'string',
+		'new_chat_photo' => 'PhotoSize[]',
+		'delete_chat_photo' => 'Bool',
+		'group_chat_created' => 'Bool',
+		'supergroup_chat_created' => 'Bool',
+		'channel_chat_created' => 'Bool',
+		'message_auto_delete_timer_changed' => 'MessageAutoDeleteTimerChanged',
+		'migrate_to_chat_id' => 'int',
+		'migrate_from_chat_id' => 'int',
+		'pinned_message' => 'Message',
+		'invoice' => 'Invoice',
+		'successful_payment' => 'SuccessfulPayment',
+		'connected_website' => 'string',
+		'passport_data' => 'PassportData',
+		'proximity_alert_triggered' => 'ProximityAlertTriggered',
+		'video_chat_scheduled' => 'VideoChatScheduled',
+		'video_chat_started' => 'VideoChatStarted',
+		'video_chat_ended' => 'VideoChatEnded',
+		'video_chat_participants_invited' => 'VideoChatParticipantsInvited',
+		'web_app_data' => 'WebAppData',
+		'reply_markup' => 'InlineKeyboardMarkup',
+	];
+
+    public function _init()
+    {
+        parent::_init();
+
+        $this->id = $this->_getProperty('message_id');
+    }
+
+    /**
+     * @return Promise
+     */
+    public function delete(): Promise
+    {
+        return $this->api->deleteMessage(
+            $this->chat->id,
+            $this->id,
+        );
+    }
+
+    public function edit($text): Promise
+    {
+        return $this->api->editMessageText(
+            $this->chat->id,
+            $this->id,
+            $text
+        );
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->_getProperty('message_id');
+    }
+
+    /**
+     * @return string
+     */
+    public function getText(): string
+    {
+        return strtr(strtr($this->_getProperty('text'), [
+            '۰' => '0',
+            '۱' => '1',
+            '۲' => '2',
+            '۳' => '3',
+            '۴' => '4',
+            '۵' => '5',
+            '۶' => '6',
+            '۷' => '7',
+            '۸' => '8',
+            '۹' => '9',
+        ]), [
+            '٠' => '0',
+            '١' => '1',
+            '٢' => '2',
+            '٣' => '3',
+            '٤' => '4',
+            '٥' => '5',
+            '٦' => '6',
+            '٧' => '7',
+            '٨' => '8',
+            '٩' => '9',
+        ]);
+    }
 }

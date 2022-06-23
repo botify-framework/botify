@@ -3,6 +3,7 @@
 namespace Jove\Methods\Messages;
 
 use Amp\Promise;
+use function Amp\call;
 
 trait DeleteMessage
 {
@@ -11,8 +12,15 @@ trait DeleteMessage
         int $message_id
     ): Promise
     {
-        return $this->post(__FUNCTION__, compact(
-            'chat_id', 'message_id'
-        ));
+        return call(function () use (
+            $chat_id,
+            $message_id
+        ) {
+            $response = yield $this->post('deleteMessage', compact(
+                'chat_id', 'message_id'
+            ));
+            #Todo
+            return $response['result'];
+        });
     }
 }

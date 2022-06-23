@@ -6,27 +6,24 @@ use Amp\Promise;
 use Jove\Types\Map\Message;
 use function Amp\call;
 
-trait SendMessage
+trait EditMessageText
 {
-    /**
-     * @param $chat_id
-     * @param $text
-     * @param null $parse_mode
-     * @return Promise
-     */
-    public function sendMessage(
+
+    public function editMessageText(
         $chat_id,
+        $message_id,
         $text,
-        $parse_mode = null,
+        $parse_mode = null
     ): Promise
     {
         return call(function () use (
             $chat_id,
+            $message_id,
             $text,
             $parse_mode
         ) {
-            $response = yield $this->post('sendMessage', compact(
-                'chat_id', 'text', 'parse_mode'
+            $response = yield $this->post('editMessageText', compact(
+                'chat_id', 'message_id', 'text', 'parse_mode'
             ));
 
             return new Message($response['result']);
