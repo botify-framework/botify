@@ -4,5 +4,5 @@ namespace Jove\Methods\Messages;
 
 trait Messages
 {
-    use DeleteMessage, EditMessageText, SendMessage, SendPhoto;
+    use DeleteMessage, EditMessageCaption, EditMessageText, SendMessage, SendPhoto;
 }
