@@ -8,8 +8,12 @@ use function Amp\call;
 
 abstract class EventHandler
 {
+    private TelegramAPI $api;
+
     public function boot(Update $update)
     {
+        $this->api = $update->api;
+
         call([$this, 'onAny'], $update);
 
         if ($update->isMessage() || $update->isEditedMessage()) {

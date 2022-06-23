@@ -426,8 +426,9 @@ class Message extends LazyJsonMapper
         return $this->api->sendMessage(
             $this->chat->id,
             $text,
+            'html',
             extra: [
-                'reply_to_message_id' => $this->message_id
+                'reply_to_message_id' => $this->message_id,
             ]
         );
     }
