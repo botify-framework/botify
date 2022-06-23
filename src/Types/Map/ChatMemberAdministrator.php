@@ -9,18 +9,18 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @method string getStatus()
  * @method User getUser()
- * @method Bool getCanBeEdited()
- * @method Bool getIsAnonymous()
- * @method Bool getCanManageChat()
- * @method Bool getCanDeleteMessages()
- * @method Bool getCanManageVideoChats()
- * @method Bool getCanRestrictMembers()
- * @method Bool getCanPromoteMembers()
- * @method Bool getCanChangeInfo()
- * @method Bool getCanInviteUsers()
- * @method Bool getCanPostMessages()
- * @method Bool getCanEditMessages()
- * @method Bool getCanPinMessages()
+ * @method bool getCanBeEdited()
+ * @method bool getIsAnonymous()
+ * @method bool getCanManageChat()
+ * @method bool getCanDeleteMessages()
+ * @method bool getCanManageVideoChats()
+ * @method bool getCanRestrictMembers()
+ * @method bool getCanPromoteMembers()
+ * @method bool getCanChangeInfo()
+ * @method bool getCanInviteUsers()
+ * @method bool getCanPostMessages()
+ * @method bool getCanEditMessages()
+ * @method bool getCanPinMessages()
  * @method string getCustomTitle()
  *
  * @method bool isStatus()
@@ -73,18 +73,18 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @property string $status
  * @property User $user
- * @property Bool $can_be_edited
- * @property Bool $is_anonymous
- * @property Bool $can_manage_chat
- * @property Bool $can_delete_messages
- * @property Bool $can_manage_video_chats
- * @property Bool $can_restrict_members
- * @property Bool $can_promote_members
- * @property Bool $can_change_info
- * @property Bool $can_invite_users
- * @property Bool $can_post_messages
- * @property Bool $can_edit_messages
- * @property Bool $can_pin_messages
+ * @property bool $can_be_edited
+ * @property bool $is_anonymous
+ * @property bool $can_manage_chat
+ * @property bool $can_delete_messages
+ * @property bool $can_manage_video_chats
+ * @property bool $can_restrict_members
+ * @property bool $can_promote_members
+ * @property bool $can_change_info
+ * @property bool $can_invite_users
+ * @property bool $can_post_messages
+ * @property bool $can_edit_messages
+ * @property bool $can_pin_messages
  * @property string $custom_title
  */
 class ChatMemberAdministrator extends LazyJsonMapper
@@ -93,18 +93,18 @@ class ChatMemberAdministrator extends LazyJsonMapper
     const JSON_PROPERTY_MAP = [
         'status' => 'string',
         'user' => 'User',
-        'can_be_edited' => 'Bool',
-        'is_anonymous' => 'Bool',
-        'can_manage_chat' => 'Bool',
-        'can_delete_messages' => 'Bool',
-        'can_manage_video_chats' => 'Bool',
-        'can_restrict_members' => 'Bool',
-        'can_promote_members' => 'Bool',
-        'can_change_info' => 'Bool',
-        'can_invite_users' => 'Bool',
-        'can_post_messages' => 'Bool',
-        'can_edit_messages' => 'Bool',
-        'can_pin_messages' => 'Bool',
+        'can_be_edited' => 'bool',
+        'is_anonymous' => 'bool',
+        'can_manage_chat' => 'bool',
+        'can_delete_messages' => 'bool',
+        'can_manage_video_chats' => 'bool',
+        'can_restrict_members' => 'bool',
+        'can_promote_members' => 'bool',
+        'can_change_info' => 'bool',
+        'can_invite_users' => 'bool',
+        'can_post_messages' => 'bool',
+        'can_edit_messages' => 'bool',
+        'can_pin_messages' => 'bool',
         'custom_title' => 'string',
     ];
 }

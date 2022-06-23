@@ -9,9 +9,9 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @method string getInviteLink()
  * @method User getCreator()
- * @method Bool getCreatesJoinRequest()
- * @method Bool getIsPrimary()
- * @method Bool getIsRevoked()
+ * @method bool getCreatesJoinRequest()
+ * @method bool getIsPrimary()
+ * @method bool getIsRevoked()
  * @method string getName()
  * @method Int getExpireDate()
  * @method Int getMemberLimit()
@@ -49,9 +49,9 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @property string $invite_link
  * @property User $creator
- * @property Bool $creates_join_request
- * @property Bool $is_primary
- * @property Bool $is_revoked
+ * @property bool $creates_join_request
+ * @property bool $is_primary
+ * @property bool $is_revoked
  * @property string $name
  * @property Int $expire_date
  * @property Int $member_limit
@@ -63,9 +63,9 @@ class ChatInviteLink extends LazyJsonMapper
     const JSON_PROPERTY_MAP = [
         'invite_link' => 'string',
         'creator' => 'User',
-        'creates_join_request' => 'Bool',
-        'is_primary' => 'Bool',
-        'is_revoked' => 'Bool',
+        'creates_join_request' => 'bool',
+        'is_primary' => 'bool',
+        'is_revoked' => 'bool',
         'name' => 'string',
         'expire_date' => 'int',
         'member_limit' => 'int',

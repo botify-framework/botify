@@ -9,7 +9,7 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @method string getStatus()
  * @method User getUser()
- * @method Bool getIsAnonymous()
+ * @method bool getIsAnonymous()
  * @method string getCustomTitle()
  *
  * @method bool isStatus()
@@ -29,7 +29,7 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @property string $status
  * @property User $user
- * @property Bool $is_anonymous
+ * @property bool $is_anonymous
  * @property string $custom_title
  */
 class ChatMemberOwner extends LazyJsonMapper
@@ -38,7 +38,7 @@ class ChatMemberOwner extends LazyJsonMapper
     const JSON_PROPERTY_MAP = [
         'status' => 'string',
         'user' => 'User',
-        'is_anonymous' => 'Bool',
+        'is_anonymous' => 'bool',
         'custom_title' => 'string',
     ];
 }

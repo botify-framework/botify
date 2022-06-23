@@ -20,13 +20,13 @@ use Jove\Utils\LazyJsonMapper;
  * @method Int getPhotoSize()
  * @method Int getPhotoWidth()
  * @method Int getPhotoHeight()
- * @method Bool getNeedName()
- * @method Bool getNeedPhoneNumber()
- * @method Bool getNeedEmail()
- * @method Bool getNeedShippingAddress()
- * @method Bool getSendPhoneNumberToProvider()
- * @method Bool getSendEmailToProvider()
- * @method Bool getIsFlexible()
+ * @method bool getNeedName()
+ * @method bool getNeedPhoneNumber()
+ * @method bool getNeedEmail()
+ * @method bool getNeedShippingAddress()
+ * @method bool getSendPhoneNumberToProvider()
+ * @method bool getSendEmailToProvider()
+ * @method bool getIsFlexible()
  *
  * @method bool isTitle()
  * @method bool isDescription()
@@ -104,13 +104,13 @@ use Jove\Utils\LazyJsonMapper;
  * @property Int $photo_size
  * @property Int $photo_width
  * @property Int $photo_height
- * @property Bool $need_name
- * @property Bool $need_phone_number
- * @property Bool $need_email
- * @property Bool $need_shipping_address
- * @property Bool $send_phone_number_to_provider
- * @property Bool $send_email_to_provider
- * @property Bool $is_flexible
+ * @property bool $need_name
+ * @property bool $need_phone_number
+ * @property bool $need_email
+ * @property bool $need_shipping_address
+ * @property bool $send_phone_number_to_provider
+ * @property bool $send_email_to_provider
+ * @property bool $is_flexible
  */
 class InputInvoiceMessageContent extends LazyJsonMapper
 {
@@ -129,12 +129,12 @@ class InputInvoiceMessageContent extends LazyJsonMapper
         'photo_size' => 'int',
         'photo_width' => 'int',
         'photo_height' => 'int',
-        'need_name' => 'Bool',
-        'need_phone_number' => 'Bool',
-        'need_email' => 'Bool',
-        'need_shipping_address' => 'Bool',
-        'send_phone_number_to_provider' => 'Bool',
-        'send_email_to_provider' => 'Bool',
-        'is_flexible' => 'Bool',
+        'need_name' => 'bool',
+        'need_phone_number' => 'bool',
+        'need_email' => 'bool',
+        'need_shipping_address' => 'bool',
+        'send_phone_number_to_provider' => 'bool',
+        'send_email_to_provider' => 'bool',
+        'is_flexible' => 'bool',
     ];
 }

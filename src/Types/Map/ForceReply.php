@@ -7,9 +7,9 @@ use Jove\Utils\LazyJsonMapper;
 /**
  * ForceReply
  *
- * @method Bool getForceReply()
+ * @method bool getForceReply()
  * @method string getInputFieldPlaceholder()
- * @method Bool getSelective()
+ * @method bool getSelective()
  *
  * @method bool isForceReply()
  * @method bool isInputFieldPlaceholder()
@@ -23,16 +23,16 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetInputFieldPlaceholder()
  * @method $this unsetSelective()
  *
- * @property Bool $force_reply
+ * @property bool $force_reply
  * @property string $input_field_placeholder
- * @property Bool $selective
+ * @property bool $selective
  */
 class ForceReply extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
-        'force_reply' => 'Bool',
+        'force_reply' => 'bool',
         'input_field_placeholder' => 'string',
-        'selective' => 'Bool',
+        'selective' => 'bool',
     ];
 }

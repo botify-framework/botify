@@ -8,7 +8,7 @@ use Jove\Utils\LazyJsonMapper;
  * WebhookInfo
  *
  * @method string getUrl()
- * @method Bool getHasCustomCertificate()
+ * @method bool getHasCustomCertificate()
  * @method Int getPendingUpdateCount()
  * @method string getIpAddress()
  * @method Int getLastErrorDate()
@@ -48,7 +48,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetAllowedUpdates()
  *
  * @property string $url
- * @property Bool $has_custom_certificate
+ * @property bool $has_custom_certificate
  * @property Int $pending_update_count
  * @property string $ip_address
  * @property Int $last_error_date
@@ -62,7 +62,7 @@ class WebhookInfo extends LazyJsonMapper
 
     const JSON_PROPERTY_MAP = [
         'url' => 'string',
-        'has_custom_certificate' => 'Bool',
+        'has_custom_certificate' => 'bool',
         'pending_update_count' => 'int',
         'ip_address' => 'string',
         'last_error_date' => 'int',

@@ -15,7 +15,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getSwitchInlineQuery()
  * @method string getSwitchInlineQueryCurrentChat()
  * @method CallbackGame getCallbackGame()
- * @method Bool getPay()
+ * @method bool getPay()
  *
  * @method bool isText()
  * @method bool isUrl()
@@ -55,7 +55,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $switch_inline_query
  * @property string $switch_inline_query_current_chat
  * @property CallbackGame $callback_game
- * @property Bool $pay
+ * @property bool $pay
  */
 class InlineKeyboardButton extends LazyJsonMapper
 {
@@ -69,6 +69,6 @@ class InlineKeyboardButton extends LazyJsonMapper
         'switch_inline_query' => 'string',
         'switch_inline_query_current_chat' => 'string',
         'callback_game' => 'CallbackGame',
-        'pay' => 'Bool',
+        'pay' => 'bool',
     ];
 }

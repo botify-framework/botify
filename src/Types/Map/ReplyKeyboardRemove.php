@@ -7,8 +7,8 @@ use Jove\Utils\LazyJsonMapper;
 /**
  * ReplyKeyboardRemove
  *
- * @method Bool getRemoveKeyboard()
- * @method Bool getSelective()
+ * @method bool getRemoveKeyboard()
+ * @method bool getSelective()
  *
  * @method bool isRemoveKeyboard()
  * @method bool isSelective()
@@ -19,14 +19,14 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetRemoveKeyboard()
  * @method $this unsetSelective()
  *
- * @property Bool $remove_keyboard
- * @property Bool $selective
+ * @property bool $remove_keyboard
+ * @property bool $selective
  */
 class ReplyKeyboardRemove extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
-        'remove_keyboard' => 'Bool',
-        'selective' => 'Bool',
+        'remove_keyboard' => 'bool',
+        'selective' => 'bool',
     ];
 }

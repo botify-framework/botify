@@ -10,7 +10,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getUrl()
  * @method string getForwardText()
  * @method string getBotUsername()
- * @method Bool getRequestWriteAccess()
+ * @method bool getRequestWriteAccess()
  *
  * @method bool isUrl()
  * @method bool isForwardText()
@@ -30,7 +30,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $url
  * @property string $forward_text
  * @property string $bot_username
- * @property Bool $request_write_access
+ * @property bool $request_write_access
  */
 class LoginUrl extends LazyJsonMapper
 {
@@ -39,6 +39,6 @@ class LoginUrl extends LazyJsonMapper
         'url' => 'string',
         'forward_text' => 'string',
         'bot_username' => 'string',
-        'request_write_access' => 'Bool',
+        'request_write_access' => 'bool',
     ];
 }

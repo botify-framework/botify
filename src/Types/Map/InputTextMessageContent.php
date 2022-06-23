@@ -10,7 +10,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getMessageText()
  * @method ParseMode getParseMode()
  * @method MessageEntity[] getEntities()
- * @method Bool getDisableWebPagePreview()
+ * @method bool getDisableWebPagePreview()
  *
  * @method bool isMessageText()
  * @method bool isParseMode()
@@ -30,7 +30,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $message_text
  * @property ParseMode $parse_mode
  * @property MessageEntity[] $entities
- * @property Bool $disable_web_page_preview
+ * @property bool $disable_web_page_preview
  */
 class InputTextMessageContent extends LazyJsonMapper
 {
@@ -39,6 +39,6 @@ class InputTextMessageContent extends LazyJsonMapper
         'message_text' => 'string',
         'parse_mode' => 'ParseMode',
         'entities' => 'MessageEntity[]',
-        'disable_web_page_preview' => 'Bool',
+        'disable_web_page_preview' => 'bool',
     ];
 }

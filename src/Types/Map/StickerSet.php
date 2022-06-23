@@ -9,9 +9,9 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @method string getName()
  * @method string getTitle()
- * @method Bool getIsAnimated()
- * @method Bool getIsVideo()
- * @method Bool getContainsMasks()
+ * @method bool getIsAnimated()
+ * @method bool getIsVideo()
+ * @method bool getContainsMasks()
  * @method Sticker[] getStickers()
  * @method PhotoSize getThumb()
  *
@@ -41,9 +41,9 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @property string $name
  * @property string $title
- * @property Bool $is_animated
- * @property Bool $is_video
- * @property Bool $contains_masks
+ * @property bool $is_animated
+ * @property bool $is_video
+ * @property bool $contains_masks
  * @property Sticker[] $stickers
  * @property PhotoSize $thumb
  */
@@ -53,9 +53,9 @@ class StickerSet extends LazyJsonMapper
     const JSON_PROPERTY_MAP = [
         'name' => 'string',
         'title' => 'string',
-        'is_animated' => 'Bool',
-        'is_video' => 'Bool',
-        'contains_masks' => 'Bool',
+        'is_animated' => 'bool',
+        'is_video' => 'bool',
+        'contains_masks' => 'bool',
         'stickers' => 'Sticker[]',
         'thumb' => 'PhotoSize',
     ];

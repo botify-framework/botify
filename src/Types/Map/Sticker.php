@@ -11,8 +11,8 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getFileUniqueId()
  * @method Int getWidth()
  * @method Int getHeight()
- * @method Bool getIsAnimated()
- * @method Bool getIsVideo()
+ * @method bool getIsAnimated()
+ * @method bool getIsVideo()
  * @method PhotoSize getThumb()
  * @method string getEmoji()
  * @method string getSetName()
@@ -59,8 +59,8 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $file_unique_id
  * @property Int $width
  * @property Int $height
- * @property Bool $is_animated
- * @property Bool $is_video
+ * @property bool $is_animated
+ * @property bool $is_video
  * @property PhotoSize $thumb
  * @property string $emoji
  * @property string $set_name
@@ -75,8 +75,8 @@ class Sticker extends LazyJsonMapper
         'file_unique_id' => 'string',
         'width' => 'int',
         'height' => 'int',
-        'is_animated' => 'Bool',
-        'is_video' => 'Bool',
+        'is_animated' => 'bool',
+        'is_video' => 'bool',
         'thumb' => 'PhotoSize',
         'emoji' => 'string',
         'set_name' => 'string',

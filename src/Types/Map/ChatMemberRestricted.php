@@ -9,15 +9,15 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @method string getStatus()
  * @method User getUser()
- * @method Bool getIsMember()
- * @method Bool getCanChangeInfo()
- * @method Bool getCanInviteUsers()
- * @method Bool getCanPinMessages()
- * @method Bool getCanSendMessages()
- * @method Bool getCanSendMediaMessages()
- * @method Bool getCanSendPolls()
- * @method Bool getCanSendOtherMessages()
- * @method Bool getCanAddWebPagePreviews()
+ * @method bool getIsMember()
+ * @method bool getCanChangeInfo()
+ * @method bool getCanInviteUsers()
+ * @method bool getCanPinMessages()
+ * @method bool getCanSendMessages()
+ * @method bool getCanSendMediaMessages()
+ * @method bool getCanSendPolls()
+ * @method bool getCanSendOtherMessages()
+ * @method bool getCanAddWebPagePreviews()
  * @method Int getUntilDate()
  *
  * @method bool isStatus()
@@ -61,15 +61,15 @@ use Jove\Utils\LazyJsonMapper;
  *
  * @property string $status
  * @property User $user
- * @property Bool $is_member
- * @property Bool $can_change_info
- * @property Bool $can_invite_users
- * @property Bool $can_pin_messages
- * @property Bool $can_send_messages
- * @property Bool $can_send_media_messages
- * @property Bool $can_send_polls
- * @property Bool $can_send_other_messages
- * @property Bool $can_add_web_page_previews
+ * @property bool $is_member
+ * @property bool $can_change_info
+ * @property bool $can_invite_users
+ * @property bool $can_pin_messages
+ * @property bool $can_send_messages
+ * @property bool $can_send_media_messages
+ * @property bool $can_send_polls
+ * @property bool $can_send_other_messages
+ * @property bool $can_add_web_page_previews
  * @property Int $until_date
  */
 class ChatMemberRestricted extends LazyJsonMapper
@@ -78,15 +78,15 @@ class ChatMemberRestricted extends LazyJsonMapper
     const JSON_PROPERTY_MAP = [
         'status' => 'string',
         'user' => 'User',
-        'is_member' => 'Bool',
-        'can_change_info' => 'Bool',
-        'can_invite_users' => 'Bool',
-        'can_pin_messages' => 'Bool',
-        'can_send_messages' => 'Bool',
-        'can_send_media_messages' => 'Bool',
-        'can_send_polls' => 'Bool',
-        'can_send_other_messages' => 'Bool',
-        'can_add_web_page_previews' => 'Bool',
+        'is_member' => 'bool',
+        'can_change_info' => 'bool',
+        'can_invite_users' => 'bool',
+        'can_pin_messages' => 'bool',
+        'can_send_messages' => 'bool',
+        'can_send_media_messages' => 'bool',
+        'can_send_polls' => 'bool',
+        'can_send_other_messages' => 'bool',
+        'can_add_web_page_previews' => 'bool',
         'until_date' => 'int',
     ];
 }

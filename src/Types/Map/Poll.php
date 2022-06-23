@@ -11,10 +11,10 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getQuestion()
  * @method PollOption[] getOptions()
  * @method Int getTotalVoterCount()
- * @method Bool getIsClosed()
- * @method Bool getIsAnonymous()
+ * @method bool getIsClosed()
+ * @method bool getIsAnonymous()
  * @method string getType()
- * @method Bool getAllowsMultipleAnswers()
+ * @method bool getAllowsMultipleAnswers()
  * @method Int getCorrectOptionId()
  * @method string getExplanation()
  * @method MessageEntity[] getExplanationEntities()
@@ -67,10 +67,10 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $question
  * @property PollOption[] $options
  * @property Int $total_voter_count
- * @property Bool $is_closed
- * @property Bool $is_anonymous
+ * @property bool $is_closed
+ * @property bool $is_anonymous
  * @property string $type
- * @property Bool $allows_multiple_answers
+ * @property bool $allows_multiple_answers
  * @property Int $correct_option_id
  * @property string $explanation
  * @property MessageEntity[] $explanation_entities
@@ -85,10 +85,10 @@ class Poll extends LazyJsonMapper
         'question' => 'string',
         'options' => 'PollOption[]',
         'total_voter_count' => 'int',
-        'is_closed' => 'Bool',
-        'is_anonymous' => 'Bool',
+        'is_closed' => 'bool',
+        'is_anonymous' => 'bool',
         'type' => 'string',
-        'allows_multiple_answers' => 'Bool',
+        'allows_multiple_answers' => 'bool',
         'correct_option_id' => 'int',
         'explanation' => 'string',
         'explanation_entities' => 'MessageEntity[]',

@@ -13,7 +13,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getCaption()
  * @method ParseMode getParseMode()
  * @method MessageEntity[] getCaptionEntities()
- * @method Bool getDisableContentTypeDetection()
+ * @method bool getDisableContentTypeDetection()
  *
  * @method bool isType()
  * @method bool isMedia()
@@ -45,7 +45,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $caption
  * @property ParseMode $parse_mode
  * @property MessageEntity[] $caption_entities
- * @property Bool $disable_content_type_detection
+ * @property bool $disable_content_type_detection
  */
 class InputMediaDocument extends LazyJsonMapper
 {
@@ -57,6 +57,6 @@ class InputMediaDocument extends LazyJsonMapper
         'caption' => 'string',
         'parse_mode' => 'ParseMode',
         'caption_entities' => 'MessageEntity[]',
-        'disable_content_type_detection' => 'Bool',
+        'disable_content_type_detection' => 'bool',
     ];
 }

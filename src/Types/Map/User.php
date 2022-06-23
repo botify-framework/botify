@@ -8,14 +8,14 @@ use Jove\Utils\LazyJsonMapper;
  * User
  *
  * @method Int getId()
- * @method Bool getIsBot()
+ * @method bool getIsBot()
  * @method string getFirstName()
  * @method string getLastName()
  * @method string getUsername()
  * @method string getLanguageCode()
- * @method Bool getCanJoinGroups()
- * @method Bool getCanReadAllGroupMessages()
- * @method Bool getSupportsInlineQueries()
+ * @method bool getCanJoinGroups()
+ * @method bool getCanReadAllGroupMessages()
+ * @method bool getSupportsInlineQueries()
  *
  * @method bool isId()
  * @method bool isIsBot()
@@ -48,27 +48,27 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetSupportsInlineQueries()
  *
  * @property Int $id
- * @property Bool $is_bot
+ * @property bool $is_bot
  * @property string $first_name
  * @property string $last_name
  * @property string $username
  * @property string $language_code
- * @property Bool $can_join_groups
- * @property Bool $can_read_all_group_messages
- * @property Bool $supports_inline_queries
+ * @property bool $can_join_groups
+ * @property bool $can_read_all_group_messages
+ * @property bool $supports_inline_queries
  */
 class User extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
-        'is_bot' => 'Bool',
+        'is_bot' => 'bool',
         'first_name' => 'string',
         'last_name' => 'string',
         'username' => 'string',
         'language_code' => 'string',
-        'can_join_groups' => 'Bool',
-        'can_read_all_group_messages' => 'Bool',
-        'supports_inline_queries' => 'Bool',
+        'can_join_groups' => 'bool',
+        'can_read_all_group_messages' => 'bool',
+        'supports_inline_queries' => 'bool',
     ];
 }

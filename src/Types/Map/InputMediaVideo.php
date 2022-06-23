@@ -16,7 +16,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method Int getWidth()
  * @method Int getHeight()
  * @method Int getDuration()
- * @method Bool getSupportsStreaming()
+ * @method bool getSupportsStreaming()
  *
  * @method bool isType()
  * @method bool isMedia()
@@ -60,7 +60,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property Int $width
  * @property Int $height
  * @property Int $duration
- * @property Bool $supports_streaming
+ * @property bool $supports_streaming
  */
 class InputMediaVideo extends LazyJsonMapper
 {
@@ -75,6 +75,6 @@ class InputMediaVideo extends LazyJsonMapper
         'width' => 'int',
         'height' => 'int',
         'duration' => 'int',
-        'supports_streaming' => 'Bool',
+        'supports_streaming' => 'bool',
     ];
 }

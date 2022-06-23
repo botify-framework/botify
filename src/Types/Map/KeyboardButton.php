@@ -8,8 +8,8 @@ use Jove\Utils\LazyJsonMapper;
  * KeyboardButton
  *
  * @method string getText()
- * @method Bool getRequestContact()
- * @method Bool getRequestLocation()
+ * @method bool getRequestContact()
+ * @method bool getRequestLocation()
  * @method KeyboardButtonPollType getRequestPoll()
  * @method WebAppInfo getWebApp()
  *
@@ -32,8 +32,8 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetWebApp()
  *
  * @property string $text
- * @property Bool $request_contact
- * @property Bool $request_location
+ * @property bool $request_contact
+ * @property bool $request_location
  * @property KeyboardButtonPollType $request_poll
  * @property WebAppInfo $web_app
  */
@@ -42,8 +42,8 @@ class KeyboardButton extends LazyJsonMapper
 
     const JSON_PROPERTY_MAP = [
         'text' => 'string',
-        'request_contact' => 'Bool',
-        'request_location' => 'Bool',
+        'request_contact' => 'bool',
+        'request_location' => 'bool',
         'request_poll' => 'KeyboardButtonPollType',
         'web_app' => 'WebAppInfo',
     ];

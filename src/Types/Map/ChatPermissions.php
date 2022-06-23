@@ -7,14 +7,14 @@ use Jove\Utils\LazyJsonMapper;
 /**
  * ChatPermissions
  *
- * @method Bool getCanSendMessages()
- * @method Bool getCanSendMediaMessages()
- * @method Bool getCanSendPolls()
- * @method Bool getCanSendOtherMessages()
- * @method Bool getCanAddWebPagePreviews()
- * @method Bool getCanChangeInfo()
- * @method Bool getCanInviteUsers()
- * @method Bool getCanPinMessages()
+ * @method bool getCanSendMessages()
+ * @method bool getCanSendMediaMessages()
+ * @method bool getCanSendPolls()
+ * @method bool getCanSendOtherMessages()
+ * @method bool getCanAddWebPagePreviews()
+ * @method bool getCanChangeInfo()
+ * @method bool getCanInviteUsers()
+ * @method bool getCanPinMessages()
  *
  * @method bool isCanSendMessages()
  * @method bool isCanSendMediaMessages()
@@ -43,26 +43,26 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetCanInviteUsers()
  * @method $this unsetCanPinMessages()
  *
- * @property Bool $can_send_messages
- * @property Bool $can_send_media_messages
- * @property Bool $can_send_polls
- * @property Bool $can_send_other_messages
- * @property Bool $can_add_web_page_previews
- * @property Bool $can_change_info
- * @property Bool $can_invite_users
- * @property Bool $can_pin_messages
+ * @property bool $can_send_messages
+ * @property bool $can_send_media_messages
+ * @property bool $can_send_polls
+ * @property bool $can_send_other_messages
+ * @property bool $can_add_web_page_previews
+ * @property bool $can_change_info
+ * @property bool $can_invite_users
+ * @property bool $can_pin_messages
  */
 class ChatPermissions extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
-        'can_send_messages' => 'Bool',
-        'can_send_media_messages' => 'Bool',
-        'can_send_polls' => 'Bool',
-        'can_send_other_messages' => 'Bool',
-        'can_add_web_page_previews' => 'Bool',
-        'can_change_info' => 'Bool',
-        'can_invite_users' => 'Bool',
-        'can_pin_messages' => 'Bool',
+        'can_send_messages' => 'bool',
+        'can_send_media_messages' => 'bool',
+        'can_send_polls' => 'bool',
+        'can_send_other_messages' => 'bool',
+        'can_add_web_page_previews' => 'bool',
+        'can_change_info' => 'bool',
+        'can_invite_users' => 'bool',
+        'can_pin_messages' => 'bool',
     ];
 }

@@ -15,16 +15,16 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getLastName()
  * @method ChatPhoto getPhoto()
  * @method string getBio()
- * @method Bool getHasPrivateForwards()
+ * @method bool getHasPrivateForwards()
  * @method string getDescription()
  * @method string getInviteLink()
  * @method Message getPinnedMessage()
  * @method ChatPermissions getPermissions()
  * @method Int getSlowModeDelay()
  * @method Int getMessageAutoDeleteTime()
- * @method Bool getHasProtectedContent()
+ * @method bool getHasProtectedContent()
  * @method string getStickerSetName()
- * @method Bool getCanSetStickerSet()
+ * @method bool getCanSetStickerSet()
  * @method Int getLinkedChatId()
  * @method ChatLocation getLocation()
  *
@@ -99,16 +99,16 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $last_name
  * @property ChatPhoto $photo
  * @property string $bio
- * @property Bool $has_private_forwards
+ * @property bool $has_private_forwards
  * @property string $description
  * @property string $invite_link
  * @property Message $pinned_message
  * @property ChatPermissions $permissions
  * @property Int $slow_mode_delay
  * @property Int $message_auto_delete_time
- * @property Bool $has_protected_content
+ * @property bool $has_protected_content
  * @property string $sticker_set_name
- * @property Bool $can_set_sticker_set
+ * @property bool $can_set_sticker_set
  * @property Int $linked_chat_id
  * @property ChatLocation $location
  */
@@ -124,16 +124,16 @@ class Chat extends LazyJsonMapper
         'last_name' => 'string',
         'photo' => 'ChatPhoto',
         'bio' => 'string',
-        'has_private_forwards' => 'Bool',
+        'has_private_forwards' => 'bool',
         'description' => 'string',
         'invite_link' => 'string',
         'pinned_message' => 'Message',
         'permissions' => 'ChatPermissions',
         'slow_mode_delay' => 'int',
         'message_auto_delete_time' => 'int',
-        'has_protected_content' => 'Bool',
+        'has_protected_content' => 'bool',
         'sticker_set_name' => 'string',
-        'can_set_sticker_set' => 'Bool',
+        'can_set_sticker_set' => 'bool',
         'linked_chat_id' => 'int',
         'location' => 'ChatLocation',
     ];

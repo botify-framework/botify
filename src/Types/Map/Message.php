@@ -19,11 +19,11 @@ use Jove\Utils\LazyJsonMapper;
  * @method string getForwardSignature()
  * @method string getForwardSenderName()
  * @method Int getForwardDate()
- * @method Bool getIsAutomaticForward()
+ * @method bool getIsAutomaticForward()
  * @method Message getReplyToMessage()
  * @method User getViaBot()
  * @method Int getEditDate()
- * @method Bool getHasProtectedContent()
+ * @method bool getHasProtectedContent()
  * @method string getMediaGroupId()
  * @method string getAuthorSignature()
  * @method MessageEntity[] getEntities()
@@ -47,10 +47,10 @@ use Jove\Utils\LazyJsonMapper;
  * @method User getLeftChatMember()
  * @method string getNewChatTitle()
  * @method PhotoSize[] getNewChatPhoto()
- * @method Bool getDeleteChatPhoto()
- * @method Bool getGroupChatCreated()
- * @method Bool getSupergroupChatCreated()
- * @method Bool getChannelChatCreated()
+ * @method bool getDeleteChatPhoto()
+ * @method bool getGroupChatCreated()
+ * @method bool getSupergroupChatCreated()
+ * @method bool getChannelChatCreated()
  * @method MessageAutoDeleteTimerChanged getMessageAutoDeleteTimerChanged()
  * @method Int getMigrateToChatId()
  * @method Int getMigrateFromChatId()
@@ -258,11 +258,11 @@ use Jove\Utils\LazyJsonMapper;
  * @property string $forward_signature
  * @property string $forward_sender_name
  * @property Int $forward_date
- * @property Bool $is_automatic_forward
+ * @property bool $is_automatic_forward
  * @property Message $reply_to_message
  * @property User $via_bot
  * @property Int $edit_date
- * @property Bool $has_protected_content
+ * @property bool $has_protected_content
  * @property string $media_group_id
  * @property string $author_signature
  * @property string $text
@@ -287,10 +287,10 @@ use Jove\Utils\LazyJsonMapper;
  * @property User $left_chat_member
  * @property string $new_chat_title
  * @property PhotoSize[] $new_chat_photo
- * @property Bool $delete_chat_photo
- * @property Bool $group_chat_created
- * @property Bool $supergroup_chat_created
- * @property Bool $channel_chat_created
+ * @property bool $delete_chat_photo
+ * @property bool $group_chat_created
+ * @property bool $supergroup_chat_created
+ * @property bool $channel_chat_created
  * @property MessageAutoDeleteTimerChanged $message_auto_delete_timer_changed
  * @property Int $migrate_to_chat_id
  * @property Int $migrate_from_chat_id
@@ -322,11 +322,11 @@ class Message extends LazyJsonMapper
         'forward_signature' => 'string',
         'forward_sender_name' => 'string',
         'forward_date' => 'int',
-        'is_automatic_forward' => 'Bool',
+        'is_automatic_forward' => 'bool',
         'reply_to_message' => 'Message',
         'via_bot' => 'User',
         'edit_date' => 'int',
-        'has_protected_content' => 'Bool',
+        'has_protected_content' => 'bool',
         'media_group_id' => 'string',
         'author_signature' => 'string',
         'text' => 'string',
@@ -351,10 +351,10 @@ class Message extends LazyJsonMapper
         'left_chat_member' => 'User',
         'new_chat_title' => 'string',
         'new_chat_photo' => 'PhotoSize[]',
-        'delete_chat_photo' => 'Bool',
-        'group_chat_created' => 'Bool',
-        'supergroup_chat_created' => 'Bool',
-        'channel_chat_created' => 'Bool',
+        'delete_chat_photo' => 'bool',
+        'group_chat_created' => 'bool',
+        'supergroup_chat_created' => 'bool',
+        'channel_chat_created' => 'bool',
         'message_auto_delete_timer_changed' => 'MessageAutoDeleteTimerChanged',
         'migrate_to_chat_id' => 'int',
         'migrate_from_chat_id' => 'int',

@@ -8,10 +8,10 @@ use Jove\Utils\LazyJsonMapper;
  * ReplyKeyboardMarkup
  *
  * @method KeyboardButton[] getKeyboard()
- * @method Bool getResizeKeyboard()
- * @method Bool getOneTimeKeyboard()
+ * @method bool getResizeKeyboard()
+ * @method bool getOneTimeKeyboard()
  * @method string getInputFieldPlaceholder()
- * @method Bool getSelective()
+ * @method bool getSelective()
  *
  * @method bool isKeyboard()
  * @method bool isResizeKeyboard()
@@ -32,19 +32,19 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetSelective()
  *
  * @property KeyboardButton[] $keyboard
- * @property Bool $resize_keyboard
- * @property Bool $one_time_keyboard
+ * @property bool $resize_keyboard
+ * @property bool $one_time_keyboard
  * @property string $input_field_placeholder
- * @property Bool $selective
+ * @property bool $selective
  */
 class ReplyKeyboardMarkup extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
         'keyboard' => 'KeyboardButton[]',
-        'resize_keyboard' => 'Bool',
-        'one_time_keyboard' => 'Bool',
+        'resize_keyboard' => 'bool',
+        'one_time_keyboard' => 'bool',
         'input_field_placeholder' => 'string',
-        'selective' => 'Bool',
+        'selective' => 'bool',
     ];
 }

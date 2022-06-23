@@ -13,7 +13,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method InputMessageContent getInputMessageContent()
  * @method InlineKeyboardMarkup getReplyMarkup()
  * @method string getUrl()
- * @method Bool getHideUrl()
+ * @method bool getHideUrl()
  * @method string getDescription()
  * @method string getThumbUrl()
  * @method Int getThumbWidth()
@@ -61,7 +61,7 @@ use Jove\Utils\LazyJsonMapper;
  * @property InputMessageContent $input_message_content
  * @property InlineKeyboardMarkup $reply_markup
  * @property string $url
- * @property Bool $hide_url
+ * @property bool $hide_url
  * @property string $description
  * @property string $thumb_url
  * @property Int $thumb_width
@@ -77,7 +77,7 @@ class InlineQueryResultArticle extends LazyJsonMapper
         'input_message_content' => 'InputMessageContent',
         'reply_markup' => 'InlineKeyboardMarkup',
         'url' => 'string',
-        'hide_url' => 'Bool',
+        'hide_url' => 'bool',
         'description' => 'string',
         'thumb_url' => 'string',
         'thumb_width' => 'int',
