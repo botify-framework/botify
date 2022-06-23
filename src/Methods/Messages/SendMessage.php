@@ -19,16 +19,18 @@ trait SendMessage
         $chat_id,
         $text,
         $parse_mode = null,
+        array $extra = []
     ): Promise
     {
         return call(function () use (
             $chat_id,
             $text,
-            $parse_mode
+            $parse_mode,
+            $extra
         ) {
-            $response = yield $this->post('sendMessage', compact(
+            $response = yield $this->post('sendMessage', array_merge($extra, compact(
                 'chat_id', 'text', 'parse_mode'
-            ));
+            )));
 
             return isset($response['result'])
                 ? new Message($response['result'])
