@@ -4,18 +4,14 @@ namespace Jove\Utils;
 
 use Jove\TelegramAPI;
 
-/**
- * LazyJsonMapper
- *
- * @property TelegramAPI $api
- */
 class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
 {
-    /**
-     * @return TelegramAPI
-     */
-    public function getAPI(): TelegramAPI
+    public TelegramAPI $api;
+
+    public function _init()
     {
-        return new TelegramAPI();
+        parent::_init();
+
+        $this->api = new TelegramAPI();
     }
 }
