@@ -29,11 +29,11 @@ Amp\Loop::run(function () {
                 $result = null;
                 $runnable = <<<CODE
 \$__temp_vars = get_defined_vars();
-return (function () use (\$__temp_vars) {
+return \Amp\call(function () use (\$__temp_vars) {
     extract(\$__temp_vars);
     unset(\$__temp_vars);
     $match[2]
-})();
+});
 CODE;
                 set_error_handler(function ($errno, $message) use (&$errors) {
                     $errors[] = $message;
@@ -41,7 +41,7 @@ CODE;
                 ob_start();
 
                 try {
-                    eval($runnable);
+                    yield eval($runnable);
                     $buffers[] = ob_get_contents();
                 } catch (\Throwable $e) {
                     $errors[] = $e->getMessage() . "\n" .
