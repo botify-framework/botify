@@ -4,30 +4,21 @@ require_once __DIR__ .'/bootstrap/app.php';
 
 
 use Amp\Delayed;
+use Jove\EventHandler;
 use Jove\TelegramAPI;
 use Jove\Types\Update;
-use function Amp\call;
 
 Amp\Loop::run(function () {
     $bot = new TelegramAPI();
-    $offset = -1;
-
-    while (true) {
-        $updates = yield $bot->getUpdates($offset, 1);
-        foreach ($updates as $update) {
-            $offset = $update->update_id + 1;
-
-            call(function (Update $update) {
-                if ($message = $update->message) {
-                    call(function () use ($message) {
-                        $replied = yield $message->reply('Hi');
-                        yield new Delayed(5000);
-                        yield $replied->edit('Edited after 5 seconds');
-                    });
-                }
-            }, $update);
+    $bot->setEventHandler(new class extends EventHandler {
+        public function onMessage(Update $update): Generator
+        {
+            $replied = yield $update->message->reply('Hi');
+            yield new Delayed(3000);
+            yield $replied->edit('sss');
         }
-    }
+    });
+    $bot->loop();
 
 //    $servers = [
 //        Socket\Server::listen("0.0.0.0:1337"),

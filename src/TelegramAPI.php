@@ -5,6 +5,7 @@ namespace Jove;
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
+use Amp\Loop;
 use Amp\Promise;
 use Jove\Methods\Methods;
 use function Amp\call;
@@ -14,6 +15,42 @@ class TelegramAPI
     use Methods;
 
     private static $client;
+    private EventHandler $eventHandler;
+
+    /**
+     * @param $eventHandler
+     * @return EventHandler
+     * @throws \Exception
+     */
+    public function setEventHandler($eventHandler): EventHandler
+    {
+        if ($eventHandler instanceof EventHandler) {
+            return $this->eventHandler = $eventHandler;
+        }
+
+        throw new \Exception(sprintf(
+            'The eventHandler must be instance of %s', EventHandler::class,
+        ));
+
+    }
+
+    public function loop()
+    {
+        Loop::run(function () {
+            $offset = -1;
+
+            while (true) {
+                $updates = yield $this->getUpdates($offset, 1);
+
+                if (is_array($updates)) {
+                    foreach ($updates as $update) {
+                        $offset = $update->update_id + 1;
+                        call(fn() => $this->eventHandler->boot($update));
+                    }
+                }
+            }
+        });
+    }
 
     /**
      * @param $uri
