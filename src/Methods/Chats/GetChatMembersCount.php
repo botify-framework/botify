@@ -3,6 +3,7 @@
 namespace Jove\Methods\Chats;
 
 use Amp\Promise;
+use Jove\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetChatMembersCount
@@ -19,7 +20,7 @@ trait GetChatMembersCount
                 'chat_id'
             ));
 
-            return $response['result'] ?? false;
+            return $response['result'] ?? new FallbackResponse($response);
         });
     }
 }
