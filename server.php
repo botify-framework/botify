@@ -40,9 +40,11 @@ Amp\Loop::run(function () {
         $fn = fn($id) => call(function () use ($api, $id) {
             $message = yield $api->sendPhoto(-1001187469156, __DIR__ . '/storage/images/cat2.png');
             if ($message->isOk()) {
+                $message = yield $message->edit('Message caption was edited');
                 yield new Delayed(1000);
-                $edited = yield $message->reply('Hi');
-                dump(yield $message->edit('Message caption was edited'));
+                yield $message->edit('Deleting ...');
+                yield new Delayed(1000);
+                return $message->delete();
 //                if ($edited->isOk()) {
 //                    yield new Delayed(1000);
 //                    return $edited->delete();
