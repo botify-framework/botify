@@ -6,5 +6,7 @@ use Jove\Utils\LazyJsonMapper;
 
 class VideoChatStarted extends LazyJsonMapper
 {
-    const JSON_PROPERTY_MAP = [];
+    const JSON_PROPERTY_MAP = [
+
+    ];
 }
