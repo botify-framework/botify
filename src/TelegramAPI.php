@@ -30,10 +30,6 @@ class TelegramAPI
             return json_decode(
                 yield $promise->getBody()->buffer(), true
             );
-//            if ($response['ok'] === false)
-//                throw new ResponseException($response);
-//
-//            return $response;
         });
     }
 
@@ -44,13 +40,9 @@ class TelegramAPI
      */
     private function generateRequest($uri, array $data = []): Request
     {
-        $request = new Request(
-            $this->generateUri($uri), 'POST'
-        );
-        $request->setBody(
+        return \tap(new Request($this->generateUri($uri), 'POST'), fn($request) => $request->setBody(
             $this->generateBody($data)
-        );
-        return $request;
+        ));
     }
 
     /**
@@ -60,10 +52,10 @@ class TelegramAPI
     private function generateBody(array $fields): FormBody
     {
         $body = new FormBody();
-        $fields = array_filter($fields);
+        $fields = \array_filter($fields);
 
         foreach ($fields as $fieldName => $content)
-            if (is_string($content) && file_exists($content) && filesize($content) > 0)
+            if (\is_string($content) && \file_exists($content) && \filesize($content) > 0)
                 $body->addFile($fieldName, $content);
             else
                 $body->addField($fieldName, $content);
@@ -78,13 +70,13 @@ class TelegramAPI
      */
     private function generateUri($uri, array $queries = []): string
     {
-        $url = sprintf('https://api.telegram.org/bot%s/', getenv('BOT_TOKEN'));
+        $url = \sprintf('https://api.telegram.org/bot%s/', \getenv('BOT_TOKEN'));
 
         if (! empty($uri))
-            $url .= ltrim($uri, '/');
+            $url .= \ltrim($uri, '/');
 
         if (! empty($queries))
-            $url .= '?'. http_build_query($queries);
+            $url .= '?' . \http_build_query($queries);
 
         return $url;
     }

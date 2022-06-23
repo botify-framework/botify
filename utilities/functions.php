@@ -11,7 +11,7 @@ if (!function_exists('retry')) {
     function retry($times, callable $callback, int $sleep = 0): mixed
     {
         static $attempts = 0;
-        begining:
+        beginning:
         $attempts++;
         $times--;
         try {
@@ -19,7 +19,21 @@ if (!function_exists('retry')) {
         } catch (Exception $e) {
             if ($times < 1) throw $e;
             $sleep && sleep($sleep);
-            goto begining;
+            goto beginning;
         }
+    }
+}
+
+if (!function_exists('tap')) {
+    /**
+     * @param $value
+     * @param $callback
+     * @return mixed
+     */
+    function tap($value, $callback): mixed
+    {
+        $callback($value);
+
+        return $value;
     }
 }
