@@ -50,7 +50,7 @@ if (!function_exists('asleep')) {
     function asleep($time, $value = null): Promise
     {
         return \Amp\call(function () use ($time, $value) {
-            new Delayed($time, $value);
+            return new Delayed($time, $value);
         });
     }
 }
