@@ -23,7 +23,12 @@ trait SendPhoto
         string $parse_mode = null
     ): Promise
     {
-        return call(function () use ($chat_id, $photo, $caption, $parse_mode) {
+        return call(function () use (
+            $chat_id,
+            $photo,
+            $caption,
+            $parse_mode
+        ) {
             $response = yield $this->post('sendPhoto', compact(
                 'chat_id', 'photo', 'caption', 'parse_mode'
             ));

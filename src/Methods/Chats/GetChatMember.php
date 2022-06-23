@@ -16,8 +16,11 @@ trait GetChatMember
      */
     public function getChatMember($chat_id, $user_id): Promise
     {
-        return call(function () use ($chat_id, $user_id) {
-            $response = yield $this->post(__FUNCTION__, compact(
+        return call(function () use (
+            $chat_id,
+            $user_id
+        ) {
+            $response = yield $this->post('getChatMember', compact(
                 'chat_id', 'user_id'
             ));
 
