@@ -5,6 +5,7 @@ namespace Jove\Middlewares;
 use Amp\Http\Server\Middleware;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
+use Amp\Http\Server\Response;
 use Amp\Promise;
 use function Amp\call;
 
@@ -32,7 +33,12 @@ class AuthorizeWebhooks implements Middleware
                     return $next();
                 }
 
-                return false;
+                return new Response(403, [
+                    'Content-Type' => 'application/json;charset=utf-8'
+                ], json_encode([
+                    'success' => false,
+                    'message' => 'You are not authorized.',
+                ]));
             }
 
             return $next();
