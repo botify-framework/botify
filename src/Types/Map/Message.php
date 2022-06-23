@@ -300,6 +300,17 @@ class Message extends LazyJsonMapper
         'reply_markup' => 'InlineKeyboardMarkup',
     ];
 
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->_getProperty('message_id');
+    }
+
+    /**
+     * @return string
+     */
     public function getText(): string
     {
         return strtr(strtr($this->_getProperty('text'), [
