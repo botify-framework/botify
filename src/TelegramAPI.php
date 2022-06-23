@@ -24,12 +24,16 @@ class TelegramAPI
     {
         return call(function () use ($uri, $attributes) {
             $client = static::$client ??= HttpClientBuilder::buildDefault();
-            $response = yield $client->request(
+            $promise = yield $client->request(
                 $this->generateRequest($uri, $attributes)
             );
             return json_decode(
-                yield $response->getBody()->buffer(), true
+                yield $promise->getBody()->buffer(), true
             );
+//            if ($response['ok'] === false)
+//                throw new ResponseException($response);
+//
+//            return $response;
         });
     }
 
