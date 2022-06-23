@@ -37,7 +37,7 @@ class AuthorizeWebhooks implements Middleware
                     'Content-Type' => 'application/json;charset=utf-8'
                 ], json_encode([
                     'success' => false,
-                    'message' => 'You are not authorized.',
+                    'message' => 'You are not allowed.',
                 ]));
             }
 
