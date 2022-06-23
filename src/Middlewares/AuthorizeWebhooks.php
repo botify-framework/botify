@@ -25,15 +25,17 @@ class AuthorizeWebhooks implements Middleware
          * This middleware can help you to authorize your with secret_token.
          */
         return call(function () use ($request, $next) {
-            $env = strtolower(getenv('APP_ENV'));
+            $next = fn() => $next->handleRequest($request, $next);
 
-            if ($env === 'development') {
-                return $next->handleRequest($request, $next);
-            } elseif (getenv('APP_ENV') === 'production'
-                && $request->getHeader('X-Telegram-Bot-Api-Secret-Token') === getenv('SECURE_TOKEN'))
-                return $next->handleRequest($request, $next);
+            if ('production' === strtolower(getenv('APP_ENV'))) {
+                if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === getenv('SECURE_TOKEN')) {
+                    return $next();
+                }
 
-            return false;
+                return false;
+            }
+
+            return $next();
         });
     }
 }
