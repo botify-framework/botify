@@ -400,11 +400,19 @@ class Message extends LazyJsonMapper
      */
     public function edit($text): Promise
     {
-        return $this->api->editMessageText(
-            $this->chat->id,
-            $this->message_id,
-            $text
-        );
+        $chatId = $this->chat->id;
+        $messageId = $this->message_id;
+
+        return $this->isText()
+            ? $this->api->editMessageText(
+                $chatId,
+                $messageId,
+                $text
+            ) : $this->api->editMessageCaption(
+                $chatId,
+                $messageId,
+                $text
+            );
     }
 
     /**
