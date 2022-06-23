@@ -309,6 +309,7 @@ use Jove\Utils\LazyJsonMapper;
  */
 class Message extends LazyJsonMapper
 {
+    public int $id;
 
     const JSON_PROPERTY_MAP = [
         'message_id' => 'int',
