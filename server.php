@@ -11,7 +11,7 @@ use Jove\Types\Update;
 Amp\Loop::run(function () {
     $bot = new TelegramAPI();
     $bot->setEventHandler(new class extends EventHandler {
-        public function onMessage(Update $update): Generator
+        public function onUpdateNewMessage(Update $update): Generator
         {
             $replied = yield $update->message->reply('Hi');
             yield new Delayed(3000);

@@ -10,8 +10,12 @@ abstract class EventHandler
 {
     public function boot(Update $update)
     {
-        if ($update->isMessage()) {
-            call([$this, 'onMessage'], $update);
+        call([$this, 'onAny'], $update);
+
+        if ($update->isMessage() || $update->isEditedMessage()) {
+            call([$this, 'onUpdateNewMessage'], $update);
+        } elseif ($update->isCallbackQuery()) {
+            call([$this, 'onUpdateCallbackQuery'], $update);
         }
     }
 
@@ -19,5 +23,21 @@ abstract class EventHandler
      * @param Update $update
      * @return Generator
      */
-    abstract public function onMessage(Update $update): Generator;
+    public function onAny(Update $update): Generator
+    {
+    }
+
+    /**
+     * @param Update $update
+     * @return Generator
+     */
+    abstract public function onUpdateNewMessage(Update $update): Generator;
+
+    /**
+     * @param Update $update
+     * @return Generator
+     */
+    public function onUpdateCallbackQuery(Update $update): Generator
+    {
+    }
 }
