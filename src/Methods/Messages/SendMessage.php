@@ -25,7 +25,7 @@ trait SendMessage
             $text,
             $parse_mode
         ) {
-            $response = yield $this->post('sendMessage', compact(
+            $response = yield $this->post(__FUNCTION__, compact(
                 'chat_id', 'text', 'parse_mode'
             ));
 

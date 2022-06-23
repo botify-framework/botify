@@ -3,7 +3,7 @@
 namespace Jove\Methods\Chats;
 
 use Amp\Promise;
-use Generator;
+use Jove\Types\Map\Chat;
 use function Amp\call;
 
 trait GetChat
@@ -15,8 +15,12 @@ trait GetChat
      */
     public function getChat($chat_id): Promise
     {
-        return $this->post('getChat', compact(
-            'chat_id'
-        ));
+        return call(function () use ($chat_id) {
+            $response = yield $this->post(__FUNCTION__, compact(
+                'chat_id'
+            ));
+
+            return new Chat($response['result']);
+        });
     }
 }
