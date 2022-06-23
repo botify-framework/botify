@@ -1,5 +1,7 @@
 <?php
 
+use Amp\Delayed;
+
 if (!function_exists('retry')) {
     /**
      * @param $times
@@ -35,5 +37,17 @@ if (!function_exists('tap')) {
         $callback($value);
 
         return $value;
+    }
+}
+
+if (!function_exists('asleep')) {
+    /**
+     * @param $time
+     * @param $value
+     * @return Delayed
+     */
+    function asleep($time, $value = null): Delayed
+    {
+        return new Delayed($time, $value);
     }
 }
