@@ -16,7 +16,7 @@ trait GetChat
     public function getChat($chat_id): Promise
     {
         return call(function () use ($chat_id) {
-            $response = yield $this->post(__FUNCTION__, compact(
+            $response = yield $this->post('getChat', compact(
                 'chat_id'
             ));
 
