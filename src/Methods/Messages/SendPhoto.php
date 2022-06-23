@@ -3,6 +3,8 @@
 namespace Jove\Methods\Messages;
 
 use Amp\Promise;
+use Jove\Types\Map\Message;
+use function Amp\call;
 
 trait SendPhoto
 {
@@ -21,8 +23,12 @@ trait SendPhoto
         string $parse_mode = null
     ): Promise
     {
-        return $this->post(__FUNCTION__, compact(
-            'chat_id', 'photo', 'caption', 'parse_mode'
-        ));
+        return call(function () use ($chat_id, $photo, $caption, $parse_mode) {
+            $response = yield $this->post('sendPhoto', compact(
+                'chat_id', 'photo', 'caption', 'parse_mode'
+            ));
+
+            return new Message($response['result']);
+        });
     }
 }
