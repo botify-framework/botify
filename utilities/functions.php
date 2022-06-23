@@ -2,6 +2,7 @@
 
 use Amp\Delayed;
 use Amp\Promise;
+use function Amp\call;
 
 if (!function_exists('retry')) {
     /**
@@ -49,7 +50,7 @@ if (!function_exists('asleep')) {
      */
     function asleep($time, $value = null): Promise
     {
-        return \Amp\call(function () use ($time, $value) {
+        return call(function () use ($time, $value) {
             return new Delayed($time, $value);
         });
     }
