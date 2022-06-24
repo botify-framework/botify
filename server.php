@@ -18,7 +18,6 @@ $bot->setEventHandler(new class extends EventHandler {
      */
     public function onUpdateNewMessage(Update $update): Generator
     {
-        print_r($update);
         $message = $update->message;
         $text = $message->text;
         $fromId = $message->from->id;
@@ -62,6 +61,7 @@ CODE;
             if (empty($result)) {
                 return yield $message->reply('No Response !');
             }
+
 
             mb_regex_encoding('UTF-8');
             mb_internal_encoding('UTF-8');

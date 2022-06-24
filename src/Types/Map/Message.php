@@ -382,13 +382,14 @@ class Message extends LazyJsonMapper
 
     /**
      * Delete current message
+     *
      * @return Promise
      */
     public function delete(): Promise
     {
         return $this->api->deleteMessage(
-            $this->chat->id,
-            $this->message_id,
+            chat_id: $this->chat->id,
+            message_id: $this->message_id,
         );
     }
 
@@ -405,13 +406,13 @@ class Message extends LazyJsonMapper
 
         return $this->isText()
             ? $this->api->editMessageText(
-                $chatId,
-                $messageId,
-                $text
+                chat_id: $chatId,
+                message_id: $messageId,
+                text: $text
             ) : $this->api->editMessageCaption(
-                $chatId,
-                $messageId,
-                $text
+                chat_id: $chatId,
+                message_id: $messageId,
+                text: $text
             );
     }
 
@@ -424,12 +425,10 @@ class Message extends LazyJsonMapper
     public function reply($text): Promise
     {
         return $this->api->sendMessage(
-            $this->chat->id,
-            $text,
-            'html',
-            extra: [
-                'reply_to_message_id' => $this->message_id,
-            ]
+            chat_id: $this->chat->id,
+            text: $text,
+            parse_mode: 'html',
+            reply_to_message_id: $this->message_id,
         );
     }
 

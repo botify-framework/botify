@@ -16,6 +16,7 @@ use Amp\Loop;
 use Amp\Promise;
 use Amp\Socket;
 use Jove\Methods\Methods;
+use Jove\Middlewares\AuthorizeWebhooks;
 use Jove\Types\Map\Chat;
 use Jove\Types\Map\ChatInviteLink;
 use Jove\Types\Map\ChatMember;
@@ -201,10 +202,10 @@ class TelegramAPI
      * Prepare event handler for hearing new incoming updates
      *
      * @param int $updateType
-     * @return void
+     * @param string $uri
      * @throws \Exception
      */
-    public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK)
+    public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
         if (empty($this->eventHandler)) {
             throw new \Exception('No event handler was set.');
@@ -212,7 +213,7 @@ class TelegramAPI
 
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
-                Loop::run(function () {
+                Loop::run(function () use ($uri) {
                     $servers = [
                         Socket\Server::listen('0.0.0.0:8000'),
                         Socket\Server::listen('[::]:8000'),
@@ -222,16 +223,21 @@ class TelegramAPI
                     $logHandler->setFormatter(new ConsoleFormatter);
                     $logger = new Logger('server');
                     $logger->pushHandler($logHandler);
+                    $router = new Server\Router();
 
-                    $handler = new CallableRequestHandler(function (Server\Request $request) {
-                        $update = json_decode(yield $request->getBody()->buffer(), true);
+                    foreach (['GET', 'POST'] as $method)
+                        $router->addRoute($method, $uri, Server\Middleware\stack(
+                            new CallableRequestHandler(function (Server\Request $request) {
+                                $update = json_decode(yield $request->getBody()->buffer(), true);
 
-                        call(fn() => $this->eventHandler->boot(new Update($update)));
+                                call(fn() => $this->eventHandler->boot(new Update($update)));
 
-                        return new Response(Status::OK);
-                    });
+                                return new Response(Status::OK);
+                            }),
+                            new AuthorizeWebhooks()
+                        ));
 
-                    $server = new Server\HttpServer($servers, $handler, $logger);
+                    $server = new Server\Server($servers, $router, $logger);
 
                     yield $server->start();
 
@@ -349,8 +355,8 @@ class TelegramAPI
                     $mapped[strtolower($method)] = $response;
 
         $arguments = isset($arguments[0])
-            ? array_merge(array_shift($arguments), $arguments)
-            : $arguments;
+            ? [array_merge(array_shift($arguments), $arguments)]
+            : [$arguments];
 
         /**
          * Prepend method name to arguments
@@ -366,7 +372,7 @@ class TelegramAPI
 
             return $response['ok']
                 ? (
-                in_array(gettype($response['result']), ['bool', 'int', 'string'])
+                in_array(gettype($response['result']), ['boolean', 'integer', 'string'])
                     ? $response['result']
                     : new $cast($response['result'])
                 ) : new FallbackResponse($response);
