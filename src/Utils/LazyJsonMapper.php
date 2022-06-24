@@ -21,24 +21,13 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
         $this->ok = true;
     }
 
-    /**
-     * Useful for responses
-     *
-     * @return bool
-     */
-    public function isOk(): bool
-    {
-        return $this->ok;
-    }
 
     /**
-     * Alias of isOk
-     *
      * @return bool
      */
     public function isSuccess(): bool
     {
-        return $this->isOk();
+        return $this->_getProperty('ok');
     }
 
     /**

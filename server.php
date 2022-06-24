@@ -5,7 +5,7 @@ require_once __DIR__ .'/bootstrap/app.php';
 
 use Jove\EventHandler;
 use Jove\TelegramAPI;
-use Jove\Types\Update;
+use Jove\Types\Map\Message;
 
 $bot = new TelegramAPI();
 
@@ -13,12 +13,11 @@ $bot->setEventHandler(new class extends EventHandler {
     /**
      * Handle new incoming messages update
      *
-     * @param Update $update
+     * @param Message $message
      * @return Generator
      */
-    public function onUpdateNewMessage(Update $update): Generator
+    public function onUpdateNewMessage(Message $message): Generator
     {
-        $message = $update->message;
         $text = $message->text;
         $fromId = $message->from->id;
 

@@ -3,6 +3,9 @@
 namespace Jove;
 
 use Generator;
+use Jove\Types\Map\CallbackQuery;
+use Jove\Types\Map\InlineQuery;
+use Jove\Types\Map\Message;
 use Jove\Types\Update;
 use function Amp\call;
 
@@ -21,12 +24,12 @@ abstract class EventHandler
 
         call([$this, 'onAny'], $update);
 
-        if ($update->isMessage() || $update->isEditedMessage()) {
-            call([$this, 'onUpdateNewMessage'], $update);
-        } elseif ($update->isCallbackQuery()) {
-            call([$this, 'onUpdateCallbackQuery'], $update);
-        } elseif ($update->isInlineQuery()) {
-            call([$this, 'onInlineQuery'], $update);
+        if (($message = $update->message) || ($message = $update->edited_message)) {
+            call([$this, 'onUpdateNewMessage'], $message);
+        } elseif ($callbackQuery = $update->callback_query) {
+            call([$this, 'onUpdateCallbackQuery'], $callbackQuery);
+        } elseif ($inlineQuery = $update->inline_query) {
+            call([$this, 'onInlineQuery'], $inlineQuery);
         }
     }
 
@@ -39,24 +42,24 @@ abstract class EventHandler
     }
 
     /**
-     * @param Update $update
+     * @param Message $message
      * @return Generator
      */
-    abstract public function onUpdateNewMessage(Update $update): Generator;
+    abstract public function onUpdateNewMessage(Message $message): Generator;
 
     /**
-     * @param Update $update
+     * @param CallbackQuery $callbackQuery
      * @return Generator
      */
-    public function onUpdateCallbackQuery(Update $update): Generator
+    public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
     {
     }
 
     /**
-     * @param Update $update
+     * @param InlineQuery $inlineQuery
      * @return Generator
      */
-    public function onInlineQuery(Update $update): Generator
+    public function onInlineQuery(InlineQuery $inlineQuery): Generator
     {
     }
 
