@@ -104,7 +104,6 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
             'answerwebappquery',
 
         ],
-        ,
         'bool'=>[
             'setwebhook',
             'deletewebhook',
