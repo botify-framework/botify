@@ -2,10 +2,11 @@
 
 namespace Jove\Methods;
 
+use Jove\Methods\BotCommands\BotCommands;
 use Jove\Methods\Chats\Chats;
 use Jove\Methods\Messages\Messages;
 
 trait Methods
 {
-    use Chats, Messages, GetUpdates;
+    use BotCommands, Chats, Messages, GetUpdates;
 }
