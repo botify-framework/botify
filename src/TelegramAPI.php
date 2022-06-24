@@ -36,8 +36,9 @@ class TelegramAPI
 
     public function loop()
     {
+        $offset = -1;
+
         while (true) {
-            $offset = -1;
             Loop::run(function () use (&$offset) {
                 $updates = yield $this->getUpdates($offset, timeout: 10);
                 dump($updates);
