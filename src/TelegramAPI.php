@@ -252,7 +252,8 @@ class TelegramAPI
      */
     protected function post($uri, array $attributes = []): Promise
     {
-        $attributes = array_merge($this->getAutoFill(), $attributes);
+        $attributes = array_merge($this->detDefaults(), $attributes);
+
         return call(function () use ($uri, $attributes) {
             $client = static::$client ??= HttpClientBuilder::buildDefault();
             $promise = yield $client->request(
