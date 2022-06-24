@@ -4,5 +4,5 @@ namespace Jove\Methods\Chats;
 
 trait Chats
 {
-    use GetChat, GetChatMember, GetChatMembersCount;
+    use GetChat, GetChatAdministrators, GetChatMember, GetChatMembersCount;
 }
