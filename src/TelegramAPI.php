@@ -41,7 +41,6 @@ class TelegramAPI
 
             while (true) {
                 $updates = yield $this->getUpdates($offset, timeout: 10);
-                dump($updates);
 
                 if (is_array($updates)) {
                     foreach ($updates as $update) {
