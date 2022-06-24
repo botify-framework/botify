@@ -17,7 +17,6 @@ abstract class EventHandler
 
     public function boot(Update $update)
     {
-        dump($update);
         $this->api = $update->api;
 
         call([$this, 'onAny'], $update);
@@ -26,6 +25,8 @@ abstract class EventHandler
             call([$this, 'onUpdateNewMessage'], $update);
         } elseif ($update->isCallbackQuery()) {
             call([$this, 'onUpdateCallbackQuery'], $update);
+        } elseif ($update->isInlineQuery()) {
+            call([$this, 'onInlineQuery'], $update);
         }
     }
 
@@ -48,6 +49,14 @@ abstract class EventHandler
      * @return Generator
      */
     public function onUpdateCallbackQuery(Update $update): Generator
+    {
+    }
+
+    /**
+     * @param Update $update
+     * @return Generator
+     */
+    public function onInlineQuery(Update $update): Generator
     {
     }
 }
