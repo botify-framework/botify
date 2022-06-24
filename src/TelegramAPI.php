@@ -16,7 +16,22 @@ use Amp\Loop;
 use Amp\Promise;
 use Amp\Socket;
 use Jove\Methods\Methods;
+use Jove\Types\Map\Chat;
+use Jove\Types\Map\ChatInviteLink;
+use Jove\Types\Map\ChatMember;
+use Jove\Types\Map\File;
+use Jove\Types\Map\MenuButton;
+use Jove\Types\Map\MenuButtonCommands;
+use Jove\Types\Map\Message;
+use Jove\Types\Map\MessageId;
+use Jove\Types\Map\Poll;
+use Jove\Types\Map\SentWebAppMessage;
+use Jove\Types\Map\StickerSet;
+use Jove\Types\Map\User;
+use Jove\Types\Map\UserProfilePhotos;
+use Jove\Types\Map\WebhookInfo;
 use Jove\Types\Update;
+use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
 
@@ -26,7 +41,140 @@ class TelegramAPI
 
     private static $client;
     private EventHandler $eventHandler;
-    private $autoFill = [];
+    private array $defaults = [];
+    /**
+     * Map all methods responses
+     *
+     * @var array|string[][]
+     */
+    private array $responses_map = [
+        WebhookInfo::class => [
+            'getWebhookInfo'
+        ],
+        User::class => [
+            'getMe'
+        ],
+        Message::class => [
+            'sendMessage',
+            'forwardMessage',
+            'sendPhoto',
+            'sendAudio',
+            'sendDocument',
+            'sendVideo',
+            'sendAnimation',
+            'sendVoice',
+            'sendVideoNote',
+            'sendLocation',
+            'editMessageLiveLocation',
+            'stopMessageLiveLocation',
+            'sendVenue',
+            'sendContact',
+            'sendPoll',
+            'sendDice',
+            'editMessageText',
+            'eitMessageCaption',
+            'editMessageMedia',
+            'editMessageReplyMarkup',
+            'sendSticker',
+            'sendInvoice',
+            'sendGame',
+            'setGameScore',
+        ],
+        MessageId::class => [
+            'copyMessage'
+        ],
+        UserProfilePhotos::class => [
+            'getUserProfilePhotos',
+        ],
+        File::class => [
+            'getFile',
+            'uploadStickerFile',
+            'createNewStickerSet',
+            'addStickerToSet',
+        ],
+        ChatInviteLink::class => [
+            'createChatInviteLink',
+            'editChatInviteLink',
+            'revokeChatInviteLink',
+        ],
+        Chat::class => [
+            'getChat',
+        ],
+        ChatMember::class => [
+            'getChatMember',
+        ],
+        MenuButtonCommands::class => [
+            'getChatMenuButton',
+        ],
+        MenuButton::class => [
+            'getChatMenuButton',
+            'getChatMenuButton',
+            'getChatMenuButton',
+        ],
+        Poll::class => [
+            'stopPoll',
+        ],
+        StickerSet::class => [
+            'getStickerSet',
+        ],
+        SentWebAppMessage::class => [
+            'answerWebAppQuery',
+        ],
+        'bool' => [
+            'setWebhook',
+            'deleteWebhook',
+            'logout',
+            'close',
+            'editMessageLiveLocation',
+            'stopMessageLiveLocation',
+            'sendChatAction',
+            'banChatMember',
+            'unbanChatMember',
+            'restrictChatMember',
+            'promoteChatMember',
+            'setChatAdministratorCustomTitle',
+            'banChatSenderChat',
+            'unbanChatSenderChat',
+            'setChatPermissions',
+            'approveChatJoinRequest',
+            'declineChatJoinRequest',
+            'setChatPhoto',
+            'deleteChatPhoto',
+            'setChatTitle',
+            'setChatDescription',
+            'pinChatMessage',
+            'unpinChatMessage',
+            'unpinAllChatMessages',
+            'leaveChat',
+            'setChatStickerSet',
+            'deleteChatStickerSet',
+            'answerCallbackQuery',
+            'setMyCommands',
+            'deleteMyCommands',
+            'setChatMenuButton',
+            'setMyDefaultAdministratorRights',
+            'editMessageText',
+            'editMessageCaption',
+            'editMessageMedia',
+            'editMessageReplyMarkup',
+            'deleteMessage',
+            'setStickerPositionInset',
+            'deleteStickerFromSet',
+            'setStickerSetThumb',
+            'answerInlineQuery',
+            'answerShippingQuery',
+            'answerPreCheckoutQuery',
+            'setPassportDataErrors',
+            'setGameScore',
+        ],
+        'string' => [
+            'exportChatInviteLink',
+        ],
+        'int' => [
+            'getChatMemberCount',
+        ]
+    ];
+
     /**
      * @param $eventHandler
      * @return EventHandler
@@ -155,29 +303,69 @@ class TelegramAPI
     {
         $url = \sprintf('https://api.telegram.org/bot%s/', \getenv('BOT_TOKEN'));
 
-        if (! empty($uri))
+        if (!empty($uri))
             $url .= \ltrim($uri, '/');
 
-        if (! empty($queries))
+        if (!empty($queries))
             $url .= '?' . \http_build_query($queries);
 
         return $url;
     }
 
     /**
-     * @param $array
-     * @param $overRide
+     * Dynamic proxy Telegram methods
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return Promise
+     * @throws \Exception
+     */
+    public function __call(string $name, array $arguments = [])
+    {
+        static $mapped = [];
+
+        if (empty($mapped))
+            foreach ($this->responses_map as $response => $methods)
+                foreach ($methods as $method)
+                    $mapped[strtolower($method)] = $response;
+
+        $arguments = isset($arguments[0])
+            ? array_merge(array_shift($arguments), $arguments)
+            : $arguments;
+        array_unshift($arguments, $name);
+        $cast = $mapped[strtolower($name)] ?? throw new \Exception(sprintf(
+                'Called method %s doesnt exists, Please read the docs https://core.telegram.org/bots/api', $name
+            ));
+
+        return call(function () use ($arguments, $cast) {
+            $response = yield $this->post(... $arguments);
+
+            return $response['ok']
+                ? (
+                in_array(gettype($response['result']), ['bool', 'int', 'string'])
+                    ? $response['result']
+                    : new $cast($response['result'])
+                ) : new FallbackResponse($response);
+        });
+    }
+
+    /**
+     * @param array $values
+     * @param mixed $overRide
      * @return $this
      */
-    public function setAutoFill(array $array,int|bool|string|null $overRide=false) :self {
-        $overRide = (bool) $overRide;
-        $this->autoFill = \array_merge($overRide ? [] : $this->autoFill, $array);
-       return $this; 
+    public function setDefaults(array $values, mixed $overRide = false): self
+    {
+        if ($overRide)
+            $this->defaults += $values;
+        return $this;
     }
+
     /**
-     * @return array $this->autoFill;
+     * @return array
      */
-    public function getAutoFill() :array {
-        return  $this->autoFill;
+    public function detDefaults(): array
+    {
+        return $this->defaults;
     }
 }
