@@ -123,59 +123,6 @@ class TelegramAPI
         ],
         SentWebAppMessage::class => [
             'answerWebAppQuery',
-        ],
-        'bool' => [
-            'setWebhook',
-            'deleteWebhook',
-            'logout',
-            'close',
-            'editMessageLiveLocation',
-            'stopMessageLiveLocation',
-            'sendChatAction',
-            'banChatMember',
-            'unbanChatMember',
-            'restrictChatMember',
-            'promoteChatMember',
-            'setChatAdministratorCustomTitle',
-            'banChatSenderChat',
-            'unbanChatSenderChat',
-            'setChatPermissions',
-            'approveChatJoinRequest',
-            'declineChatJoinRequest',
-            'setChatPhoto',
-            'deleteChatPhoto',
-            'setChatTitle',
-            'setChatDescription',
-            'pinChatMessage',
-            'unpinChatMessage',
-            'unpinAllChatMessages',
-            'leaveChat',
-            'setChatStickerSet',
-            'deleteChatStickerSet',
-            'answerCallbackQuery',
-            'setMyCommands',
-            'deleteMyCommands',
-            'setChatMenuButton',
-            'setMyDefaultAdministratorRights',
-            'editMessageText',
-            'editMessageCaption',
-            'editMessageMedia',
-            'editMessageReplyMarkup',
-            'deleteMessage',
-            'setStickerPositionInset',
-            'deleteStickerFromSet',
-            'setStickerSetThumb',
-            'answerInlineQuery',
-            'answerShippingQuery',
-            'answerPreCheckoutQuery',
-            'setPassportDataErrors',
-            'setGameScore',
-        ],
-        'string' => [
-            'exportChatInviteLink',
-        ],
-        'int' => [
-            'getChatMemberCount',
         ]
     ];
 
@@ -372,7 +319,7 @@ class TelegramAPI
 
             return $response['ok']
                 ? (
-                in_array(gettype($response['result']), ['boolean', 'integer', 'string'])
+                in_array(gettype(dump($response['result'])), ['boolean', 'integer', 'string'])
                     ? $response['result']
                     : new $cast($response['result'])
                 ) : new FallbackResponse($response);
