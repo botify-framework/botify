@@ -19,11 +19,10 @@ trait GetChatAdministrators
     public function getChatAdministrators(...$args): Promise
     {
         return call(function () use ($args) {
-            $args = isset($args[0])
+            $response = yield $this->post('getChatAdministrators', isset($args[0])
                 ? array_merge(array_shift($args), $args)
-                : $args;
-
-            $response = yield $this->post('getChatAdministrators', $args);
+                : $args
+            );
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return array_map(fn($member) => new ChatMember($member), $response['result']);
