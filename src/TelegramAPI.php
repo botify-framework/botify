@@ -310,19 +310,20 @@ class TelegramAPI
          */
         array_unshift($arguments, $name);
 
-        $cast = $mapped[strtolower($name)] ?? throw new \Exception(sprintf(
-                'Called method %s doesnt exists, Please read the docs https://core.telegram.org/bots/api', $name
-            ));
+        $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
             $response = yield $this->post(... $arguments);
 
-            return $response['ok']
-                ? (
-                in_array(gettype(dump($response['result'])), ['boolean', 'integer', 'string'])
-                    ? $response['result']
-                    : new $cast($response['result'])
-                ) : new FallbackResponse($response);
+            if ($response['ok']) {
+                if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
+                    return $response['result'];
+                }
+
+                return new $cast($response['result']);
+            }
+
+            return new FallbackResponse($response);
         });
     }
 
