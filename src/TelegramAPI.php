@@ -40,7 +40,7 @@ class TelegramAPI
             $offset = -1;
 
             while (true) {
-                $updates = yield $this->getUpdates($offset, 1);
+                $updates = yield $this->getUpdates($offset, 100);
 
                 if (is_array($updates)) {
                     foreach ($updates as $update) {
