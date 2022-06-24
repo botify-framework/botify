@@ -8,7 +8,12 @@ use function Amp\call;
 
 abstract class EventHandler
 {
+
     private TelegramAPI $api;
+
+    const UPDATE_TYPE_WEBHOOK = 1;
+
+    const UPDATE_TYPE_POLLING = 2;
 
     public function boot(Update $update)
     {
