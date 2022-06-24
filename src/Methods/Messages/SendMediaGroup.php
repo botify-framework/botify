@@ -19,11 +19,10 @@ trait SendMediaGroup
     public function sendMediaGroup(...$args): Promise
     {
         return call(function () use ($args) {
-            $args = isset($args[0])
+            $response = yield $this->post('sendMediaGroup', isset($args[0])
                 ? array_merge(array_shift($args), $args)
-                : $args;
-
-            $response = yield $this->post('sendMediaGroup', $args);
+                : $args
+            );
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return array_map(
