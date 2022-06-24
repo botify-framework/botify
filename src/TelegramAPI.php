@@ -16,7 +16,7 @@ class TelegramAPI
 
     private static $client;
     private EventHandler $eventHandler;
-
+    private $autoFill = [];
     /**
      * @param $eventHandler
      * @return EventHandler
@@ -68,6 +68,7 @@ class TelegramAPI
      */
     protected function post($uri, array $attributes = []): Promise
     {
+        $attributes = array_merge($this->getAutoFill(), $attributes);
         return call(function () use ($uri, $attributes) {
             $client = static::$client ??= HttpClientBuilder::buildDefault();
             $promise = yield $client->request(
@@ -125,5 +126,22 @@ class TelegramAPI
             $url .= '?' . \http_build_query($queries);
 
         return $url;
+    }
+
+    /**
+     * @param $array
+     * @param $overRide
+     * @return $this
+     */
+    public function setAutoFill(array $array,int|bool|string|null $overRide=false) :self {
+        $overRide = (bool) $overRide;
+        $this->autoFill = \array_merge($overRide ? [] : $this->autoFill, $array);
+       return $this; 
+    }
+    /**
+     * @return array $this->autoFill;
+     */
+    public function getAutoFill() :array {
+        return  $this->autoFill;
     }
 }
