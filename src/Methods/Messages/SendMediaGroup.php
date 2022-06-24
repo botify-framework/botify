@@ -14,7 +14,7 @@ trait SendMediaGroup
      * Send multiple media as album
      *
      * @param array $args
-     * @return Promise
+     * @return Promise|Message[]
      */
     public function sendMediaGroup(...$args): Promise
     {
