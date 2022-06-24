@@ -40,7 +40,7 @@ class TelegramAPI
             $offset = -1;
 
             Loop::repeat(1000, function () use (&$offset) {
-                $updates = yield $this->getUpdates($offset);
+                $updates = yield $this->getUpdates($offset, timeout: 1);
                 dump($updates);
 
                 if (is_array($updates)) {
