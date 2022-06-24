@@ -10,4 +10,11 @@ class FallbackResponse extends LazyJsonMapper
         'error_code' => 'int',
         'retry_after' => 'int',
     ];
+
+    public function _init()
+    {
+        parent::_init();
+
+        $this->ok = $this->_getProperty('ok');
+    }
 }

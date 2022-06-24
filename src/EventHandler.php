@@ -18,6 +18,8 @@ abstract class EventHandler
 
     const UPDATE_TYPE_POLLING = 2;
 
+    const UPDATE_TYPE_SOCKET_SERVER = 3;
+
     public function boot(Update $update)
     {
         $this->api = $update->api;

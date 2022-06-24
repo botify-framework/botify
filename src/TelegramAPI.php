@@ -76,7 +76,7 @@ class TelegramAPI
             'sendPoll',
             'sendDice',
             'editMessageText',
-            'eitMessageCaption',
+            'editMessageCaption',
             'editMessageMedia',
             'editMessageReplyMarkup',
             'sendSticker',
@@ -160,6 +160,27 @@ class TelegramAPI
 
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
+                Loop::run(function () {
+                    $update = dump(json_decode(file_get_contents('php://input'), true));
+                    call(fn() => $this->eventHandler->boot(new Update($update)));
+                });
+                break;
+            case EventHandler::UPDATE_TYPE_POLLING:
+                Loop::run(function () {
+                    $offset = -1;
+
+                    Loop::repeat(1000, function () use (&$offset) {
+                        $updates = yield $this->getUpdates($offset);
+                        if (is_array($updates)) {
+                            foreach ($updates as $update) {
+                                $offset = $update->update_id + 1;
+                                call(fn() => $this->eventHandler->boot($update));
+                            }
+                        }
+                    });
+                });
+                break;
+            case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
                 Loop::run(function () use ($uri) {
                     $servers = [
                         Socket\Server::listen('0.0.0.0:8000'),
@@ -193,22 +214,6 @@ class TelegramAPI
                         yield $server->stop();
                     });
                 });
-                break;
-            case EventHandler::UPDATE_TYPE_POLLING:
-                Loop::run(function () {
-                    $offset = -1;
-
-                    Loop::repeat(1000, function () use (&$offset) {
-                        $updates = yield $this->getUpdates($offset);
-                        if (is_array($updates)) {
-                            foreach ($updates as $update) {
-                                $offset = $update->update_id + 1;
-                                call(fn() => $this->eventHandler->boot($update));
-                            }
-                        }
-                    });
-                });
-                break;
             default:
                 throw new \Exception('Unsupported update handling type.');
         }

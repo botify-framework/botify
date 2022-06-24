@@ -412,7 +412,7 @@ class Message extends LazyJsonMapper
             ) : $this->api->editMessageCaption(
                 chat_id: $chatId,
                 message_id: $messageId,
-                text: $text
+                caption: $text
             );
     }
 
