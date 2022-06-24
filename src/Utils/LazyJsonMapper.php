@@ -40,4 +40,14 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
     {
         return $this->isOk();
     }
+
+    /**
+     * Converting to array
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return json_decode((string)$this, true);
+    }
 }
