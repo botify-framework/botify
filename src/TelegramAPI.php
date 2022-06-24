@@ -40,8 +40,11 @@ class TelegramAPI
     use Methods;
 
     private static $client;
+
     private EventHandler $eventHandler;
-    private array $defaults = [];
+
+    private array $default_attributes = [];
+
     /**
      * Map all methods responses
      *
@@ -176,6 +179,8 @@ class TelegramAPI
     ];
 
     /**
+     * Set the event handler for avoiding updates
+     *
      * @param $eventHandler
      * @return EventHandler
      * @throws \Exception
@@ -192,8 +197,19 @@ class TelegramAPI
 
     }
 
-    public function hear($updateType = EventHandler::UPDATE_TYPE_WEBHOOK)
+    /**
+     * Prepare event handler for hearing new incoming updates
+     *
+     * @param int $updateType
+     * @return void
+     * @throws \Exception
+     */
+    public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK)
     {
+        if (empty($this->eventHandler)) {
+            throw new \Exception('No event handler was set.');
+        }
+
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
@@ -252,7 +268,7 @@ class TelegramAPI
      */
     protected function post($uri, array $attributes = []): Promise
     {
-        $attributes = array_merge($this->detDefaults(), $attributes);
+        $attributes += $this->getDefaultAttributes();
 
         return call(function () use ($uri, $attributes) {
             $client = static::$client ??= HttpClientBuilder::buildDefault();
@@ -333,7 +349,12 @@ class TelegramAPI
         $arguments = isset($arguments[0])
             ? array_merge(array_shift($arguments), $arguments)
             : $arguments;
+
+        /**
+         * Prepend method name to arguments
+         */
         array_unshift($arguments, $name);
+
         $cast = $mapped[strtolower($name)] ?? throw new \Exception(sprintf(
                 'Called method %s doesnt exists, Please read the docs https://core.telegram.org/bots/api', $name
             ));
@@ -351,22 +372,25 @@ class TelegramAPI
     }
 
     /**
-     * @param array $values
-     * @param mixed $overRide
+     * @param array $attributes
+     * @param bool $override
      * @return $this
      */
-    public function setDefaults(array $values, mixed $overRide = false): self
+    public function setDefaultAttributes(array $attributes, bool $override = false): self
     {
-        if ($overRide)
-            $this->defaults += $values;
+        $this->default_attributes = array_merge(
+            $override ? [] : $this->getDefaultAttributes(),
+            $attributes
+        );
+
         return $this;
     }
 
     /**
      * @return array
      */
-    public function detDefaults(): array
+    public function getDefaultAttributes(): array
     {
-        return $this->defaults;
+        return $this->default_attributes;
     }
 }
