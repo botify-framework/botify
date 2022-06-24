@@ -59,4 +59,16 @@ abstract class EventHandler
     public function onInlineQuery(Update $update): Generator
     {
     }
+
+    /**
+     * Dynamic method proxy for calling TelegramAPI methods
+     *
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, array $arguments = [])
+    {
+        return $this->api->{$name}(... $arguments);
+    }
 }
