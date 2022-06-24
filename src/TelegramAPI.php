@@ -36,10 +36,10 @@ class TelegramAPI
 
     public function loop()
     {
-        $offset = -1;
+        Loop::run(function () {
+            $offset = -1;
 
-        while (true) {
-            Loop::run(function () use (&$offset) {
+            Loop::repeat(1, function () use (&$offset) {
                 $updates = yield $this->getUpdates($offset, timeout: 10);
                 dump($updates);
 
@@ -50,7 +50,7 @@ class TelegramAPI
                     }
                 }
             });
-        }
+        });
     }
 
     /**
