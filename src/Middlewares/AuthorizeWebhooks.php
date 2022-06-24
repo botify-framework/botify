@@ -16,22 +16,23 @@ class AuthorizeWebhooks implements Middleware
      * Authorize telegram webhook requests
      *
      * @param Request $request
-     * @param RequestHandler $next
+     * @param RequestHandler $requestHandler
      * @return Promise
      */
     public function handleRequest(
         Request        $request,
-        RequestHandler $next
+        RequestHandler $requestHandler
     ): Promise
     {
         /**
          * In the latest version of telegram the "secret_token" field was added when setting the webhook.
          * This middleware can help you to authorize your with secret_token.
          */
-        return call(function () use ($request, $next) {
-            $next = fn() => $next->handleRequest($request, $next);
+        return call(function () use ($request, $requestHandler) {
+            $next = fn() => $requestHandler->handleRequest($request, $requestHandler);
 
             if ('production' === \strtolower(\getenv('APP_ENV'))) {
+                dd(111);
                 if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === \getenv('SECURE_TOKEN')) {
                     return $next();
                 }

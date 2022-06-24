@@ -17,6 +17,7 @@ abstract class EventHandler
 
     public function boot(Update $update)
     {
+        dump($update);
         $this->api = $update->api;
 
         call([$this, 'onAny'], $update);

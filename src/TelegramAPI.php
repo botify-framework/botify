@@ -2,12 +2,22 @@
 
 namespace Jove;
 
+use Amp\ByteStream\ResourceOutputStream;
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
+use Amp\Http\Server;
+use Amp\Http\Server\RequestHandler\CallableRequestHandler;
+use Amp\Http\Server\Response;
+use Amp\Http\Status;
+use Amp\Log\ConsoleFormatter;
+use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Promise;
+use Amp\Socket;
 use Jove\Methods\Methods;
+use Jove\Types\Update;
+use Monolog\Logger;
 use function Amp\call;
 
 class TelegramAPI
@@ -38,8 +48,34 @@ class TelegramAPI
     {
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
-                $update = json_decode(file_get_contents('php://input'), true);
-                call(fn() => $this->eventHandler->boot($update));
+                Loop::run(function () {
+                    $servers = [
+                        Socket\Server::listen('0.0.0.0:8000'),
+                        Socket\Server::listen('[::]:8000'),
+                    ];
+
+                    $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
+                    $logHandler->setFormatter(new ConsoleFormatter);
+                    $logger = new Logger('server');
+                    $logger->pushHandler($logHandler);
+
+                    $handler = new CallableRequestHandler(function (Server\Request $request) {
+                        $update = json_decode(yield $request->getBody()->buffer(), true);
+
+                        call(fn() => $this->eventHandler->boot(new Update($update)));
+
+                        return new Response(Status::OK);
+                    });
+
+                    $server = new Server\HttpServer($servers, $handler, $logger);
+
+                    yield $server->start();
+
+                    Loop::onSignal(\SIGINT, function (string $watcherId) use ($server) {
+                        Loop::cancel($watcherId);
+                        yield $server->stop();
+                    });
+                });
                 break;
             case EventHandler::UPDATE_TYPE_POLLING:
                 Loop::run(function () {
