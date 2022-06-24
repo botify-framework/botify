@@ -36,10 +36,9 @@ class TelegramAPI
 
     public function loop()
     {
-        Loop::run(function () {
+        while (true) {
             $offset = -1;
-
-            while (true) {
+            Loop::run(function () use (&$offset) {
                 $updates = yield $this->getUpdates($offset, timeout: 10);
                 dump($updates);
 
@@ -49,8 +48,8 @@ class TelegramAPI
                         call(fn() => $this->eventHandler->boot($update));
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
