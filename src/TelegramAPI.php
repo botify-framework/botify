@@ -258,9 +258,13 @@ class TelegramAPI
      */
     private function generateRequest($uri, array $data = []): Request
     {
-        return \tap(new Request($this->generateUri($uri), 'POST'), fn($request) => $request->setBody(
-            $this->generateBody($data)
-        ));
+        return \tap(new Request($this->generateUri($uri), 'POST'), function ($request) use ($data) {
+            if (!empty($data)) {
+                $request->setBody(
+                    $this->generateBody($data)
+                );
+            }
+        });
     }
 
     /**
