@@ -77,4 +77,14 @@ class Collection
             fn($item) => $item->toArray(), $this->items
         );
     }
+    /**
+     * Convert collection options to map
+     * @return array
+     */
+    public function map(Closure $fn)
+    {
+        return new self(
+            array_map($fn, $this->items)
+        );
+    }
 }
