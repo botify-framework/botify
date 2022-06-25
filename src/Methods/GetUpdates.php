@@ -28,7 +28,9 @@ trait GetUpdates
             ));
 
             if (!empty($response['ok'])) {
-                return array_map(fn($update) => new Update($update), $response['result']);
+                return collect(
+                    array_map(fn($update) => new Update($update), $response['result'])
+                );
             }
 
             return new FallbackResponse($response);
