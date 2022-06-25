@@ -424,9 +424,9 @@ class TelegramAPI
         header('Content-Type: application/json');
         ob_end_flush();
         flush();
-//        if(function_exists('litespeed_finish_request'))
-//            litespeed_finish_request();
-//        if(function_exists('fastcgi_finish_request'))
-//            fastcgi_finish_request();
+        if (function_exists('litespeed_finish_request'))
+            litespeed_finish_request();
+        if (function_exists('fastcgi_finish_request'))
+            fastcgi_finish_request();
     }
 }
