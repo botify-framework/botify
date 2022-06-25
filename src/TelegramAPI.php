@@ -40,6 +40,10 @@ class TelegramAPI
 {
     use Methods;
 
+    private static int $inactivityTimeout = 10000;
+
+    private static int $transferTimeout = 10000;
+
     private static $client;
 
     private EventHandler $eventHandler;
@@ -126,6 +130,11 @@ class TelegramAPI
         ]
     ];
 
+    public function __construct()
+    {
+
+    }
+
     /**
      * Set the event handler for avoiding updates
      *
@@ -161,7 +170,7 @@ class TelegramAPI
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
-                    $update = dump(json_decode(file_get_contents('php://input'), true));
+                    $update = json_decode(file_get_contents('php://input'), true);
                     call(fn() => $this->eventHandler->boot(new Update($update)));
                 });
                 break;
@@ -170,7 +179,7 @@ class TelegramAPI
                     $offset = -1;
                     yield $this->deleteWebhook();
 
-                    Loop::repeat(1000, function () use (&$offset) {
+                    Loop::repeat(1500, function () use (&$offset) {
                         $updates = yield $this->getUpdates($offset);
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
@@ -229,40 +238,76 @@ class TelegramAPI
     }
 
     /**
+     * @param $method
      * @param $uri
      * @param array $attributes
+     * @param bool $stream
      * @return Promise
      */
-    protected function post($uri, array $attributes = []): Promise
+    protected function fetch($method, $uri, array $attributes, bool $stream = false): Promise
     {
         $attributes = array_merge_recursive(
             $this->getDefaultAttributes(), $attributes
         );
 
-        return call(function () use ($uri, $attributes) {
+        return call(function () use ($method, $uri, $attributes, $stream) {
             $client = static::$client ??= HttpClientBuilder::buildDefault();
             $promise = yield $client->request(
-                $this->generateRequest($uri, $attributes)
+                $this->generateRequest($method, $uri, $attributes)
             );
+
+            $body = $promise->getBody();
+
+            if ($stream === true)
+                return $body;
+
             return json_decode(
-                yield $promise->getBody()->buffer(), true
+                yield $body->buffer(), true
             );
         });
     }
 
     /**
      * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function get($uri, array $attributes = [], bool $stream = false): Promise
+    {
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+    }
+
+    /**
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function post($uri, array $attributes = [], bool $stream = false): Promise
+    {
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+    }
+
+    /**
+     * @param $method
+     * @param $uri
      * @param array $data
      * @return Request
      */
-    private function generateRequest($uri, array $data = []): Request
+    private function generateRequest($method, $uri, array $data = []): Request
     {
-        return \tap(new Request($this->generateUri($uri), 'POST'), function ($request) use ($data) {
-            if (!empty($data)) {
+        $method = strtoupper($method);
+        $queries = $method === 'GET' ? $data : [];
+
+        return \tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
+            if (empty($queries) && !empty($data)) {
                 $request->setBody(
                     $this->generateBody($data)
                 );
             }
+            $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
+            $request->setTransferTimeout(static::$transferTimeout * 1000);
         });
     }
 
@@ -291,10 +336,11 @@ class TelegramAPI
      */
     private function generateUri($uri, array $queries = []): string
     {
-        $url = \sprintf('https://api.telegram.org/bot%s/', \getenv('BOT_TOKEN'));
+        $uri = \ltrim($uri, '/');
 
-        if (!empty($uri))
-            $url .= \ltrim($uri, '/');
+        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: \sprintf(
+            'https://api.telegram.org/bot%s/%s', \getenv('BOT_TOKEN'), $uri
+        );
 
         if (!empty($queries))
             $url .= '?' . \http_build_query($queries);

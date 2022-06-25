@@ -6,8 +6,6 @@ use Jove\TelegramAPI;
 
 class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
 {
-    public bool $ok;
-
     public TelegramAPI $api;
 
     /**
@@ -18,7 +16,6 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
         parent::_init();
 
         $this->api = new TelegramAPI();
-        $this->ok = true;
     }
 
 
@@ -27,7 +24,7 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
      */
     public function isSuccess(): bool
     {
-        return $this->_getProperty('ok');
+        return $this->ok ?? true;
     }
 
     /**
@@ -37,7 +34,7 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
      */
     public function toArray(): array
     {
-        return json_decode((string)$this, true);
+        return $this->asArray();
     }
 
     public function collect(): Collection

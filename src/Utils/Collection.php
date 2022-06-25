@@ -171,7 +171,7 @@ class Collection implements IteratorAggregate, Countable
     public function where($fn): Collection
     {
         return new self(
-            array_filter($this->items, $fn)
+            array_filter($this->items, $fn, ARRAY_FILTER_USE_BOTH)
         );
     }
 
