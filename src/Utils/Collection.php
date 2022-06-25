@@ -74,7 +74,7 @@ class Collection
     public function toArray(): array
     {
         return array_map(
-            fn($item) => $this->toArray(), $this->items
+            fn($item) => $item->toArray(), $this->items
         );
     }
 }
