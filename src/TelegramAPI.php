@@ -130,11 +130,6 @@ class TelegramAPI
         ]
     ];
 
-    public function __construct()
-    {
-
-    }
-
     /**
      * Set the event handler for avoiding updates
      *
@@ -170,6 +165,7 @@ class TelegramAPI
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
+                    $this->close();
                     $update = json_decode(file_get_contents('php://input'), true);
                     call(fn() => $this->eventHandler->boot(new Update($update)));
                 });
@@ -412,5 +408,24 @@ class TelegramAPI
     public function getDefaultAttributes(): array
     {
         return $this->default_attributes;
+    }
+
+    public function close($message = 'HTTP OK')
+    {
+        while (ob_get_level() > 0)
+            ob_end_clean();
+        header('Connection: close');
+        ignore_user_abort(true);
+        ob_start();
+        print $message;
+        $size = ob_get_length();
+        header("Content-Length: $size");
+        header('Content-Type: application/json');
+        ob_end_flush();
+        flush();
+//        if(function_exists('litespeed_finish_request'))
+//            litespeed_finish_request();
+//        if(function_exists('fastcgi_finish_request'))
+//            fastcgi_finish_request();
     }
 }
