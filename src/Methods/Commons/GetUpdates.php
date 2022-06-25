@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods;
+namespace Jove\Methods\Commons;
 
 use Amp\Promise;
 use Jove\Types\Update;

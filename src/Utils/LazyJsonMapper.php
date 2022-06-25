@@ -39,4 +39,9 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper
     {
         return json_decode((string)$this, true);
     }
+
+    public function collect(): Collection
+    {
+        return collect($this->toArray(), true);
+    }
 }
