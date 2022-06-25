@@ -173,7 +173,7 @@ class TelegramAPI
                     Loop::repeat(1000, function () use (&$offset) {
                         $updates = yield $this->getUpdates($offset);
 
-                        if ($updates->isNotEmpty()) {
+                        if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
                                 $offset = $update->update_id + 1;
                                 call(fn() => $this->eventHandler->boot($update));
