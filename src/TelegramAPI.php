@@ -170,12 +170,15 @@ class TelegramAPI
                     $offset = -1;
 
                     Loop::repeat(1000, function () use (&$offset) {
-                        $updates = yield $this->getUpdates($offset);
+                        $deleted = yield $this->deleteWebhook();
+                        if ($deleted->isOk()) {
+                            $updates = yield $this->getUpdates($offset);
 
-                        if ($updates->isNotEmpty()) {
-                            foreach ($updates as $update) {
-                                $offset = $update->update_id + 1;
-                                call(fn() => $this->eventHandler->boot($update));
+                            if ($updates->isNotEmpty()) {
+                                foreach ($updates as $update) {
+                                    $offset = $update->update_id + 1;
+                                    call(fn() => $this->eventHandler->boot($update));
+                                }
                             }
                         }
                     });
