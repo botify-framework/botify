@@ -33,8 +33,9 @@ class Collection implements IteratorAggregate, Countable
      * @param $items
      * @return Collection
      */
-    public function merge($items): Collection
+    public function merge(array|Collection $items): Collection
     {
+        $items = is_collection($items) ? $items->toArray() : $items;
         $this->items += $items;
         return clone $this;
     }
