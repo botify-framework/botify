@@ -74,6 +74,16 @@ class Collection implements IteratorAggregate
     }
 
     /**
+     * Checking correct collection is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool
+    {
+        return !$this->isEmpty();
+    }
+
+    /**
      * Convert collection object to string
      *
      * @return string
