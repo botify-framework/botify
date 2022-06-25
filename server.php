@@ -23,7 +23,7 @@ $bot->setEventHandler(new class extends EventHandler {
 
         if ($text === 'ping') {
             $replied = yield $message->reply('Please wait ...');
-            $replied->edit(sprintf(
+            yield $replied->edit(sprintf(
                 'Took time is %s ms', round(microtime(true) - START_TIME, 3)
             ));
         } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $fromId == getenv('OWNER_ID')) {
