@@ -165,7 +165,7 @@ class TelegramAPI
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
-                    $this->close();
+                    $this->finish(uniqid());
                     $update = json_decode(file_get_contents('php://input'), true);
                     call(fn() => $this->eventHandler->boot(new Update($update)));
                 });
@@ -410,7 +410,8 @@ class TelegramAPI
         return $this->default_attributes;
     }
 
-    public function close($message = 'HTTP OK')
+
+    public function finish($message = 'HTTP OK')
     {
         while (ob_get_level() > 0)
             ob_end_clean();
