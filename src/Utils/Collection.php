@@ -12,6 +12,16 @@ class Collection
     }
 
     /**
+     * Checking correct collection is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->items);
+    }
+
+    /**
      * Convert collection object to string
      *
      * @return string
