@@ -60,10 +60,18 @@ if (!function_exists('asleep')) {
 if (!function_exists('collect')) {
     /**
      * @param array $items
+     * @param bool $recursive
      * @return Collection
      */
-    function collect(array $items)
+    function collect(array $items, bool $recursive = false): Collection
     {
+        if ($recursive === true) {
+            foreach ($items as &$item) {
+                if (is_array($item)) {
+                    $item = collect($item);
+                }
+            }
+        }
         return new Collection($items);
     }
 }
