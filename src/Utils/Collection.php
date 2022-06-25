@@ -13,6 +13,7 @@ class Collection
         $this->items = $items;
     }
 
+
     /**
      * Get first element of collection items
      *
