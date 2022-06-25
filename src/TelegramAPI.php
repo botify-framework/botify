@@ -171,6 +171,7 @@ class TelegramAPI
 
                     Loop::repeat(1000, function () use (&$offset) {
                         $deleted = yield $this->deleteWebhook();
+
                         if ($deleted->isOk()) {
                             $updates = yield $this->getUpdates($offset);
 
