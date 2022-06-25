@@ -14,7 +14,5 @@ class FallbackResponse extends LazyJsonMapper
     public function _init()
     {
         parent::_init();
-
-        $this->ok = $this->_getProperty('ok');
     }
 }

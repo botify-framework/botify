@@ -88,3 +88,16 @@ if (!function_exists('is_collection')) {
         return $value instanceof Collection;
     }
 }
+
+if (!function_exists('storage_path')) {
+    /**
+     * Resolve storage path
+     *
+     * @param string $path
+     * @return string
+     */
+    function storage_path(string $path = ''): string
+    {
+        return __DIR__ . '/../storage/' . trim($path, '/');
+    }
+}

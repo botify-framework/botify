@@ -17,7 +17,7 @@ trait GetDownloadableLink
             );
 
             if ($file->isSuccess()) {
-                return sprintf($this->url, getenv('BOT_TOKEN'), $file->file_path);
+                return [$file->file_path, sprintf($this->url, getenv('BOT_TOKEN'), $file->file_path)];
             }
 
             return false;

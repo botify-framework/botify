@@ -21,7 +21,7 @@ $bot->setEventHandler(new class extends EventHandler {
         $text = $message->text;
         $fromId = $message->from->id;
 
-        if (preg_match('/^[\/#!.]?(e|r)\s?(.*)$/usi', $text, $match) && $fromId == getenv('OWNER_ID')) {
+        if (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $fromId == getenv('OWNER_ID')) {
             $errors = [];
             $buffers = [];
             $result = null;
@@ -73,4 +73,4 @@ CODE;
     }
 });
 
-$bot->hear();
+$bot->hear(EventHandler::UPDATE_TYPE_POLLING);

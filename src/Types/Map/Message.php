@@ -4,15 +4,20 @@ namespace Jove\Types\Map;
 
 use Amp\Promise;
 use Jove\Utils\LazyJsonMapper;
+use function Amp\call;
+use function Amp\File\createDirectoryRecursively;
+use function Amp\File\isDirectory;
+use function Amp\File\openFile;
 
 /**
  * Message
  *
- * @method Int getMessageId()
+ * @method Int getId()
  * @method User getFrom()
  * @method Chat getSenderChat()
  * @method Int getDate()
  * @method Chat getChat()
+ * @method string getFileId()
  * @method User getForwardFrom()
  * @method Chat getForwardFromChat()
  * @method Int getForwardFromMessageId()
@@ -67,11 +72,13 @@ use Jove\Utils\LazyJsonMapper;
  * @method WebAppData getWebAppData()
  * @method InlineKeyboardMarkup getReplyMarkup()
  *
+ * @method bool isId()
  * @method bool isMessageId()
  * @method bool isFrom()
  * @method bool isSenderChat()
  * @method bool isDate()
  * @method bool isChat()
+ * @method bool isFileId()
  * @method bool isForwardFrom()
  * @method bool isForwardFromChat()
  * @method bool isForwardFromMessageId()
@@ -127,11 +134,13 @@ use Jove\Utils\LazyJsonMapper;
  * @method bool isWebAppData()
  * @method bool isReplyMarkup()
  *
+ * @method $this setId(int $value)
  * @method $this setMessageId(int $value)
  * @method $this setFrom(User $value)
  * @method $this setSenderChat(Chat $value)
  * @method $this setDate(int $value)
  * @method $this setChat(Chat $value)
+ * @method $this setFileId(string $value)
  * @method $this setForwardFrom(User $value)
  * @method $this setForwardFromChat(Chat $value)
  * @method $this setForwardFromMessageId(int $value)
@@ -187,11 +196,13 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this setWebAppData(WebAppData $value)
  * @method $this setReplyMarkup(InlineKeyboardMarkup $value)
  *
+ * @method $this unsetId()
  * @method $this unsetMessageId()
  * @method $this unsetFrom()
  * @method $this unsetSenderChat()
  * @method $this unsetDate()
  * @method $this unsetChat()
+ * @method $this unsetFileId()
  * @method $this unsetForwardFrom()
  * @method $this unsetForwardFromChat()
  * @method $this unsetForwardFromMessageId()
@@ -247,11 +258,13 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetWebAppData()
  * @method $this unsetReplyMarkup()
  *
+ * @property Int $id
  * @property Int $message_id
  * @property User $from
  * @property Chat $sender_chat
  * @property Int $date
  * @property Chat $chat
+ * @property string $file_id
  * @property User $forward_from
  * @property Chat $forward_from_chat
  * @property Int $forward_from_message_id
@@ -309,9 +322,8 @@ use Jove\Utils\LazyJsonMapper;
  */
 class Message extends LazyJsonMapper
 {
-    public int $id;
-
     const JSON_PROPERTY_MAP = [
+        'id' => 'int',
         'message_id' => 'int',
         'from' => 'User',
         'sender_chat' => 'Chat',
@@ -371,13 +383,64 @@ class Message extends LazyJsonMapper
         'video_chat_participants_invited' => 'VideoChatParticipantsInvited',
         'web_app_data' => 'WebAppData',
         'reply_markup' => 'InlineKeyboardMarkup',
+        'file_id' => 'string',
+    ];
+
+    private static array $downloadable_types = [
+        'animation',
+        'audio',
+        'document',
+        'photo',
+        'sticker',
+        'video',
+        'video_note',
+        'voice',
     ];
 
     public function _init()
     {
         parent::_init();
 
-        $this->id = $this->_getProperty('message_id');
+        $this->_setProperty('id', $this->_getProperty('message_id'));
+
+        $this->initializeFileId();
+    }
+
+    public function initializeFileId()
+    {
+        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
+            $update = is_array($this->{$type})
+                ? end($this->{$type})
+                : $this->{$type};
+
+            $this->_setProperty('file_id', $update->file_id);
+        }
+    }
+
+    public function download($dist = null): Promise
+    {
+        return call(function () use ($dist) {
+            if ($fileId = $this->file_id) {
+                if ([$path, $link] = yield $this->api->getDownloadableLink($fileId)) {
+                    $path = $dist ?? storage_path($path);
+                    (yield isDirectory($dir = dirname($path))) || (yield createDirectoryRecursively($dir, 0755));
+
+                    if ($file = yield openFile($path, 'c+')) {
+                        $body = yield $this->api->get($link, stream: true);
+
+                        while (null !== $chunk = yield $body->read()) {
+                            $file->write($chunk);
+                        }
+
+                        yield $file->close();
+
+                        return $path;
+                    }
+                }
+            }
+
+            return false;
+        });
     }
 
     /**
@@ -430,14 +493,6 @@ class Message extends LazyJsonMapper
             parse_mode: 'html',
             reply_to_message_id: $this->message_id,
         );
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->_getProperty('message_id');
     }
 
     /**
