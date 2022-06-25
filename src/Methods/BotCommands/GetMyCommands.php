@@ -23,9 +23,9 @@ trait GetMyCommands
             );
 
             if (isset($response['result']) && is_array($response['result'])) {
-                return array_map(
+                return collect(array_map(
                     fn($command) => new BotCommand($command), $response['result']
-                );
+                ));
             }
 
             return new FallbackResponse($response);

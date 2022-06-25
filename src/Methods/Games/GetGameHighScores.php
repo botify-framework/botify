@@ -25,7 +25,9 @@ trait GetGameHighScores
             );
 
             if (isset($response['result']) && is_array($response['result'])) {
-                return array_map(fn($member) => new GameHighScore($member), $response['result']);
+                return collect(array_map(
+                    fn($member) => new GameHighScore($member), $response['result']
+                ));
             }
 
             return new FallbackResponse($response);
