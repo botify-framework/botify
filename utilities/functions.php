@@ -67,3 +67,16 @@ if (!function_exists('collect')) {
         return new Collection($items);
     }
 }
+
+if (!function_exists('is_collection')) {
+    /**
+     * Check the $value is a collection
+     *
+     * @param $value
+     * @return bool
+     */
+    function is_collection($value): bool
+    {
+        return $value instanceof Collection;
+    }
+}
