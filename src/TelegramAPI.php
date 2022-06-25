@@ -171,12 +171,18 @@ class TelegramAPI
 
                     Loop::repeat(1000, function () use (&$offset) {
                         $updates = yield $this->getUpdates($offset);
-                        if (is_array($updates)) {
+
+                        if ($updates->isNotEmpty()) {
                             foreach ($updates as $update) {
                                 $offset = $update->update_id + 1;
                                 call(fn() => $this->eventHandler->boot($update));
                             }
                         }
+                    });
+
+                    Loop::onSignal(\SIGINT, function (string $watcherId) {
+                        Loop::cancel($watcherId);
+                        exit();
                     });
                 });
                 break;
