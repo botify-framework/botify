@@ -32,7 +32,6 @@ class AuthorizeWebhooks implements Middleware
             $next = fn() => $requestHandler->handleRequest($request, $requestHandler);
 
             if ('production' === \strtolower(\getenv('APP_ENV'))) {
-                dd(111);
                 if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === \getenv('SECURE_TOKEN')) {
                     return $next();
                 }
