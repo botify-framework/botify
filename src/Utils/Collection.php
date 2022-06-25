@@ -14,6 +14,19 @@ class Collection
     }
 
     /**
+     * Map into collection items
+     *
+     * @param Closure $fn
+     * @return Collection
+     */
+    public function map(Closure $fn): Collection
+    {
+        return new self(
+            array_map($fn, $this->items)
+        );
+    }
+
+    /**
      * Get first element of collection items
      *
      * @param ?Closure $fn
@@ -75,16 +88,6 @@ class Collection
     {
         return array_map(
             fn($item) => $item->toArray(), $this->items
-        );
-    }
-    /**
-     * Convert collection options to map
-     * @return array
-     */
-    public function map(Closure $fn)
-    {
-        return new self(
-            array_map($fn, $this->items)
         );
     }
 }
