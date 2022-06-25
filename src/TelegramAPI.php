@@ -40,6 +40,10 @@ class TelegramAPI
 {
     use Methods;
 
+    private static int $inactivityTimeout = 10000;
+
+    private static int $transferTimeout = 10000;
+
     private static $client;
 
     private EventHandler $eventHandler;
@@ -166,7 +170,7 @@ class TelegramAPI
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
-                    $update = dump(json_decode(file_get_contents('php://input'), true));
+                    $update = json_decode(file_get_contents('php://input'), true);
                     call(fn() => $this->eventHandler->boot(new Update($update)));
                 });
                 break;
@@ -296,12 +300,14 @@ class TelegramAPI
         $method = strtoupper($method);
         $queries = $method === 'GET' ? $data : [];
 
-        return \tap(new Request($this->generateUri($uri, $queries), $method), function ($request) use ($queries, $data) {
+        return \tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
             if (empty($queries) && !empty($data)) {
                 $request->setBody(
                     $this->generateBody($data)
                 );
             }
+            $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
+            $request->setTransferTimeout(static::$transferTimeout * 1000);
         });
     }
 

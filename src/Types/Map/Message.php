@@ -428,7 +428,7 @@ class Message extends LazyJsonMapper
                     if ($file = yield openFile($path, 'c+')) {
                         $body = yield $this->api->get($link, stream: true);
 
-                        while (null !== $chunk = yield $body->read()) {
+                        while (null !== $chunk = yield $body->read(1024)) {
                             $file->write($chunk);
                         }
 
