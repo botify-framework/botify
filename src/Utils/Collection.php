@@ -4,10 +4,10 @@ namespace Jove\Utils;
 
 use ArrayIterator;
 use Closure;
+use Countable;
 use IteratorAggregate;
-use Traversable;
 
-class Collection implements IteratorAggregate
+class Collection implements IteratorAggregate, Countable
 {
     protected array $items;
 
@@ -105,10 +105,20 @@ class Collection implements IteratorAggregate
     }
 
     /**
-     * @return Traversable
+     * @return ArrayIterator
      */
-    public function getIterator(): Traversable
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->items);
+    }
+
+    /**
+     * Get count of items
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->items);
     }
 }
