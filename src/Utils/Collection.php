@@ -24,7 +24,7 @@ class Collection implements IteratorAggregate, Countable
      */
     public function sole($fn): mixed
     {
-        $items = $this->unless(is_null($fn))->filter($fn);
+        $items = $this->unless(is_null($fn))->where($fn);
 
         if (1 === $items->count())
             return $items->first();
@@ -139,6 +139,19 @@ class Collection implements IteratorAggregate, Countable
     }
 
     /**
+     * Filtering collection items
+     *
+     * @param $fn
+     * @return Collection
+     */
+    public function where($fn): Collection
+    {
+        return new self(
+            array_filter($this->items, $fn)
+        );
+    }
+
+    /**
      * Map into collection items
      *
      * @param Closure $fn
@@ -163,9 +176,9 @@ class Collection implements IteratorAggregate, Countable
             return array_shift($this->items);
         }
 
-        $filtered = array_filter($this->items, $fn);
+        $filtered = $this->where($fn);
 
-        return array_shift($filtered);
+        return $filtered->shift();
     }
 
     /**
@@ -177,12 +190,22 @@ class Collection implements IteratorAggregate, Countable
     public function last(?Closure $fn = null): mixed
     {
         if (empty($fn)) {
-            return array_pop($this->items);
+            return $this->pop();
         }
 
-        $filtered = array_filter($this->items, $fn);
+        $filtered = $this->where($fn);
 
-        return array_pop($filtered);
+        return $filtered->pop();
+    }
+
+    public function pop()
+    {
+        return array_pop($this->items);
+    }
+
+    public function shift()
+    {
+        return array_shift($this->items);
     }
 
     /**
