@@ -462,17 +462,19 @@ class Message extends LazyJsonMapper
      * @param $text
      * @return Promise
      */
-    public function edit($text): Promise
+    public function edit(string $text,mixed ...$args): Promise
     {
         $chatId = $this->chat->id;
         $messageId = $this->message_id;
 
         return $this->isText()
             ? $this->api->editMessageText(
+                $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 text: $text
             ) : $this->api->editMessageCaption(
+                $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 caption: $text
@@ -480,20 +482,279 @@ class Message extends LazyJsonMapper
     }
 
     /**
-     * Replying on current message
+     * Replying text on current message
      *
-     * @param $text
+     * @param string $text
+     * @param mixed $args
      * @return Promise
      */
-    public function reply($text): Promise
+    public function reply(string $text,mixed ...$args): Promise
     {
         return $this->api->sendMessage(
+            $args,
             chat_id: $this->chat->id,
             text: $text,
             parse_mode: 'html',
             reply_to_message_id: $this->message_id,
         );
     }
+
+    /**
+     * Replying sticker on current message
+     *
+     * @param string $sticker
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_sticker(string $sticker,mixed ...$args): Promise
+    {
+        return $this->api->sendSticker(
+            $args,
+            chat_id: $this->chat->id,
+            sticker: $sticker,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying video on current message
+     *
+     * @param string $video
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_video(string $video,mixed ...$args): Promise
+    {
+        return $this->api->sendVideo(
+            $args,
+            chat_id: $this->chat->id,
+            video: $video,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying voice on current message
+     *
+     * @param string $voice
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_voice(string $voice,mixed ...$args): Promise
+    {
+        return $this->api->sendVoice(
+            $args,
+            chat_id: $this->chat->id,
+            voice: $voice,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying animation on current message
+     *
+     * @param string $animation
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_animation(string $animation,mixed ...$args): Promise
+    {
+        return $this->api->sendAnimation(
+            $args,
+            chat_id: $this->chat->id,
+            animation: $animation,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying photo on current message
+     *
+     * @param string $photo
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_photo(string $photo,mixed ...$args): Promise
+    {
+        return $this->api->sendPhoto(
+            $args,
+            chat_id: $this->chat->id,
+            photo: $photo,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying dice on current message
+     *
+     * @param string $emoji
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_dice(string $emoji,mixed ...$args): Promise
+    {
+        return $this->api->sendDice(
+            $args,
+            chat_id: $this->chat->id,
+            emoji: $emoji,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying document on current message
+     *
+     * @param string $document
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_document(string $document,mixed ...$args): Promise
+    {
+        return $this->api->sendDocument(
+            $args,
+            chat_id: $this->chat->id,
+            document: $document,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying poll on current message
+     *
+     * @param string $question
+     * @param array $options
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_poll(string $question,array $options,mixed ...$args): Promise
+    {
+        return $this->api->sendPoll(
+            $args,
+            chat_id: $this->chat->id,
+            question: $question,
+            options:json_encode($options),
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying contact on current message
+     *
+     * @param string $phone_number
+     * @param string $first_name
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_contact(string $phone_number,string $first_name,mixed ...$args): Promise
+    {
+        return $this->api->sendContact(
+            $args,
+            chat_id: $this->chat->id,
+            phone_number: $phone_number,
+            first_name:$first_name,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying location on current message
+     *
+     * @param float $latitude
+     * @param float $longitude
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_location(float $latitude,float $longitude,mixed ...$args): Promise
+    {
+        return $this->api->sendLocation(
+            $args,
+            chat_id: $this->chat->id,
+            latitude: $latitude,
+            longitude:$longitude,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying media_group on current message
+     *
+     * @param array $media
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_media_group(array $media,mixed ...$args): Promise
+    {
+        return $this->api->sendMediaGroup(
+            $args,
+            chat_id: $this->chat->id,
+            media: json_encode($media),
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying venue on current message
+     *
+     * @param float $latitude
+     * @param float $longitude
+     * @param mixed $args
+     * @param string $title
+     * @param string $address
+     * @return Promise
+     */
+    public function reply_venue(
+        float $latitude,
+        float $longitude,
+        string $title,
+        string $address,
+        mixed ...$args
+    ): Promise
+    {
+        return $this->api->sendVenue(
+            $args,
+            chat_id: $this->chat->id,
+            latitude: $latitude,
+            longitude:$longitude,
+            title:$title,
+            address:$address,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying audio on current message
+     *
+     * @param string $audio
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply_audio(string $audio,mixed ...$args): Promise
+    {
+        return $this->api->sendAudio(
+            $args,
+            chat_id: $this->chat->id,
+            audio: $audio,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
+    /**
+     * Replying video_note on current message
+     *
+     * @param string $audio
+     * @param mixed $video_note
+     * @return Promise
+     */
+    public function reply_video_note(string $video_note,mixed ...$args): Promise
+    {
+        return $this->api->sendVideoNote(
+            $args,
+            chat_id: $this->chat->id,
+            video_note: $video_note,
+            reply_to_message_id: $this->message_id,
+        );
+    }
+
 
     /**
      * @return string
