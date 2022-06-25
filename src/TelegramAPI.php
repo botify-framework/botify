@@ -168,11 +168,10 @@ class TelegramAPI
             case EventHandler::UPDATE_TYPE_POLLING:
                 Loop::run(function () {
                     $offset = -1;
+                    $deleted = yield $this->deleteWebhook();
 
-                    Loop::repeat(1000, function () use (&$offset) {
-                        $deleted = yield $this->deleteWebhook();
-
-                        if ($deleted->isOk()) {
+                    if ($deleted->isOk()) {
+                        Loop::repeat(1000, function () use (&$offset) {
                             $updates = yield $this->getUpdates($offset);
 
                             if ($updates->isNotEmpty()) {
@@ -181,8 +180,9 @@ class TelegramAPI
                                     call(fn() => $this->eventHandler->boot($update));
                                 }
                             }
-                        }
-                    });
+
+                        });
+                    }
 
                     Loop::onSignal(\SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
