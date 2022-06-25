@@ -168,21 +168,20 @@ class TelegramAPI
             case EventHandler::UPDATE_TYPE_POLLING:
                 Loop::run(function () {
                     $offset = -1;
-                    $deleted = yield $this->deleteWebhook();
+                    yield $this->deleteWebhook();
 
-                    if ($deleted->isOk()) {
-                        Loop::repeat(1000, function () use (&$offset) {
-                            $updates = yield $this->getUpdates($offset);
+                    Loop::repeat(1000, function () use (&$offset) {
+                        $updates = yield $this->getUpdates($offset);
 
-                            if ($updates->isNotEmpty()) {
-                                foreach ($updates as $update) {
-                                    $offset = $update->update_id + 1;
-                                    call(fn() => $this->eventHandler->boot($update));
-                                }
+                        if ($updates->isNotEmpty()) {
+                            foreach ($updates as $update) {
+                                $offset = $update->update_id + 1;
+                                call(fn() => $this->eventHandler->boot($update));
                             }
+                        }
 
-                        });
-                    }
+                    });
+
 
                     Loop::onSignal(\SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
