@@ -397,6 +397,11 @@ class Message extends LazyJsonMapper
         'voice',
     ];
 
+    /**
+     * Initialize properties
+     *
+     * @return void
+     */
     public function _init()
     {
         parent::_init();
@@ -406,6 +411,11 @@ class Message extends LazyJsonMapper
         $this->initializeFileId();
     }
 
+    /**
+     * Initialize FileId
+     *
+     * @return void
+     */
     public function initializeFileId()
     {
         if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
@@ -417,6 +427,12 @@ class Message extends LazyJsonMapper
         }
     }
 
+    /**
+     * Download current message media to file
+     *
+     * @param $dist
+     * @return Promise
+     */
     public function download($dist = null): Promise
     {
         return call(function () use ($dist) {
@@ -459,7 +475,8 @@ class Message extends LazyJsonMapper
     /**
      * Edit current message
      *
-     * @param $text
+     * @param string $text
+     * @param mixed ...$args
      * @return Promise
      */
     public function edit(string $text,mixed ...$args): Promise
@@ -503,10 +520,10 @@ class Message extends LazyJsonMapper
      * Replying sticker on current message
      *
      * @param string $sticker
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_sticker(string $sticker,mixed ...$args): Promise
+    public function reply_sticker(string $sticker, ...$args): Promise
     {
         return $this->api->sendSticker(
             $args,
@@ -520,10 +537,10 @@ class Message extends LazyJsonMapper
      * Replying video on current message
      *
      * @param string $video
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_video(string $video,mixed ...$args): Promise
+    public function reply_video(string $video, ...$args): Promise
     {
         return $this->api->sendVideo(
             $args,
@@ -537,10 +554,10 @@ class Message extends LazyJsonMapper
      * Replying voice on current message
      *
      * @param string $voice
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_voice(string $voice,mixed ...$args): Promise
+    public function reply_voice(string $voice, ...$args): Promise
     {
         return $this->api->sendVoice(
             $args,
@@ -554,10 +571,10 @@ class Message extends LazyJsonMapper
      * Replying animation on current message
      *
      * @param string $animation
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_animation(string $animation,mixed ...$args): Promise
+    public function reply_animation(string $animation, ...$args): Promise
     {
         return $this->api->sendAnimation(
             $args,
@@ -571,10 +588,10 @@ class Message extends LazyJsonMapper
      * Replying photo on current message
      *
      * @param string $photo
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_photo(string $photo,mixed ...$args): Promise
+    public function reply_photo(string $photo, ...$args): Promise
     {
         return $this->api->sendPhoto(
             $args,
@@ -588,10 +605,10 @@ class Message extends LazyJsonMapper
      * Replying dice on current message
      *
      * @param string $emoji
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_dice(string $emoji,mixed ...$args): Promise
+    public function reply_dice(string $emoji, ...$args): Promise
     {
         return $this->api->sendDice(
             $args,
@@ -605,10 +622,10 @@ class Message extends LazyJsonMapper
      * Replying document on current message
      *
      * @param string $document
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_document(string $document,mixed ...$args): Promise
+    public function reply_document(string $document, ...$args): Promise
     {
         return $this->api->sendDocument(
             $args,
@@ -623,16 +640,16 @@ class Message extends LazyJsonMapper
      *
      * @param string $question
      * @param array $options
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_poll(string $question,array $options,mixed ...$args): Promise
+    public function reply_poll(string $question, array $options, array ...$args): Promise
     {
         return $this->api->sendPoll(
             $args,
             chat_id: $this->chat->id,
             question: $question,
-            options:json_encode($options),
+            options: json_encode($options),
             reply_to_message_id: $this->message_id,
         );
     }
@@ -642,16 +659,16 @@ class Message extends LazyJsonMapper
      *
      * @param string $phone_number
      * @param string $first_name
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_contact(string $phone_number,string $first_name,mixed ...$args): Promise
+    public function reply_contact(string $phone_number, string $first_name, ...$args): Promise
     {
         return $this->api->sendContact(
             $args,
             chat_id: $this->chat->id,
             phone_number: $phone_number,
-            first_name:$first_name,
+            first_name: $first_name,
             reply_to_message_id: $this->message_id,
         );
     }
@@ -661,16 +678,16 @@ class Message extends LazyJsonMapper
      *
      * @param float $latitude
      * @param float $longitude
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_location(float $latitude,float $longitude,mixed ...$args): Promise
+    public function reply_location(float $latitude, float $longitude, ...$args): Promise
     {
         return $this->api->sendLocation(
             $args,
             chat_id: $this->chat->id,
             latitude: $latitude,
-            longitude:$longitude,
+            longitude: $longitude,
             reply_to_message_id: $this->message_id,
         );
     }
@@ -679,10 +696,10 @@ class Message extends LazyJsonMapper
      * Replying media_group on current message
      *
      * @param array $media
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_media_group(array $media,mixed ...$args): Promise
+    public function reply_media_group(array $media, ...$args): Promise
     {
         return $this->api->sendMediaGroup(
             $args,
@@ -697,7 +714,7 @@ class Message extends LazyJsonMapper
      *
      * @param float $latitude
      * @param float $longitude
-     * @param mixed $args
+     * @param array $args
      * @param string $title
      * @param string $address
      * @return Promise
@@ -707,7 +724,7 @@ class Message extends LazyJsonMapper
         float $longitude,
         string $title,
         string $address,
-        mixed ...$args
+        ...$args
     ): Promise
     {
         return $this->api->sendVenue(
@@ -725,10 +742,10 @@ class Message extends LazyJsonMapper
      * Replying audio on current message
      *
      * @param string $audio
-     * @param mixed $args
+     * @param array $args
      * @return Promise
      */
-    public function reply_audio(string $audio,mixed ...$args): Promise
+    public function reply_audio(string $audio, ...$args): Promise
     {
         return $this->api->sendAudio(
             $args,
@@ -741,11 +758,11 @@ class Message extends LazyJsonMapper
     /**
      * Replying video_note on current message
      *
-     * @param string $audio
      * @param mixed $video_note
+     * @param array ...$args
      * @return Promise
      */
-    public function reply_video_note(string $video_note,mixed ...$args): Promise
+    public function reply_video_note(string $video_note, ...$args): Promise
     {
         return $this->api->sendVideoNote(
             $args,
@@ -753,36 +770,5 @@ class Message extends LazyJsonMapper
             video_note: $video_note,
             reply_to_message_id: $this->message_id,
         );
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getText(): string
-    {
-        return strtr(strtr($this->_getProperty('text'), [
-            '۰' => '0',
-            '۱' => '1',
-            '۲' => '2',
-            '۳' => '3',
-            '۴' => '4',
-            '۵' => '5',
-            '۶' => '6',
-            '۷' => '7',
-            '۸' => '8',
-            '۹' => '9',
-        ]), [
-            '٠' => '0',
-            '١' => '1',
-            '٢' => '2',
-            '٣' => '3',
-            '٤' => '4',
-            '٥' => '5',
-            '٦' => '6',
-            '٧' => '7',
-            '٨' => '8',
-            '٩' => '9',
-        ]);
     }
 }
