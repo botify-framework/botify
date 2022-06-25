@@ -2,6 +2,8 @@
 
 namespace Jove\Utils;
 
+use Closure;
+
 class Collection
 {
     protected array $items;
@@ -9,6 +11,40 @@ class Collection
     public function __construct(array $items)
     {
         $this->items = $items;
+    }
+
+    /**
+     * Get first element of collection items
+     *
+     * @param ?Closure $fn
+     * @return mixed
+     */
+    public function first(?Closure $fn = null): mixed
+    {
+        if (empty($fn)) {
+            return array_shift($this->items);
+        }
+
+        $filtered = array_filter($this->items, $fn);
+
+        return array_shift($filtered);
+    }
+
+    /**
+     * Get last element of collection items
+     *
+     * @param ?Closure $fn
+     * @return mixed
+     */
+    public function last(?Closure $fn = null): mixed
+    {
+        if (empty($fn)) {
+            return array_pop($this->items);
+        }
+
+        $filtered = array_filter($this->items, $fn);
+
+        return array_pop($filtered);
     }
 
     /**
