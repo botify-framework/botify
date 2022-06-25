@@ -2,6 +2,7 @@
 
 use Amp\Delayed;
 use Amp\Promise;
+use Jove\Utils\Collection;
 use function Amp\call;
 
 if (!function_exists('retry')) {
@@ -53,5 +54,16 @@ if (!function_exists('asleep')) {
         return call(function () use ($time, $value) {
             return new Delayed($time, $value);
         });
+    }
+}
+
+if (!function_exists('collect')) {
+    /**
+     * @param array $items
+     * @return Collection
+     */
+    function collect(array $items)
+    {
+        return new Collection($items);
     }
 }
