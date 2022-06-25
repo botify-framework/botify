@@ -176,7 +176,7 @@ class TelegramAPI
                 break;
             case EventHandler::UPDATE_TYPE_POLLING:
                 Loop::run(function () {
-                    $offset = 0;
+                    $offset = -1;
                     yield $this->deleteWebhook();
 
                     Loop::repeat(100, function () use (&$offset) {
