@@ -2,9 +2,12 @@
 
 namespace Jove\Utils;
 
+use ArrayIterator;
 use Closure;
+use IteratorAggregate;
+use Traversable;
 
-class Collection
+class Collection implements IteratorAggregate
 {
     protected array $items;
 
@@ -89,5 +92,13 @@ class Collection
         return array_map(
             fn($item) => $item->toArray(), $this->items
         );
+    }
+
+    /**
+     * @return Traversable
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->items);
     }
 }
