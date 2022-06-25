@@ -17,6 +17,128 @@ class Collection implements IteratorAggregate, Countable
     }
 
     /**
+     * Get first element in the collection that passes a given condition filter
+     *
+     * @param $fn
+     * @return mixed
+     */
+    public function sole($fn): mixed
+    {
+        $items = $this->unless(is_null($fn))->filter($fn);
+
+        if (1 === $items->count())
+            return $items->first();
+
+        return false;
+    }
+
+    /**
+     * @param $value
+     * @param ?callable $callback
+     * @param ?callable $default
+     * @return mixed
+     */
+    public function unless($value, ?callable $callback = null, ?callable $default = null): mixed
+    {
+        $value = $value instanceof Closure ? $value($this) : $value;
+
+        if (!$callback) {
+            return new class($this, !$value) {
+                /**
+                 * @var mixed
+                 */
+                private $target;
+
+                /**
+                 * @var bool
+                 */
+                private $condition;
+
+                public function __construct($target, $condition)
+                {
+                    $this->target = $target;
+                    $this->condition = $condition;
+                }
+
+                public function __get($name)
+                {
+                    return $this->condition
+                        ? $this->target->{$name}
+                        : $this->target;
+                }
+
+                public function __call($name, $arguments)
+                {
+                    return $this->condition
+                        ? $this->target->{$name}(... $arguments)
+                        : $this->target;
+                }
+            };
+        }
+
+        if (!$value) {
+            return $callback($this, $value) ?? $this;
+        } elseif ($default) {
+            return $default($this, $value) ?? $this;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $value
+     * @param ?callable $callback
+     * @param ?callable $default
+     * @return mixed
+     */
+    public function when($value, ?callable $callback = null, ?callable $default = null): mixed
+    {
+        $value = $value instanceof Closure ? $value($this) : $value;
+
+        if (!$callback) {
+            return new class($this, $value) {
+                /**
+                 * @var mixed
+                 */
+                private $target;
+
+                /**
+                 * @var bool
+                 */
+                private $condition;
+
+                public function __construct($target, $condition)
+                {
+                    $this->target = $target;
+                    $this->condition = $condition;
+                }
+
+                public function __get($name)
+                {
+                    return $this->condition
+                        ? $this->target->{$name}
+                        : $this->target;
+                }
+
+                public function __call($name, $arguments)
+                {
+                    return $this->condition
+                        ? $this->target->{$name}(... $arguments)
+                        : $this->target;
+                }
+            };
+        }
+
+        if ($value) {
+            return $callback($this, $value) ?? $this;
+        } elseif ($default) {
+            return $default($this, $value) ?? $this;
+        }
+
+        return $this;
+    }
+
+    /**
      * Map into collection items
      *
      * @param Closure $fn
