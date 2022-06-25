@@ -399,17 +399,19 @@ class Message extends LazyJsonMapper
      * @param $text
      * @return Promise
      */
-    public function edit($text): Promise
+    public function edit(string $text,mixed ...$args): Promise
     {
         $chatId = $this->chat->id;
         $messageId = $this->message_id;
 
         return $this->isText()
             ? $this->api->editMessageText(
+                $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 text: $text
             ) : $this->api->editMessageCaption(
+                $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 caption: $text
@@ -422,9 +424,10 @@ class Message extends LazyJsonMapper
      * @param $text
      * @return Promise
      */
-    public function reply($text): Promise
+    public function reply(string $text,mixed ...$args): Promise
     {
         return $this->api->sendMessage(
+            $args,
             chat_id: $this->chat->id,
             text: $text,
             parse_mode: 'html',
