@@ -17,6 +17,29 @@ class Collection implements IteratorAggregate, Countable
     }
 
     /**
+     * @param $value
+     * @return Collection
+     */
+    public function push($value): Collection
+    {
+        $this->items[] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Merge current items with new items
+     *
+     * @param $items
+     * @return Collection
+     */
+    public function merge($items): Collection
+    {
+        $this->items += $items;
+        return clone $this;
+    }
+
+    /**
      * Get first element in the collection that passes a given condition filter
      *
      * @param $fn
