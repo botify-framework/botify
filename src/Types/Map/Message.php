@@ -439,7 +439,7 @@ class Message extends LazyJsonMapper
         $to ??= $this->chat->id;
 
         return $this->api->copyMessage(
-            ... $args,
+            $args,
             chat_id: $to,
             from_chat_id: $this->chat->id,
             message_id: $this->message_id
