@@ -30,6 +30,7 @@ use function Amp\File\openFile;
  * @method Int getEditDate()
  * @method bool getHasProtectedContent()
  * @method string getMediaGroupId()
+ * @method Int getMessageId()
  * @method string getAuthorSignature()
  * @method MessageEntity[] getEntities()
  * @method Animation getAnimation()
@@ -425,6 +426,24 @@ class Message extends LazyJsonMapper
 
             $this->_setProperty('file_id', $update->file_id);
         }
+    }
+
+    /**
+     * Copy current message to specified chat
+     * @param $to
+     * @param ...$args
+     * @return Promise
+     */
+    public function copy($to = null, ... $args): Promise
+    {
+        $to ??= $this->chat->id;
+
+        return $this->api->copyMessage(
+            ... $args,
+            chat_id: $to,
+            from_chat_id: $this->chat->id,
+            message_id: $this->message_id
+        );
     }
 
     /**
