@@ -71,4 +71,4 @@ CODE;
     }
 });
 
-$bot->hear(EventHandler::UPDATE_TYPE_WEBHOOK);
+$bot->hear(EventHandler::UPDATE_TYPE_POLLING);

@@ -10,7 +10,7 @@ use Jove\Types\Map\Message;
 use Jove\Types\Update;
 use function Amp\call;
 
-abstract class EventHandler
+class EventHandler
 {
 
     const UPDATE_TYPE_WEBHOOK = 1;
@@ -19,6 +19,11 @@ abstract class EventHandler
     private static array $events = [];
     public $current;
     private Update $update;
+
+    public function __construct()
+    {
+
+    }
 
     public static function on(string $event, callable $listener)
     {
@@ -47,6 +52,7 @@ abstract class EventHandler
 
     public function boot(Update $update)
     {
+        dump($update);
         $this->update = $update;
 
         call([$this, 'onAny'], $update);

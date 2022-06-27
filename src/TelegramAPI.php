@@ -44,7 +44,10 @@ class TelegramAPI
     private static int $inactivityTimeout = 10000;
     private static int $transferTimeout = 10000;
     private array $default_attributes = [];
-    private EventHandler $eventHandler;
+    /**
+     * @var EventHandler[] $eventHandlers
+     */
+    private array $eventHandlers;
     /**
      * Map all methods responses
      *
@@ -125,6 +128,8 @@ class TelegramAPI
         ]
     ];
 
+    private static EventHandler $eventHandler;
+
     /**
      * @param $event
      * @param callable $listener
@@ -132,7 +137,9 @@ class TelegramAPI
      */
     public static function on($event, callable $listener)
     {
-        EventHandler::on($event, $listener);
+        static::$eventHandler ??= new EventHandler();
+
+        static::$eventHandler->on($event, $listener);
     }
 
     /**
@@ -331,12 +338,18 @@ class TelegramAPI
      */
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
+        array_unshift($this->eventHandlers, static::$eventHandler);
+
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
                     $this->finish(uniqid());
-                    $update = json_decode(file_get_contents('php://input'), true);
-                    call(fn() => $this->eventHandler->boot(new Update($update)));
+                    $update = new Update(
+                        json_decode(file_get_contents('php://input'), true)
+                    );
+                    array_map(
+                        fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
+                    );
                 });
                 break;
             case EventHandler::UPDATE_TYPE_POLLING:
@@ -349,7 +362,10 @@ class TelegramAPI
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
-                                call(fn() => $this->eventHandler->boot($update));
+                                $update = new Update($update);
+                                array_map(
+                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
+                                );
                                 $offset = $update->update_id + 1;
                             }
                         }
@@ -379,10 +395,12 @@ class TelegramAPI
                     foreach (['GET', 'POST'] as $method)
                         $router->addRoute($method, $uri, Server\Middleware\stack(
                             new CallableRequestHandler(function (Server\Request $request) {
-                                $update = json_decode(yield $request->getBody()->buffer(), true);
-
-                                call(fn() => $this->eventHandler->boot(new Update($update)));
-
+                                $update = new Update(
+                                    json_decode(yield $request->getBody()->buffer(), true)
+                                );
+                                array_map(
+                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
+                                );
                                 return new Response(Status::OK);
                             }),
                             new AuthorizeWebhooks()
@@ -402,7 +420,13 @@ class TelegramAPI
         }
     }
 
-    public function finish($message = 'HTTP OK')
+    /**
+     * Finish browser requests
+     *
+     * @param string $message
+     * @return void
+     */
+    public function finish(string $message = 'HTTP OK')
     {
         while (ob_get_level() > 0)
             ob_end_clean();
@@ -431,7 +455,7 @@ class TelegramAPI
     public function setEventHandler($eventHandler): EventHandler
     {
         if ($eventHandler instanceof EventHandler) {
-            return $this->eventHandler = $eventHandler;
+            return $this->eventHandlers[] = $eventHandler;
         }
 
         throw new \Exception(sprintf(
