@@ -331,10 +331,6 @@ class TelegramAPI
      */
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
-        if (empty($this->eventHandler)) {
-            throw new \Exception('No event handler was set.');
-        }
-
         switch ($updateType) {
             case EventHandler::UPDATE_TYPE_WEBHOOK:
                 Loop::run(function () {
