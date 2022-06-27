@@ -52,7 +52,6 @@ class EventHandler
 
     public function boot(Update $update)
     {
-        dump($update);
         $this->update = $update;
 
         call([$this, 'onAny'], $update);
@@ -80,7 +79,7 @@ class EventHandler
                     if ($listener instanceof Closure) {
                         $self = clone $this;
                         $self->current = $current;
-                        $listener = $listener->bindTo($this);
+                        $listener = $listener->bindTo($self);
                     }
                     if (is_array($listener)) {
                         $self = clone $listener[0];
