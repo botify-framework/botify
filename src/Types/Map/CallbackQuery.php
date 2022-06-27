@@ -2,6 +2,7 @@
 
 namespace Jove\Types\Map;
 
+use Amp\Promise;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -59,4 +60,22 @@ class CallbackQuery extends LazyJsonMapper
         'data' => 'string',
         'game_short_name' => 'string',
     ];
+
+    /**
+     * Answer on current callback
+     *
+     * @param $text
+     * @param bool $showAlert
+     * @param ...$args
+     * @return Promise
+     */
+    public function answer($text, bool $showAlert = true, ...$args): Promise
+    {
+        return $this->api->answerCallbackQuery(
+            $args,
+            callback_query_id: $this->id,
+            text: $text,
+            show_alert: $showAlert,
+        );
+    }
 }
