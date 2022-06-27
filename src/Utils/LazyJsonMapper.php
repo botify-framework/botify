@@ -19,13 +19,14 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
         $this->api = new TelegramAPI();
     }
 
-
     /**
-     * @return bool
+     * Convert correct object to collection
+     *
+     * @return Collection
      */
-    public function isSuccess(): bool
+    public function collect(): Collection
     {
-        return $this->ok ?? true;
+        return collect($this->toArray(), true);
     }
 
     /**
@@ -39,13 +40,11 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     }
 
     /**
-     * Convert correct object to collection
-     *
-     * @return Collection
+     * @return bool
      */
-    public function collect(): Collection
+    public function isSuccess(): bool
     {
-        return collect($this->toArray(), true);
+        return $this->ok ?? true;
     }
 
     /**

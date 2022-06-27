@@ -90,7 +90,7 @@ if (!function_exists('is_collection')) {
     }
 }
 
-if (! function_exists('base_path')) {
+if (!function_exists('base_path')) {
     /**
      * Resolve base path
      *
@@ -99,7 +99,7 @@ if (! function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return __DIR__ .'/../'. trim($path, '/');
+        return __DIR__ . '/../' . trim($path, '/');
     }
 }
 
@@ -112,32 +112,32 @@ if (!function_exists('storage_path')) {
      */
     function storage_path(string $path = ''): string
     {
-        return base_path('/storage/'. trim($path, '/'));
+        return base_path('/storage/' . trim($path, '/'));
     }
 }
 
-if (! function_exists('config_path')) {
+if (!function_exists('config_path')) {
     function config_path($path): string
     {
-        return base_path('/config/'. trim($path, '/'));
+        return base_path('/config/' . trim($path, '/'));
     }
 }
 
-if (! function_exists('env')) {
+if (!function_exists('env')) {
     function env($key, $default = null)
     {
         return getenv($key) ?? $default;
     }
 }
 
-if (! function_exists('value')) {
+if (!function_exists('value')) {
     function value($value)
     {
         return $value instanceof Closure ? $value() : $value;
     }
 }
 
-if (! function_exists('array_exists')) {
+if (!function_exists('array_exists')) {
 
     function array_exists($array, $key): bool
     {
@@ -149,7 +149,7 @@ if (! function_exists('array_exists')) {
     }
 }
 
-if (! function_exists('array_accessible')) {
+if (!function_exists('array_accessible')) {
 
     function array_accessible($value): bool
     {
@@ -157,7 +157,7 @@ if (! function_exists('array_accessible')) {
     }
 }
 
-if (! function_exists('array_collapse')) {
+if (!function_exists('array_collapse')) {
 
     function array_collapse(iterable $array): array
     {
@@ -175,7 +175,7 @@ if (! function_exists('array_collapse')) {
     }
 }
 
-if (! function_exists('data_get')) {
+if (!function_exists('data_get')) {
 
     function data_get($target, $key, $default = null)
     {
@@ -193,7 +193,7 @@ if (! function_exists('data_get')) {
             }
 
             if ($segment === '*') {
-                if (! is_array($target)) {
+                if (!is_array($target)) {
                     return value($default);
                 }
 
@@ -219,7 +219,7 @@ if (! function_exists('data_get')) {
     }
 }
 
-if (! function_exists('array_set')) {
+if (!function_exists('array_set')) {
 
     function array_set(array &$array, ?string $key, $value): array
     {
@@ -249,13 +249,13 @@ if (! function_exists('array_set')) {
     }
 }
 
-if (! function_exists('data_set')) {
+if (!function_exists('data_set')) {
     function data_set(&$target, $key, $value, bool $overwrite = true)
     {
         $segments = is_array($key) ? $key : explode('.', $key);
 
         if (($segment = array_shift($segments)) === '*') {
-            if (! array_accessible($target)) {
+            if (!array_accessible($target)) {
                 $target = [];
             }
 
@@ -270,22 +270,22 @@ if (! function_exists('data_set')) {
             }
         } elseif (array_accessible($target)) {
             if ($segments) {
-                if (! array_exists($target, $segment)) {
+                if (!array_exists($target, $segment)) {
                     $target[$segment] = [];
                 }
 
                 data_set($target[$segment], $segments, $value, $overwrite);
-            } elseif ($overwrite || ! array_exists($target, $segment)) {
+            } elseif ($overwrite || !array_exists($target, $segment)) {
                 $target[$segment] = $value;
             }
         } elseif (is_object($target)) {
             if ($segments) {
-                if (! isset($target->{$segment})) {
+                if (!isset($target->{$segment})) {
                     $target->{$segment} = [];
                 }
 
                 data_set($target->{$segment}, $segments, $value, $overwrite);
-            } elseif ($overwrite || ! isset($target->{$segment})) {
+            } elseif ($overwrite || !isset($target->{$segment})) {
                 $target->{$segment} = $value;
             }
         } else {
@@ -302,7 +302,7 @@ if (! function_exists('data_set')) {
     }
 }
 
-if (! function_exists('config')) {
+if (!function_exists('config')) {
 
     function config($id = null, $default = null)
     {

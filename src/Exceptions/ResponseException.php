@@ -6,9 +6,8 @@ use Exception;
 
 class ResponseException extends Exception
 {
-    public int $retryAfter = 0;
-
     public mixed $migrateToChatId = null;
+    public int $retryAfter = 0;
 
     public function __construct(array $result)
     {

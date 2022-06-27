@@ -13,23 +13,36 @@ use function Amp\call;
 abstract class EventHandler
 {
 
+    const UPDATE_TYPE_WEBHOOK = 1;
+    const UPDATE_TYPE_POLLING = 2;
+    const UPDATE_TYPE_SOCKET_SERVER = 3;
+    private static array $events = [];
     public $current;
     private Update $update;
-    private static array $events = [];
-
-    const UPDATE_TYPE_WEBHOOK = 1;
-
-    const UPDATE_TYPE_POLLING = 2;
-
-    const UPDATE_TYPE_SOCKET_SERVER = 3;
 
     public static function on(string $event, callable $listener)
     {
         $event = strtolower($event);
 
-        if(! in_array($listener, static::$events[$event])) {
+        if (!in_array($listener, static::$events[$event])) {
             static::$events[$event][] = $listener;
         }
+    }
+
+    /**
+     * Dynamic method proxy for calling TelegramAPI methods
+     *
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, array $arguments = [])
+    {
+        if (is_object($this->current) && method_exists($this->current, $name)) {
+            return $this->current->{$name}(... $arguments);
+        }
+
+        return $this->update->api->{$name}(... $arguments);
     }
 
     public function boot(Update $update)
@@ -80,42 +93,30 @@ abstract class EventHandler
      * @return Generator
      */
     public function onAny(Update $update): Generator
-    {}
-
-    /**
-     * @param Message $message
-     * @return Generator
-     */
-    public function onUpdateNewMessage(Message $message): Generator
-    {}
+    {
+    }
 
     /**
      * @param CallbackQuery $callbackQuery
      * @return Generator
      */
     public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
-    {}
+    {
+    }
 
     /**
      * @param InlineQuery $inlineQuery
      * @return Generator
      */
     public function onUpdateInlineQuery(InlineQuery $inlineQuery): Generator
-    {}
+    {
+    }
 
     /**
-     * Dynamic method proxy for calling TelegramAPI methods
-     *
-     * @param $name
-     * @param array $arguments
-     * @return mixed
+     * @param Message $message
+     * @return Generator
      */
-    public function __call($name, array $arguments = [])
+    public function onUpdateNewMessage(Message $message): Generator
     {
-        if (is_object($this->current) && method_exists($this->current, $name)) {
-            return $this->current->{$name}(... $arguments);
-        }
-
-        return $this->update->api->{$name}(... $arguments);
     }
 }

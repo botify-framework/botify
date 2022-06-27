@@ -40,16 +40,11 @@ class TelegramAPI
 {
     use Methods;
 
-    private static int $inactivityTimeout = 10000;
-
-    private static int $transferTimeout = 10000;
-
     private static $client;
-
-    private EventHandler $eventHandler;
-
+    private static int $inactivityTimeout = 10000;
+    private static int $transferTimeout = 10000;
     private array $default_attributes = [];
-
+    private EventHandler $eventHandler;
     /**
      * Map all methods responses
      *
@@ -131,25 +126,6 @@ class TelegramAPI
     ];
 
     /**
-     * Set the event handler for avoiding updates
-     *
-     * @param $eventHandler
-     * @return EventHandler
-     * @throws \Exception
-     */
-    public function setEventHandler($eventHandler): EventHandler
-    {
-        if ($eventHandler instanceof EventHandler) {
-            return $this->eventHandler = $eventHandler;
-        }
-
-        throw new \Exception(sprintf(
-            'The eventHandler must be instance of %s', EventHandler::class,
-        ));
-
-    }
-
-    /**
      * @param $event
      * @param callable $listener
      * @return void
@@ -157,6 +133,193 @@ class TelegramAPI
     public static function on($event, callable $listener)
     {
         EventHandler::on($event, $listener);
+    }
+
+    /**
+     * Dynamic proxy Telegram methods
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return Promise
+     * @throws \Exception
+     */
+    public function __call(string $name, array $arguments = [])
+    {
+        static $mapped = [];
+
+        if (empty($mapped))
+            foreach ($this->responses_map as $response => $methods)
+                foreach ($methods as $method)
+                    $mapped[strtolower($method)] = $response;
+
+        $arguments = isset($arguments[0])
+            ? [array_merge(array_shift($arguments), $arguments)]
+            : [$arguments];
+
+        /**
+         * Prepend method name to arguments
+         */
+        array_unshift($arguments, $name);
+
+        $cast = $mapped[strtolower($name)] ?? false;
+
+        return call(function () use ($arguments, $cast) {
+            $response = yield $this->post(... $arguments);
+
+            if ($response['ok']) {
+                if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
+                    return $response['result'];
+                }
+
+                return new $cast($response['result']);
+            }
+
+            return new FallbackResponse($response);
+        });
+    }
+
+    /**
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function post($uri, array $attributes = [], bool $stream = false): Promise
+    {
+        if (isset($attributes['text'])) {
+            $text = &$attributes['text'];
+
+            if (is_array($text)) {
+                $text = print_r($text, true);
+            } elseif (is_object($text) && method_exists($text, '__toString')) {
+                $text = var_export($text, true);
+            }
+        }
+
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+    }
+
+    /**
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function get($uri, array $attributes = [], bool $stream = false): Promise
+    {
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+    }
+
+    /**
+     * @param $method
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    protected function fetch($method, $uri, array $attributes, bool $stream = false): Promise
+    {
+        $attributes = array_merge_recursive(
+            $this->getDefaultAttributes(), $attributes
+        );
+
+        return call(function () use ($method, $uri, $attributes, $stream) {
+            $client = static::$client ??= HttpClientBuilder::buildDefault();
+            $promise = yield $client->request(
+                $this->generateRequest($method, $uri, $attributes)
+            );
+
+            $body = $promise->getBody();
+
+            if ($stream === true)
+                return $body;
+
+            return json_decode(
+                yield $body->buffer(), true
+            );
+        });
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultAttributes(): array
+    {
+        return $this->default_attributes;
+    }
+
+    /**
+     * @param array $attributes
+     * @param bool $override
+     * @return $this
+     */
+    public function setDefaultAttributes(array $attributes, bool $override = false): self
+    {
+        $this->default_attributes = array_merge(
+            $override ? [] : $this->getDefaultAttributes(),
+            $attributes
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param $method
+     * @param $uri
+     * @param array $data
+     * @return Request
+     */
+    private function generateRequest($method, $uri, array $data = []): Request
+    {
+        $method = strtoupper($method);
+        $queries = $method === 'GET' ? $data : [];
+
+        return \tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
+            if (empty($queries) && !empty($data)) {
+                $request->setBody(
+                    $this->generateBody($data)
+                );
+            }
+            $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
+            $request->setTransferTimeout(static::$transferTimeout * 1000);
+        });
+    }
+
+    /**
+     * @param $uri
+     * @param array $queries
+     * @return string
+     */
+    private function generateUri($uri, array $queries = []): string
+    {
+        $uri = \ltrim($uri, '/');
+
+        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: \sprintf(
+            'https://api.telegram.org/bot%s/%s', \getenv('BOT_TOKEN'), $uri
+        );
+
+        if (!empty($queries))
+            $url .= '?' . \http_build_query($queries);
+
+        return $url;
+    }
+
+    /**
+     * @param array $fields
+     * @return FormBody
+     */
+    private function generateBody(array $fields): FormBody
+    {
+        $body = new FormBody();
+        $fields = \array_filter($fields);
+
+        foreach ($fields as $fieldName => $content)
+            if (\is_string($content) && \file_exists($content) && \filesize($content) > 0)
+                $body->addFile($fieldName, $content);
+            else
+                $body->addField($fieldName, $content);
+
+        return $body;
     }
 
     /**
@@ -243,196 +406,6 @@ class TelegramAPI
         }
     }
 
-    /**
-     * @param $method
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    protected function fetch($method, $uri, array $attributes, bool $stream = false): Promise
-    {
-        $attributes = array_merge_recursive(
-            $this->getDefaultAttributes(), $attributes
-        );
-
-        return call(function () use ($method, $uri, $attributes, $stream) {
-            $client = static::$client ??= HttpClientBuilder::buildDefault();
-            $promise = yield $client->request(
-                $this->generateRequest($method, $uri, $attributes)
-            );
-
-            $body = $promise->getBody();
-
-            if ($stream === true)
-                return $body;
-
-            return json_decode(
-                yield $body->buffer(), true
-            );
-        });
-    }
-
-    /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function get($uri, array $attributes = [], bool $stream = false): Promise
-    {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
-    }
-
-    /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function post($uri, array $attributes = [], bool $stream = false): Promise
-    {
-        if (isset($attributes['text'])) {
-            $text = &$attributes['text'];
-
-            if (is_array($text)) {
-                $text = print_r($text, true);
-            }
-
-            elseif (is_object($text) && method_exists($text, '__toString')) {
-                $text = var_export($text, true);
-            }
-        }
-
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
-    }
-
-    /**
-     * @param $method
-     * @param $uri
-     * @param array $data
-     * @return Request
-     */
-    private function generateRequest($method, $uri, array $data = []): Request
-    {
-        $method = strtoupper($method);
-        $queries = $method === 'GET' ? $data : [];
-
-        return \tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
-            if (empty($queries) && !empty($data)) {
-                $request->setBody(
-                    $this->generateBody($data)
-                );
-            }
-            $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
-            $request->setTransferTimeout(static::$transferTimeout * 1000);
-        });
-    }
-
-    /**
-     * @param array $fields
-     * @return FormBody
-     */
-    private function generateBody(array $fields): FormBody
-    {
-        $body = new FormBody();
-        $fields = \array_filter($fields);
-
-        foreach ($fields as $fieldName => $content)
-            if (\is_string($content) && \file_exists($content) && \filesize($content) > 0)
-                $body->addFile($fieldName, $content);
-            else
-                $body->addField($fieldName, $content);
-
-        return $body;
-    }
-
-    /**
-     * @param $uri
-     * @param array $queries
-     * @return string
-     */
-    private function generateUri($uri, array $queries = []): string
-    {
-        $uri = \ltrim($uri, '/');
-
-        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: \sprintf(
-            'https://api.telegram.org/bot%s/%s', \getenv('BOT_TOKEN'), $uri
-        );
-
-        if (!empty($queries))
-            $url .= '?' . \http_build_query($queries);
-
-        return $url;
-    }
-
-    /**
-     * Dynamic proxy Telegram methods
-     *
-     * @param string $name
-     * @param array $arguments
-     * @return Promise
-     * @throws \Exception
-     */
-    public function __call(string $name, array $arguments = [])
-    {
-        static $mapped = [];
-
-        if (empty($mapped))
-            foreach ($this->responses_map as $response => $methods)
-                foreach ($methods as $method)
-                    $mapped[strtolower($method)] = $response;
-
-        $arguments = isset($arguments[0])
-            ? [array_merge(array_shift($arguments), $arguments)]
-            : [$arguments];
-
-        /**
-         * Prepend method name to arguments
-         */
-        array_unshift($arguments, $name);
-
-        $cast = $mapped[strtolower($name)] ?? false;
-
-        return call(function () use ($arguments, $cast) {
-            $response = yield $this->post(... $arguments);
-
-            if ($response['ok']) {
-                if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
-                    return $response['result'];
-                }
-
-                return new $cast($response['result']);
-            }
-
-            return new FallbackResponse($response);
-        });
-    }
-
-    /**
-     * @param array $attributes
-     * @param bool $override
-     * @return $this
-     */
-    public function setDefaultAttributes(array $attributes, bool $override = false): self
-    {
-        $this->default_attributes = array_merge(
-            $override ? [] : $this->getDefaultAttributes(),
-            $attributes
-        );
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getDefaultAttributes(): array
-    {
-        return $this->default_attributes;
-    }
-
-
     public function finish($message = 'HTTP OK')
     {
         while (ob_get_level() > 0)
@@ -450,5 +423,24 @@ class TelegramAPI
             litespeed_finish_request();
         if (function_exists('fastcgi_finish_request'))
             fastcgi_finish_request();
+    }
+
+    /**
+     * Set the event handler for avoiding updates
+     *
+     * @param $eventHandler
+     * @return EventHandler
+     * @throws \Exception
+     */
+    public function setEventHandler($eventHandler): EventHandler
+    {
+        if ($eventHandler instanceof EventHandler) {
+            return $this->eventHandler = $eventHandler;
+        }
+
+        throw new \Exception(sprintf(
+            'The eventHandler must be instance of %s', EventHandler::class,
+        ));
+
     }
 }

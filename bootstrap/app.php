@@ -1,7 +1,7 @@
 <?php
 define('START_TIME', microtime(true));
 
-require_once __DIR__ .'/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
     ->addAdapter(Dotenv\Repository\Adapter\EnvConstAdapter::class)
@@ -9,5 +9,5 @@ $repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
     ->immutable()
     ->make();
 
-$dotenv = Dotenv\Dotenv::create($repository, __DIR__ .'/..');
+$dotenv = Dotenv\Dotenv::create($repository, __DIR__ . '/..');
 $dotenv->load();

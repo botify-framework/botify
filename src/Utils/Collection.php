@@ -17,14 +17,121 @@ class Collection implements IteratorAggregate, Countable
     }
 
     /**
-     * @param $value
+     * Convert collection object to string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return json_encode($this->items);
+    }
+
+    /**
+     * Get count of items
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->items);
+    }
+
+    /**
+     * Get first element of collection items
+     *
+     * @param ?Closure $fn
+     * @return mixed
+     */
+    public function first(?Closure $fn = null): mixed
+    {
+        if (empty($fn)) {
+            return array_shift($this->items);
+        }
+
+        $filtered = $this->where($fn);
+
+        return $filtered->shift();
+    }
+
+    /**
+     * Filtering collection items
+     *
+     * @param $fn
      * @return Collection
      */
-    public function push($value): Collection
+    public function where($fn): Collection
     {
-        $this->items[] = $value;
+        return new self(
+            array_filter($this->items, $fn, ARRAY_FILTER_USE_BOTH)
+        );
+    }
 
-        return $this;
+    public function shift()
+    {
+        return array_shift($this->items);
+    }
+
+    /**
+     * @return ArrayIterator
+     */
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->items);
+    }
+
+    /**
+     * Checking correct collection is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool
+    {
+        return !$this->isEmpty();
+    }
+
+    /**
+     * Checking correct collection is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->items);
+    }
+
+    /**
+     * Get last element of collection items
+     *
+     * @param ?Closure $fn
+     * @return mixed
+     */
+    public function last(?Closure $fn = null): mixed
+    {
+        if (empty($fn)) {
+            return $this->pop();
+        }
+
+        $filtered = $this->where($fn);
+
+        return $filtered->pop();
+    }
+
+    public function pop()
+    {
+        return array_pop($this->items);
+    }
+
+    /**
+     * Map into collection items
+     *
+     * @param Closure $fn
+     * @return Collection
+     */
+    public function map(Closure $fn): Collection
+    {
+        return new self(
+            array_map($fn, $this->items)
+        );
     }
 
     /**
@@ -38,6 +145,28 @@ class Collection implements IteratorAggregate, Countable
         $items = is_collection($items) ? $items->toArray() : $items;
         $this->items += $items;
         return clone $this;
+    }
+
+    /**
+     * Convert collection options to array
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return array_map(
+            fn($item) => $item->toArray(), $this->items
+        );
+    }
+
+    /**
+     * @param $value
+     * @return Collection
+     */
+    public function push($value): Collection
+    {
+        $this->items[] = $value;
+
+        return $this;
     }
 
     /**
@@ -160,134 +289,5 @@ class Collection implements IteratorAggregate, Countable
         }
 
         return $this;
-    }
-
-    /**
-     * Filtering collection items
-     *
-     * @param $fn
-     * @return Collection
-     */
-    public function where($fn): Collection
-    {
-        return new self(
-            array_filter($this->items, $fn, ARRAY_FILTER_USE_BOTH)
-        );
-    }
-
-    /**
-     * Map into collection items
-     *
-     * @param Closure $fn
-     * @return Collection
-     */
-    public function map(Closure $fn): Collection
-    {
-        return new self(
-            array_map($fn, $this->items)
-        );
-    }
-
-    /**
-     * Get first element of collection items
-     *
-     * @param ?Closure $fn
-     * @return mixed
-     */
-    public function first(?Closure $fn = null): mixed
-    {
-        if (empty($fn)) {
-            return array_shift($this->items);
-        }
-
-        $filtered = $this->where($fn);
-
-        return $filtered->shift();
-    }
-
-    /**
-     * Get last element of collection items
-     *
-     * @param ?Closure $fn
-     * @return mixed
-     */
-    public function last(?Closure $fn = null): mixed
-    {
-        if (empty($fn)) {
-            return $this->pop();
-        }
-
-        $filtered = $this->where($fn);
-
-        return $filtered->pop();
-    }
-
-    public function pop()
-    {
-        return array_pop($this->items);
-    }
-
-    public function shift()
-    {
-        return array_shift($this->items);
-    }
-
-    /**
-     * Checking correct collection is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool
-    {
-        return empty($this->items);
-    }
-
-    /**
-     * Checking correct collection is not empty
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool
-    {
-        return !$this->isEmpty();
-    }
-
-    /**
-     * Convert collection object to string
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return json_encode($this->items);
-    }
-
-    /**
-     * Convert collection options to array
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return array_map(
-            fn($item) => $item->toArray(), $this->items
-        );
-    }
-
-    /**
-     * @return ArrayIterator
-     */
-    public function getIterator(): ArrayIterator
-    {
-        return new ArrayIterator($this->items);
-    }
-
-    /**
-     * Get count of items
-     *
-     * @return int
-     */
-    public function count(): int
-    {
-        return count($this->items);
     }
 }

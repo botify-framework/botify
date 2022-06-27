@@ -1,4 +1,5 @@
 <?php
+
 namespace Jove\Types;
 
 use Jove\Utils\LazyJsonMapper;

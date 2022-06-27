@@ -13,20 +13,27 @@ class Config
     }
 
     /**
-     * Load specified key data from config
-     *
-     * @param $key
      * @return array
      */
-    public function load($key): array
+    public function all(): array
     {
-        return static::$items[$key] ??= value(function () use ($key) {
-            if (file_exists($path = config_path($key .'.php'))) {
-                return is_array($data = require_once $path) ? $data : [];
-            }
+        return static::$items;
+    }
 
-            return [];
-        });
+    /**
+     * @param $id
+     * @param array $with
+     * @return void
+     */
+    public function merge($id, array $with)
+    {
+        $namespace = $this->splitNamespace($id, $key);
+
+        $data = $this->load($namespace);
+
+        static::$items[$namespace] = data_set($data, $key, array_merge_recursive(data_get(
+            $data, $key, []
+        ), $with));
     }
 
     /**
@@ -45,6 +52,51 @@ class Config
         [$namespace, $key] = $splited;
 
         return $namespace;
+    }
+
+    /**
+     * Load specified key data from config
+     *
+     * @param $key
+     * @return array
+     */
+    public function load($key): array
+    {
+        return static::$items[$key] ??= value(function () use ($key) {
+            if (file_exists($path = config_path($key . '.php'))) {
+                return is_array($data = require_once $path) ? $data : [];
+            }
+
+            return [];
+        });
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return void
+     */
+    public function prepend($id, $value)
+    {
+        $array = $this->get($id);
+
+        array_unshift($array, $value);
+
+        $this->set($id, $array);
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return void
+     */
+    public function push($id, $value)
+    {
+        $array = $this->get($id);
+
+        $array[] = $value;
+
+        $this->set($id, $array);
     }
 
     /**
@@ -68,7 +120,7 @@ class Config
         $config = [];
 
         foreach ($ids as $id => $default) {
-            if(is_numeric($id)) {
+            if (is_numeric($id)) {
                 [$id, $default] = [$default, null];
             }
             $config[] = $this->get($id, $default);
@@ -88,57 +140,5 @@ class Config
 
         foreach ($ids as $id => $value)
             data_set(static::$items, $id, $value, true);
-    }
-
-    /**
-     * @param $id
-     * @param array $with
-     * @return void
-     */
-    public function merge($id, array $with)
-    {
-        $namespace = $this->splitNamespace($id, $key);
-
-        $data = $this->load($namespace);
-
-        static::$items[$namespace] = data_set($data, $key, array_merge_recursive(data_get(
-            $data, $key, []
-        ), $with));
-    }
-
-    /**
-     * @param $id
-     * @param $value
-     * @return void
-     */
-    public function push($id, $value)
-    {
-        $array = $this->get($id);
-
-        $array[] = $value;
-
-        $this->set($id, $array);
-    }
-
-    /**
-     * @param $id
-     * @param $value
-     * @return void
-     */
-    public function prepend($id, $value)
-    {
-        $array = $this->get($id);
-
-        array_unshift($array, $value);
-
-        $this->set($id, $array);
-    }
-
-    /**
-     * @return array
-     */
-    public function all(): array
-    {
-        return static::$items;
     }
 }

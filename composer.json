@@ -1,29 +1,29 @@
 {
-    "name": "jove/async-php-bot",
-    "description": "Create your own Telegram API bot asynchronously in PHP",
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Jove\\": "src/"
-        },
-        "files": [
-            "utilities/functions.php"
-        ]
+  "name": "jove/async-php-bot",
+  "description": "Create your own Telegram API bot asynchronously in PHP",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Jove\\": "src/"
     },
-    "require-dev": {
-        "symfony/var-dumper": "^6.1"
-    },
-    "require": {
-        "amphp/http-server": "^2.1",
-        "amphp/amp": "^2.6",
-        "amphp/socket": "^1.2",
-        "amphp/byte-stream": "^1.8",
-        "amphp/log": "^1.1",
-        "amphp/http": "^1.6",
-        "amphp/http-server-router": "^1.0",
-        "vlucas/phpdotenv": "^5.4",
-        "amphp/http-client": "^4.6",
-        "amphp/file": "^2.0",
-        "lazyjsonmapper/lazyjsonmapper": "^2.0"
-    }
+    "files": [
+      "utilities/functions.php"
+    ]
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^6.1"
+  },
+  "require": {
+    "amphp/http-server": "^2.1",
+    "amphp/amp": "^2.6",
+    "amphp/socket": "^1.2",
+    "amphp/byte-stream": "^1.8",
+    "amphp/log": "^1.1",
+    "amphp/http": "^1.6",
+    "amphp/http-server-router": "^1.0",
+    "vlucas/phpdotenv": "^5.4",
+    "amphp/http-client": "^4.6",
+    "amphp/file": "^2.0",
+    "lazyjsonmapper/lazyjsonmapper": "^2.0"
+  }
 }
