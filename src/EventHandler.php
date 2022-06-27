@@ -2,6 +2,7 @@
 
 namespace Jove;
 
+use ArrayAccess;
 use Closure;
 use Generator;
 use Jove\Types\Map\CallbackQuery;
@@ -10,7 +11,7 @@ use Jove\Types\Map\Message;
 use Jove\Types\Update;
 use function Amp\call;
 
-class EventHandler
+class EventHandler implements ArrayAccess
 {
 
     const UPDATE_TYPE_WEBHOOK = 1;
@@ -125,5 +126,34 @@ class EventHandler
      */
     public function onUpdateNewMessage(Message $message): Generator
     {
+    }
+
+    public function __get($name)
+    {
+        return $this->current->{$name};
+    }
+
+    public function offsetExists(mixed $offset)
+    {
+        return isset($this->current->{$offset});
+    }
+
+    public function offsetGet(mixed $offset)
+    {
+        return $this->current->{$offset};
+    }
+
+    public function offsetSet(mixed $offset, mixed $value)
+    {
+        if (is_null($offset)) {
+            $this->current[] = $value;
+        } else {
+            $this->current[$offset] = $value;
+        }
+    }
+
+    public function offsetUnset(mixed $offset)
+    {
+        unset($this->current[$offset]);
     }
 }

@@ -11,7 +11,7 @@ use Jove\Types\Map\Message;
 $bot = new TelegramAPI();
 
 $bot->on('callback_query', function (CallbackQuery $callbackQuery) {
-    yield $callbackQuery->answer('Hi');
+    yield $this->answer('Hi ' . $this->from->first_name);
 });
 
 $bot->on(['message', 'edited_message'], function (Message $message) {
