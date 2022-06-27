@@ -470,12 +470,14 @@ class Message extends LazyJsonMapper
      *
      * @return Promise
      */
-    public function delete(): Promise
+    public function delete($count = 0): Promise
     {
-        return $this->api->deleteMessage(
-            chat_id: $this->chat->id,
-            message_id: $this->message_id,
-        );
+        return gather(array_map(function ($message_id) {
+            return $this->api->deleteMessage(
+                chat_id: $this->chat->id,
+                message_id: $message_id,
+            );
+        }, range($id = $this->message_id, $id - $count)));
     }
 
     /**
