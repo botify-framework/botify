@@ -150,6 +150,16 @@ class TelegramAPI
     }
 
     /**
+     * @param $event
+     * @param callable $listener
+     * @return void
+     */
+    public static function on($event, callable $listener)
+    {
+        EventHandler::on($event, $listener);
+    }
+
+    /**
      * Prepare event handler for hearing new incoming updates
      *
      * @param int $updateType
@@ -282,6 +292,18 @@ class TelegramAPI
      */
     public function post($uri, array $attributes = [], bool $stream = false): Promise
     {
+        if (isset($attributes['text'])) {
+            $text = &$attributes['text'];
+
+            if (is_array($text)) {
+                $text = print_r($text, true);
+            }
+
+            elseif (is_object($text) && method_exists($text, '__toString')) {
+                $text = var_export($text, true);
+            }
+        }
+
         return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Jove;
 
+use Closure;
 use Generator;
 use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
@@ -12,7 +13,8 @@ use function Amp\call;
 abstract class EventHandler
 {
 
-    protected TelegramAPI $api;
+    private Update $update;
+    private static array $events = [];
 
     const UPDATE_TYPE_WEBHOOK = 1;
 
@@ -20,18 +22,44 @@ abstract class EventHandler
 
     const UPDATE_TYPE_SOCKET_SERVER = 3;
 
+    public static function on(string $event, callable $listener)
+    {
+        $event = strtolower($event);
+
+        if(! in_array($listener, static::$events[$event])) {
+            static::$events[$event][] = $listener;
+        }
+    }
+
     public function boot(Update $update)
     {
-        $this->api = $update->api;
+        $this->update = $update;
 
         call([$this, 'onAny'], $update);
 
-        if (($message = $update->message) || ($message = $update->edited_message)) {
-            call([$this, 'onUpdateNewMessage'], $message);
-        } elseif ($callbackQuery = $update->callback_query) {
-            call([$this, 'onUpdateCallbackQuery'], $callbackQuery);
-        } elseif ($inlineQuery = $update->inline_query) {
-            call([$this, 'onInlineQuery'], $inlineQuery);
+        $events = array_merge_recursive(static::$events, [
+            'message' => [
+                [$this, 'onUpdateNewMessage']
+            ],
+            'edited_message' => [
+                [$this, 'onUpdateNewMessage']
+            ],
+            'callback_query' => [
+                [$this, 'onUpdateCallbackQuery']
+            ],
+            'inline_query' => [
+                [$this, 'onUpdateInlineQuery']
+            ]
+        ]);
+
+        foreach ($events as $event => $listener) {
+            if (isset ($update[$event])) {
+                if ($listener instanceof Closure) {
+                    $listener = $listener->bindTo($this);
+                }
+
+                call($listener, $update[$event]);
+            }
         }
     }
 
@@ -40,30 +68,28 @@ abstract class EventHandler
      * @return Generator
      */
     public function onAny(Update $update): Generator
-    {
-    }
+    {}
 
     /**
      * @param Message $message
      * @return Generator
      */
-    abstract public function onUpdateNewMessage(Message $message): Generator;
+    public function onUpdateNewMessage(Message $message): Generator
+    {}
 
     /**
      * @param CallbackQuery $callbackQuery
      * @return Generator
      */
     public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
-    {
-    }
+    {}
 
     /**
      * @param InlineQuery $inlineQuery
      * @return Generator
      */
-    public function onInlineQuery(InlineQuery $inlineQuery): Generator
-    {
-    }
+    public function onUpdateInlineQuery(InlineQuery $inlineQuery): Generator
+    {}
 
     /**
      * Dynamic method proxy for calling TelegramAPI methods
@@ -74,6 +100,6 @@ abstract class EventHandler
      */
     public function __call($name, array $arguments = [])
     {
-        return $this->api->{$name}(... $arguments);
+        return $this->update->api->{$name}(... $arguments);
     }
 }

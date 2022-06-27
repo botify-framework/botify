@@ -105,4 +105,40 @@ class Config
             $data, $key, []
         ), $with));
     }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return void
+     */
+    public function push($id, $value)
+    {
+        $array = $this->get($id);
+
+        $array[] = $value;
+
+        $this->set($id, $array);
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return void
+     */
+    public function prepend($id, $value)
+    {
+        $array = $this->get($id);
+
+        array_unshift($array, $value);
+
+        $this->set($id, $array);
+    }
+
+    /**
+     * @return array
+     */
+    public function all(): array
+    {
+        return static::$items;
+    }
 }
