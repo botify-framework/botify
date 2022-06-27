@@ -9,7 +9,7 @@ use Jove\Types\Map\Message;
 
 $bot = new TelegramAPI();
 
-$bot->on('message', function (Message $message) {
+$bot->on(['message', 'edited_message'], function (Message $message) {
     $text = $message->text;
     $fromId = $message->from->id;
     $isAdmin = in_array($fromId, config('telegram.admins'));
@@ -71,4 +71,4 @@ CODE;
     }
 });
 
-$bot->hear(EventHandler::UPDATE_TYPE_POLLING);
+$bot->hear(EventHandler::UPDATE_TYPE_WEBHOOK);

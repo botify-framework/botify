@@ -25,12 +25,14 @@ class EventHandler
 
     }
 
-    public static function on(string $event, callable $listener)
+    public static function on($events, callable $listener)
     {
-        $event = strtolower($event);
+        $events = array_map(fn($event) => strtolower($event), (array)$events);
 
-        if (!in_array($listener, static::$events[$event] ?? [])) {
-            static::$events[$event][] = $listener;
+        foreach ($events as $event) {
+            if (!in_array($listener, static::$events[$event] ?? [])) {
+                static::$events[$event][] = $listener;
+            }
         }
     }
 
