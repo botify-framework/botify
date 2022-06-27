@@ -327,3 +327,22 @@ if (!function_exists('config')) {
         return $config->get($id, $default);
     }
 }
+
+if (!function_exists('repeat')) {
+    /**
+     * Repeat a code n times
+     * @param $times
+     * @param callable $callback
+     * @param ...$args
+     * @return mixed
+     */
+    function repeat($times, callable $callback, ...$args)
+    {
+        $returns = [];
+
+        for ($n = 1; $n < $times; $n++)
+            $returns[] = $callback();
+
+        return $callback();
+    }
+}
