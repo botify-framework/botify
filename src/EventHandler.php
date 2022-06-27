@@ -24,7 +24,7 @@ abstract class EventHandler
     {
         $event = strtolower($event);
 
-        if (!in_array($listener, static::$events[$event])) {
+        if (!in_array($listener, static::$events[$event] ?? [])) {
             static::$events[$event][] = $listener;
         }
     }
