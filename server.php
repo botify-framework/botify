@@ -5,9 +5,14 @@ require_once __DIR__ . '/bootstrap/app.php';
 
 use Jove\EventHandler;
 use Jove\TelegramAPI;
+use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\Message;
 
 $bot = new TelegramAPI();
+
+$bot->on('callback_query', function (CallbackQuery $callbackQuery) {
+    yield $callbackQuery->answer('Hi');
+});
 
 $bot->on(['message', 'edited_message'], function (Message $message) {
     $text = $message->text;
