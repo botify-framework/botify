@@ -3,8 +3,9 @@
 namespace Jove;
 
 use Closure;
-use Generator;
 use Jove\Types\Map\CallbackQuery;
+use Generator;
+
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
