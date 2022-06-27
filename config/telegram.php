@@ -6,4 +6,5 @@ return [
     'admins' => array_filter(array_map(fn($admin) => (int)trim($admin), explode(
         ',', env('ADMINS'),
     ))),
+    'cache_chat' => env('CACHE_CHAT'),
 ];
