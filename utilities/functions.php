@@ -334,7 +334,7 @@ if (!function_exists('repeat')) {
      * @param $times
      * @param callable $callback
      * @param ...$args
-     * @return mixed
+     * @return array
      */
     function repeat($times, callable $callback, ...$args)
     {
