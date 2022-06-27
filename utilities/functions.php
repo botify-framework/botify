@@ -44,6 +44,14 @@ if (!function_exists('tap')) {
     }
 }
 
+if (!function_exists('gather')) {
+
+    function gather($promises): Promise
+    {
+        return Promise\all($promises);
+    }
+}
+
 if (!function_exists('asleep')) {
     /**
      * @param $time
