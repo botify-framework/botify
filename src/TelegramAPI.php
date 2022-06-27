@@ -135,7 +135,7 @@ class TelegramAPI
      * @param callable $listener
      * @return void
      */
-    public static function on($event, callable $listener)
+    public function on($event, callable $listener)
     {
         static::$eventHandler ??= new EventHandler();
 
