@@ -343,6 +343,6 @@ if (!function_exists('repeat')) {
         for ($n = 1; $n < $times; $n++)
             $returns[] = $callback();
 
-        return $callback();
+        return $returns;
     }
 }
