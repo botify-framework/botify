@@ -8,7 +8,7 @@ class FallbackResponse extends LazyJsonMapper
         'ok' => 'bool',
         'description' => 'string',
         'error_code' => 'int',
-        'parameters' => 'array',
+        'parameters' => 'ResponseParameters',
     ];
 
     public function _init()
