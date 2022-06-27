@@ -52,13 +52,15 @@ abstract class EventHandler
             ]
         ]);
 
-        foreach ($events as $event => $listener) {
+        foreach ($events as $event => $listeners) {
             if (isset ($update[$event])) {
-                if ($listener instanceof Closure) {
-                    $listener = $listener->bindTo($this);
-                }
+                foreach ($listeners as $listener) {
+                    if ($listener instanceof Closure) {
+                        $listener = $listener->bindTo($this);
+                    }
 
-                call($listener, $update[$event]);
+                    call($listener, $update[$event]);
+                }
             }
         }
     }
