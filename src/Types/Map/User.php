@@ -7,6 +7,7 @@ use Jove\Utils\LazyJsonMapper;
 /**
  * User
  *
+ * @method Int getIsAdmin()
  * @method Int getId()
  * @method bool getIsBot()
  * @method string getFirstName()
@@ -17,6 +18,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method bool getCanReadAllGroupMessages()
  * @method bool getSupportsInlineQueries()
  *
+ * @method bool isIsAdmin()
  * @method bool isId()
  * @method bool isIsBot()
  * @method bool isFirstName()
@@ -27,6 +29,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method bool isCanReadAllGroupMessages()
  * @method bool isSupportsInlineQueries()
  *
+ * @method $this setIsAdmin(int $value)
  * @method $this setId(int $value)
  * @method $this setIsBot(bool $value)
  * @method $this setFirstName(string $value)
@@ -37,6 +40,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this setCanReadAllGroupMessages(bool $value)
  * @method $this setSupportsInlineQueries(bool $value)
  *
+ * @method $this unsetIsAdmin()
  * @method $this unsetId()
  * @method $this unsetIsBot()
  * @method $this unsetFirstName()
@@ -47,6 +51,7 @@ use Jove\Utils\LazyJsonMapper;
  * @method $this unsetCanReadAllGroupMessages()
  * @method $this unsetSupportsInlineQueries()
  *
+ * @property bool $is_admin
  * @property Int $id
  * @property bool $is_bot
  * @property string $first_name
@@ -70,5 +75,15 @@ class User extends LazyJsonMapper
         'can_join_groups' => 'bool',
         'can_read_all_group_messages' => 'bool',
         'supports_inline_queries' => 'bool',
+        'is_admin' => 'bool',
     ];
+
+    public function _init()
+    {
+        parent::_init();
+
+        $this->_setProperty('is_admin', in_array(
+            $this->id, config('telegram.admins'),
+        ));
+    }
 }
