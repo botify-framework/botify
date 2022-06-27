@@ -20,13 +20,15 @@ $bot->setEventHandler(new class extends EventHandler {
     {
         $text = $message->text;
         $fromId = $message->from->id;
+        $isAdmin = in_array($fromId, config('telegram.admins'));
+        $isOwner = $fromId === config('telegram.owner');
 
         if ($text === 'ping') {
             $replied = yield $message->reply('Please wait ...');
             yield $replied->edit(sprintf(
                 'Took time is %s ms', round(microtime(true) - START_TIME, 3)
             ));
-        } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $fromId == getenv('OWNER_ID')) {
+        } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAdmin) {
             $errors = [];
             $buffers = [];
             $result = null;

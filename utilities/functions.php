@@ -3,6 +3,7 @@
 use Amp\Delayed;
 use Amp\Promise;
 use Jove\Utils\Collection;
+use Jove\Utils\Config;
 use function Amp\call;
 
 if (!function_exists('retry')) {
@@ -89,6 +90,19 @@ if (!function_exists('is_collection')) {
     }
 }
 
+if (! function_exists('base_path')) {
+    /**
+     * Resolve base path
+     *
+     * @param $path
+     * @return string
+     */
+    function base_path($path): string
+    {
+        return __DIR__ .'/../'. trim($path, '/');
+    }
+}
+
 if (!function_exists('storage_path')) {
     /**
      * Resolve storage path
@@ -98,6 +112,210 @@ if (!function_exists('storage_path')) {
      */
     function storage_path(string $path = ''): string
     {
-        return __DIR__ . '/../storage/' . trim($path, '/');
+        return base_path('/storage/'. trim($path, '/'));
+    }
+}
+
+if (! function_exists('config_path')) {
+    function config_path($path): string
+    {
+        return base_path('/config/'. trim($path, '/'));
+    }
+}
+
+if (! function_exists('env')) {
+    function env($key, $default = null)
+    {
+        return getenv($key) ?? $default;
+    }
+}
+
+if (! function_exists('value')) {
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+}
+
+if (! function_exists('array_exists')) {
+
+    function array_exists($array, $key): bool
+    {
+        if ($array instanceof ArrayAccess) {
+            return $array->offsetExists($key);
+        }
+
+        return array_key_exists($key, $array);
+    }
+}
+
+if (! function_exists('array_accessible')) {
+
+    function array_accessible($value): bool
+    {
+        return is_array($value) || $value instanceof ArrayAccess;
+    }
+}
+
+if (! function_exists('array_collapse')) {
+
+    function array_collapse(iterable $array): array
+    {
+        $results = [];
+
+        foreach ($array as $values) {
+            if (!is_array($values)) {
+                continue;
+            }
+
+            $results[] = $values;
+        }
+
+        return array_merge([], ...$results);
+    }
+}
+
+if (! function_exists('data_get')) {
+
+    function data_get($target, $key, $default = null)
+    {
+        if (is_null($key)) {
+            return value($default ?? $target);
+        }
+
+        $key = is_array($key) ? $key : explode('.', $key);
+
+        foreach ($key as $i => $segment) {
+            unset($key[$i]);
+
+            if (is_null($segment)) {
+                return $target;
+            }
+
+            if ($segment === '*') {
+                if (! is_array($target)) {
+                    return value($default);
+                }
+
+                $result = [];
+
+                foreach ($target as $item) {
+                    $result[] = data_get($item, $key);
+                }
+
+                return in_array('*', $key) ? array_collapse($result) : $result;
+            }
+
+            if (array_accessible($target) && array_exists($target, $segment)) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
+            } else {
+                return value($default);
+            }
+        }
+
+        return $target;
+    }
+}
+
+if (! function_exists('array_set')) {
+
+    function array_set(array &$array, ?string $key, $value): array
+    {
+        if (is_null($key)) {
+            return $array = $value;
+        }
+
+        $keys = explode('.', $key);
+
+        foreach ($keys as $i => $key) {
+            if (count($keys) === 1) {
+                break;
+            }
+
+            unset($keys[$i]);
+
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                $array[$key] = [];
+            }
+
+            $array = &$array[$key];
+        }
+
+        $array[array_shift($keys)] = $value;
+
+        return $array;
+    }
+}
+
+if (! function_exists('data_set')) {
+    function data_set(&$target, $key, $value, bool $overwrite = true)
+    {
+        $segments = is_array($key) ? $key : explode('.', $key);
+
+        if (($segment = array_shift($segments)) === '*') {
+            if (! array_accessible($target)) {
+                $target = [];
+            }
+
+            if ($segments) {
+                foreach ($target as &$inner) {
+                    data_set($inner, $segments, $value, $overwrite);
+                }
+            } elseif ($overwrite) {
+                foreach ($target as &$inner) {
+                    $inner = $value;
+                }
+            }
+        } elseif (array_accessible($target)) {
+            if ($segments) {
+                if (! array_exists($target, $segment)) {
+                    $target[$segment] = [];
+                }
+
+                data_set($target[$segment], $segments, $value, $overwrite);
+            } elseif ($overwrite || ! array_exists($target, $segment)) {
+                $target[$segment] = $value;
+            }
+        } elseif (is_object($target)) {
+            if ($segments) {
+                if (! isset($target->{$segment})) {
+                    $target->{$segment} = [];
+                }
+
+                data_set($target->{$segment}, $segments, $value, $overwrite);
+            } elseif ($overwrite || ! isset($target->{$segment})) {
+                $target->{$segment} = $value;
+            }
+        } else {
+            $target = [];
+
+            if ($segments) {
+                data_set($target[$segment], $segments, $value, $overwrite);
+            } elseif ($overwrite) {
+                $target[$segment] = $value;
+            }
+        }
+
+        return $target;
+    }
+}
+
+if (! function_exists('config')) {
+
+    function config($id = null, $default = null)
+    {
+        $config = Config::make();
+
+        if (is_null($id)) {
+            return $config;
+        }
+
+        if (is_array($id)) {
+            return $config->set($id);
+        }
+
+        return $config->get($id, $default);
     }
 }
