@@ -61,7 +61,7 @@ if (!function_exists('asleep')) {
     function asleep($time, $value = null): Promise
     {
         return call(function () use ($time, $value) {
-            return new Delayed($time, $value);
+            return new Delayed($time * 1000, $value);
         });
     }
 }
@@ -336,7 +336,7 @@ if (!function_exists('repeat')) {
      * @param ...$args
      * @return array
      */
-    function repeat($times, callable $callback, ...$args)
+    function repeat(int $times, callable $callback, ...$args)
     {
         $returns = [];
 
@@ -344,5 +344,20 @@ if (!function_exists('repeat')) {
             $returns[] = $callback();
 
         return $returns;
+    }
+}
+
+if (!function_exists('arepeat')) {
+    /**
+     * Asynchronous version of repeat
+     *
+     * @param int $times
+     * @param callable $callback
+     * @param ...$args
+     * @return Promise
+     */
+    function arepeat(int $times, callable $callback, ...$args): Promise
+    {
+        return gather(repeat($times, $callback, ... $args));
     }
 }
