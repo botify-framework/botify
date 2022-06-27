@@ -47,7 +47,7 @@ class TelegramAPI
     /**
      * @var EventHandler[] $eventHandlers
      */
-    private array $eventHandlers;
+    private array $eventHandlers = [];
     /**
      * Map all methods responses
      *
@@ -128,7 +128,7 @@ class TelegramAPI
         ]
     ];
 
-    private static EventHandler $eventHandler;
+    private static ?EventHandler $eventHandler = null;
 
     /**
      * @param $event
@@ -362,7 +362,6 @@ class TelegramAPI
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
-                                $update = new Update($update);
                                 array_map(
                                     fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
                                 );
