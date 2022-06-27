@@ -13,6 +13,7 @@ use function Amp\call;
 abstract class EventHandler
 {
 
+    public $current;
     private Update $update;
     private static array $events = [];
 
@@ -54,9 +55,18 @@ abstract class EventHandler
 
         foreach ($events as $event => $listeners) {
             if (isset ($update[$event])) {
+                $current = $update[$event];
+
                 foreach ($listeners as $listener) {
                     if ($listener instanceof Closure) {
+                        $self = clone $this;
+                        $self->current = $current;
                         $listener = $listener->bindTo($this);
+                    }
+                    if (is_array($listener)) {
+                        $self = clone $listener[0];
+                        $self->current = $current;
+                        $listener[0] = $self;
                     }
 
                     call($listener, $update[$event]);
@@ -102,6 +112,10 @@ abstract class EventHandler
      */
     public function __call($name, array $arguments = [])
     {
+        if (is_object($this->current) && method_exists($this->current, $name)) {
+            return $this->current->{$name}(... $arguments);
+        }
+
         return $this->update->api->{$name}(... $arguments);
     }
 }
