@@ -22,7 +22,7 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
     if ($text === 'ping') {
         $replied = yield $message->reply('Please wait ...');
         yield $replied->edit(sprintf(
-            'Took time is %s ms', round(microtime(true) - START_TIME, 3)
+            'Took time is %s ms', round(microtime(true) - START_TIME, 3) * 1000
         ));
     } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAllowed) {
         $errors = [];
