@@ -114,8 +114,6 @@ class TelegramAPI
         ],
         MenuButton::class => [
             'getChatMenuButton',
-            'getChatMenuButton',
-            'getChatMenuButton',
         ],
         Poll::class => [
             'stopPoll',
