@@ -342,10 +342,13 @@ if (!function_exists('repeat')) {
     {
         $returns = [];
 
-        $iterable = array_pad($iterable, $times, $args);
-
-        foreach ($iterable as $index => $item) {
-            $returns[] = $callback($item, $index, ... $args);
+        if (!empty($iterable)) {
+            foreach ($iterable as $index => $item) {
+                $returns[] = $callback($item, $index, ... $args);
+            }
+        } else {
+            for ($n = 1; $n < $times; $n++)
+                $returns[] = $callback(... $args);
         }
 
         return $returns;
@@ -363,6 +366,6 @@ if (!function_exists('arepeat')) {
      */
     function arepeat(int $times, callable $callback, array $iterable = [], ...$args): Promise
     {
-        return gather(repeat($times, $callback, $iterable, ... $args));
+        return gather(repeat($times, $callback, $iterable));
     }
 }
