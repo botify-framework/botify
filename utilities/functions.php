@@ -366,6 +366,6 @@ if (!function_exists('arepeat')) {
      */
     function arepeat(int $times, callable $callback, array $iterable = [], ...$args): Promise
     {
-        return gather(repeat($times, $callback, $iterable, ... $args));
+        return gather(repeat($times, $callback, $iterable));
     }
 }
