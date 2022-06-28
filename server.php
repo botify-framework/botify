@@ -22,7 +22,7 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
         $mt = microtime(true);
         $replied = yield $message->reply('Please wait ...');
         yield $replied->edit(sprintf(
-            'Took time is %s ms', round(microtime(true) - $mt, 3) * 1000
+            'Took time is %s ms', round(microtime(true) - $mt * 1000, 3)
         ));
     } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAllowed) {
         $errors = [];
