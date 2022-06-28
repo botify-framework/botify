@@ -342,15 +342,11 @@ if (!function_exists('repeat')) {
     {
         $returns = [];
 
-        if (!empty($iterable)) {
-            foreach ($iterable as $index => $item) {
-                $returns[] = $callback($item, $index, ... $args);
-            }
-        } else {
-            for ($n = 1; $n < $times; $n++)
-                $returns[] = $callback(... $args);
-        }
+        $iterable ??= array_pad($iterable, $times, '*');
 
+        foreach ($iterable as $index => $item) {
+            $returns[] = $callback($item, $index, ... $args);
+        }
         return $returns;
     }
 }
@@ -362,10 +358,11 @@ if (!function_exists('arepeat')) {
      * @param int $times
      * @param callable $callback
      * @param array $iterable
+     * @param mixed ...$args
      * @return Promise
      */
     function arepeat(int $times, callable $callback, array $iterable = [], ...$args): Promise
     {
-        return gather(repeat($times, $callback, $iterable));
+        return gather(repeat($times, $callback, $iterable, ... $args));
     }
 }
