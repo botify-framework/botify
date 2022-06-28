@@ -153,9 +153,7 @@ class Collection implements IteratorAggregate, Countable
      */
     public function toArray(): array
     {
-        return array_map(
-            fn($item) => $item->toArray(), $this->items
-        );
+        return $this->items;
     }
 
     /**
