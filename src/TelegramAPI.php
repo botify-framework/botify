@@ -345,7 +345,7 @@ class TelegramAPI
                 Loop::run(function () {
                     $this->finish(uniqid());
                     $update = new Update(
-                        json_decode(file_get_contents('php://input'), true)
+                        json_decode(file_get_contents('php://input'), true) ?? []
                     );
                     array_map(
                         fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
