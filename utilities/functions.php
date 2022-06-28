@@ -331,17 +331,24 @@ if (!function_exists('config')) {
 if (!function_exists('repeat')) {
     /**
      * Repeat a code n times
-     * @param $times
+     * @param int $times
      * @param callable $callback
+     * @param array $iterable
      * @param ...$args
      * @return array
      */
-    function repeat(int $times, callable $callback, ...$args)
+    function repeat(int $times, callable $callback, array $iterable = [], ...$args)
     {
         $returns = [];
 
-        for ($n = 1; $n < $times; $n++)
-            $returns[] = $callback();
+        if (!empty($iterable)) {
+            foreach ($iterable as $index => $item) {
+                $returns[] = $callback($item, $index, ... $args);
+            }
+        } else {
+            for ($n = 1; $n < $times; $n++)
+                $returns[] = $callback(... $args);
+        }
 
         return $returns;
     }
@@ -353,11 +360,11 @@ if (!function_exists('arepeat')) {
      *
      * @param int $times
      * @param callable $callback
-     * @param ...$args
+     * @param array $iterable
      * @return Promise
      */
-    function arepeat(int $times, callable $callback, ...$args): Promise
+    function arepeat(int $times, callable $callback, array $iterable = [], ...$args): Promise
     {
-        return gather(repeat($times, $callback, ... $args));
+        return gather(repeat($times, $callback, $iterable));
     }
 }

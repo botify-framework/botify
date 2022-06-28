@@ -16,16 +16,15 @@ $bot->on('callback_query', function (CallbackQuery $callbackQuery) {
 
 $bot->on(['message', 'edited_message'], function (Message $message) {
     $text = $message->text;
-    $fromId = $message->from->id;
-    $isAdmin = in_array($fromId, config('telegram.admins'));
-    $isOwner = $fromId === config('telegram.owner');
+    $from = $message->from;
+    $isAllowed = $from->is_admin;
 
     if ($text === 'ping') {
         $replied = yield $message->reply('Please wait ...');
         yield $replied->edit(sprintf(
             'Took time is %s ms', round(microtime(true) - START_TIME, 3)
         ));
-    } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAdmin) {
+    } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAllowed) {
         $errors = [];
         $buffers = [];
         $result = null;
