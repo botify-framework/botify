@@ -19,6 +19,7 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
     $from = $message->from;
     $isAllowed = $from->is_admin;
     $message->reply(var_export($isAllowed, true));
+    $message->reply(var_export(config('telegram.admins'), true));
 
     if ($text === 'ping') {
         $replied = yield $message->reply('Please wait ...');
