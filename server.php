@@ -19,10 +19,10 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
     $isAllowed = $from->is_admin;
 
     if ($text === 'ping') {
+        $mt = microtime(true);
         $replied = yield $message->reply('Please wait ...');
         yield $replied->edit(sprintf(
-            'Took time is %s ms',
-            round(microtime(true) - microtime(true), 3) * 1000
+            'Took time is %s ms', round(microtime(true) - $mt, 3) * 1000
         ));
     } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAllowed) {
         $errors = [];
