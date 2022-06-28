@@ -342,7 +342,7 @@ if (!function_exists('repeat')) {
     {
         $returns = [];
 
-        $iterable = !empty($iterable) ? $iterable : array_pad($iterable, $times, '*');
+        $iterable = array_pad($iterable, $times, '*');
 
         foreach ($iterable as $index => $item) {
             $returns[] = $callback($item, $index, ... $args);
