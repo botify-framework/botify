@@ -107,7 +107,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return __DIR__ . '/../' . trim($path, '/');
+        return realpath(__DIR__ . '/../' . trim($path, '/'));
     }
 }
 
@@ -125,7 +125,7 @@ if (!function_exists('storage_path')) {
 }
 
 if (!function_exists('config_path')) {
-    function config_path($path): string
+    function config_path($path = ''): string
     {
         return base_path('/config/' . trim($path, '/'));
     }
@@ -314,7 +314,8 @@ if (!function_exists('config')) {
 
     function config($id = null, $default = null)
     {
-        $config = Config::make();
+        static $config = null;
+        $config ??= Config::make();
 
         if (is_null($id)) {
             return $config;

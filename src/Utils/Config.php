@@ -112,7 +112,7 @@ class Config
 
         $namespace = $this->splitNamespace($id, $key);
 
-        return data_get($this->load($namespace), $key, $default);
+        return value(data_get($this->load($namespace), $key, $default));
     }
 
     public function getMany($ids): array

@@ -8,7 +8,9 @@ return [
             fn($admin) => (int)trim($admin), explode(',', env('ADMINS'),
         )));
 
-        return array_unshift($admins, config('telegram.super_admin'));
+        array_unshift($admins, (int)env('SUPER_ADMIN'));
+
+        return array_unique($admins);
     },
     'cache_chat' => env('CACHE_CHAT'),
 ];
