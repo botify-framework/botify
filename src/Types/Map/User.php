@@ -93,7 +93,7 @@ class User extends LazyJsonMapper
         ));
 
         $this->_setProperty(
-            'is_admin', $this->id === (int)config('super_admin')
+            'is_super_admin', $this->id === (int)config('super_admin')
         );
     }
 }
