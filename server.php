@@ -3,7 +3,6 @@
 require_once __DIR__ . '/bootstrap/app.php';
 
 
-use Jove\EventHandler;
 use Jove\TelegramAPI;
 use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\Message;
@@ -22,7 +21,8 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
     if ($text === 'ping') {
         $replied = yield $message->reply('Please wait ...');
         yield $replied->edit(sprintf(
-            'Took time is %s ms', round(microtime(true) - START_TIME, 3) * 1000
+            'Took time is %s ms',
+            round(microtime(true) - microtime(true), 3) * 1000
         ));
     } elseif (preg_match('/^[\/#!.]?(j)\s+?(.*)$/usi', $text, $match) && $isAllowed) {
         $errors = [];
@@ -75,4 +75,4 @@ CODE;
     }
 });
 
-$bot->hear(EventHandler::UPDATE_TYPE_WEBHOOK);
+$bot->hear();
