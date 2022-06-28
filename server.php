@@ -18,6 +18,7 @@ $bot->on(['message', 'edited_message'], function (Message $message) {
     $text = $message->text;
     $from = $message->from;
     $isAllowed = $from->is_admin;
+    $message->reply(var_export($isAllowed, true));
 
     if ($text === 'ping') {
         $replied = yield $message->reply('Please wait ...');
