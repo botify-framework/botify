@@ -413,9 +413,9 @@ class Message extends LazyJsonMapper
     /**
      * Check the current message is downloadable
      *
-     * @return mixed
+     * @return ?LazyJsonMapper
      */
-    public function isDownloadable(): mixed
+    public function isDownloadable(): ?LazyJsonMapper
     {
         if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
             return is_array($this->{$type})
