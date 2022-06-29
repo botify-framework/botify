@@ -107,7 +107,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return realpath(__DIR__ . '/..') . '/' . trim($path, '/');
+        return abs_path(__DIR__ . '/../' . trim($path, '/'));
     }
 }
 
@@ -364,5 +364,33 @@ if (!function_exists('arepeat')) {
     function arepeat(int $times, callable $callback, array $iterable = [], ...$args): Promise
     {
         return gather(repeat($times, $callback, $iterable, ... $args));
+    }
+}
+
+if (!function_exists('abs_path')) {
+    /**
+     * Get absolute path of a path
+     * Unlike the realpath function, the output will not be false if it does not exist
+     *
+     * @param string $path
+     * @return string
+     */
+    function abs_path(string $path): string
+    {
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+        $segments = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $absolutes = [];
+
+        foreach ($segments as $segment) {
+            if ('.' === $segment) continue;
+
+            elseif ('..' === $segment) {
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $segment;
+            }
+        }
+
+        return implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 }
