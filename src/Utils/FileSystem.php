@@ -54,23 +54,7 @@ class FileSystem
         $this->baseName = basename($path);
         $this->dirName = dirname($path);
         $this->extension = pathinfo($path, PATHINFO_EXTENSION);
-        $this->absolutePath = value(function () {
-            $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->path);
-            $segments = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
-            $absolutes = [];
-
-            foreach ($segments as $segment) {
-                if ('.' === $segment) continue;
-
-                elseif ('..' === $segment) {
-                    array_pop($absolutes);
-                } else {
-                    $absolutes[] = $segment;
-                }
-            }
-
-            return implode(DIRECTORY_SEPARATOR, $absolutes);
-        });
+        $this->absolutePath = abs_path($path);
         $this->exists = file_exists($path);
         $this->isDir = is_dir($path);
         $this->writeable = is_writable($path);
