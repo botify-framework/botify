@@ -4,5 +4,5 @@ namespace Jove\Methods\Chats;
 
 trait Chats
 {
-    use GetChatAdministrators;
+    use GetChatAdministrators, GetChatsMember;
 }

@@ -162,7 +162,7 @@ class TelegramAPI
             : [$arguments];
 
         if (method_exists($this, $name)) {
-            return $this->{$name}(... $arguments);
+            return [$this, $name](... $arguments);
         }
 
         /**

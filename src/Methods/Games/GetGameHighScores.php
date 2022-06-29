@@ -16,7 +16,7 @@ trait GetGameHighScores
      * @param array $args
      * @return Promise|GameHighScore[]
      */
-    public function getGameHighScores(...$args): Promise
+    protected function getGameHighScores(...$args): Promise
     {
         return call(function () use ($args) {
             $response = yield $this->post('getGameHighScores', isset($args[0])
