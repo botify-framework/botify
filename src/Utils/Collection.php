@@ -103,10 +103,10 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Get last element of collection items
      *
-     * @param ?Closure $fn
+     * @param callable|null $fn
      * @return mixed
      */
-    public function last(?Closure $fn = null): mixed
+    public function last(?callable $fn = null): mixed
     {
         if (empty($fn)) {
             return $this->pop();
@@ -125,10 +125,10 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Map into collection items
      *
-     * @param Closure $fn
+     * @param callable $fn
      * @return Collection
      */
-    public function map(Closure $fn): Collection
+    public function map(callable $fn): Collection
     {
         return new self(
             array_map($fn, $this->items)
@@ -138,7 +138,7 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Merge current items with new items
      *
-     * @param $items
+     * @param array|Collection $items
      * @return Collection
      */
     public function merge(array|Collection $items): Collection
