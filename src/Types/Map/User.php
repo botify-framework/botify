@@ -2,7 +2,13 @@
 
 namespace Jove\Types\Map;
 
+use Amp\Promise;
+use Jove\Utils\FileSystem;
 use Jove\Utils\LazyJsonMapper;
+use function Amp\call;
+use function Amp\File\createDirectoryRecursively;
+use function Amp\File\isDirectory;
+use function Amp\File\openFile;
 
 /**
  * User
@@ -95,5 +101,51 @@ class User extends LazyJsonMapper
         $this->_setProperty(
             'is_super_admin', $this->id === (int)config('super_admin')
         );
+    }
+
+    /**
+     * Downloading current user profile photos
+     *
+     * @param int $offset
+     * @param int $limit
+     * @return Promise
+     */
+    public function download_profile_photos(int $offset = 0, int $limit = 10): Promise
+    {
+        return call(function () use ($limit, $offset) {
+            $profiles = yield $this->api->getUserProfilePhotos(
+                user_id: $this->id,
+                offset: $offset,
+                limit: $limit,
+            );
+
+            if ($profiles->isSuccess()) {
+                return collect(yield gather(array_map(
+                    function (PhotoSize $photo) {
+                        if ([$path, $link] = yield $this->api->getDownloadableLink($photo->file_id)) {
+                            $path = storage_path($path);
+
+                            (yield isDirectory($dir = dirname($path)))
+                            || (yield createDirectoryRecursively($dir, 0755));
+
+                            if ($file = yield openFile($path, 'c+')) {
+                                $body = yield $this->api->get($link, stream: true);
+
+                                while (null !== $chunk = yield $body->read(1024)) {
+                                    $file->write($chunk);
+                                }
+
+                                yield $file->close();
+
+                                return new FileSystem($path);
+                            }
+                        }
+                    },
+                    $profiles->photos
+                )));
+            }
+
+            return false;
+        });
     }
 }
