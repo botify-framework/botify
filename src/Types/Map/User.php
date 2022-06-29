@@ -3,12 +3,8 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
-use Jove\Utils\FileSystem;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
-use function Amp\File\createDirectoryRecursively;
-use function Amp\File\isDirectory;
-use function Amp\File\openFile;
 
 /**
  * User
@@ -110,7 +106,7 @@ class User extends LazyJsonMapper
      * @param int $limit
      * @return Promise
      */
-    public function download_profile_photos(int $offset = 0, int $limit = 10): Promise
+    public function downloadProfilePhotos(int $offset = 0, int $limit = 10): Promise
     {
         return call(function () use ($limit, $offset) {
             $profiles = yield $this->api->getUserProfilePhotos(
@@ -126,7 +122,7 @@ class User extends LazyJsonMapper
                 )));
             }
 
-            return false;
+            return $profiles;
         });
     }
 }
