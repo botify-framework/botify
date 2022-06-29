@@ -429,13 +429,17 @@ class Message extends LazyJsonMapper
     /**
      * Download current media
      *
-     * @param $dist
+     * @param null $dist
+     * @param bool $includeReply
      * @return Promise
      */
-    public function download($dist = null): Promise
+    public function download($dist = null, bool $includeReply = false): Promise
     {
-        return call(function () use ($dist) {
-            return $this->hasDownloadable()?->download($dist) ?? false;
+        return call(function () use ($includeReply, $dist) {
+            return ($this->hasDownloadable() ?: (($includeReply && $this->reply_to_message->hasDownloadable())
+                    ? $this->reply_to_message->hasDownloadable()
+                    : null)
+                )?->download($dist) ?? false;
         });
     }
 
