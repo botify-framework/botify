@@ -385,7 +385,6 @@ class Message extends LazyJsonMapper
         'video_chat_participants_invited' => 'VideoChatParticipantsInvited',
         'web_app_data' => 'WebAppData',
         'reply_markup' => 'InlineKeyboardMarkup',
-        'file_id' => 'string',
     ];
 
     private static array $downloadable_types = [
@@ -409,24 +408,25 @@ class Message extends LazyJsonMapper
         parent::_init();
 
         $this->_setProperty('id', $this->_getProperty('message_id'));
-
-        $this->initializeFileId();
     }
 
     /**
-     * Initialize FileId
+     * Check the current message is downloadable
      *
-     * @return void
+     * @return mixed
      */
-    public function initializeFileId()
+    public function isDownloadable(): mixed
     {
         if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
-            $update = is_array($this->{$type})
+            return is_array($this->{$type})
                 ? end($this->{$type})
                 : $this->{$type};
-
-            $this->_setProperty('file_id', $update->file_id);
         }
+    }
+
+    public function download($dist = null)
+    {
+        return $this->isDownloadable()?->download($dist);
     }
 
     /**
@@ -435,7 +435,7 @@ class Message extends LazyJsonMapper
      * @param ...$args
      * @return mixed
      */
-    public function forward($to = null, ...$args)
+    public function forward($to = null, ...$args): mixed
     {
         $to ??= $this->chat->id;
 
@@ -469,9 +469,10 @@ class Message extends LazyJsonMapper
     /**
      * Delete current message
      *
+     * @param int $count
      * @return Promise
      */
-    public function delete($count = 0): Promise
+    public function delete(int $count = 0): Promise
     {
         return gather(array_map(function ($message_id) {
             return $this->api->deleteMessage(
@@ -479,38 +480,6 @@ class Message extends LazyJsonMapper
                 message_id: $message_id,
             );
         }, range($id = $this->message_id, $id - $count)));
-    }
-
-    /**
-     * Download current message media to file
-     *
-     * @param $dist
-     * @return Promise
-     */
-    public function download($dist = null): Promise
-    {
-        return call(function () use ($dist) {
-            if ($fileId = $this->file_id) {
-                if ([$path, $link] = yield $this->api->getDownloadableLink($fileId)) {
-                    $path = $dist ?? storage_path($path);
-                    (yield isDirectory($dir = dirname($path))) || (yield createDirectoryRecursively($dir, 0755));
-
-                    if ($file = yield openFile($path, 'c+')) {
-                        $body = yield $this->api->get($link, stream: true);
-
-                        while (null !== $chunk = yield $body->read(1024)) {
-                            $file->write($chunk);
-                        }
-
-                        yield $file->close();
-
-                        return new FileSystem($path);
-                    }
-                }
-            }
-
-            return false;
-        });
     }
 
     /**
