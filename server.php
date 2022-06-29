@@ -75,4 +75,4 @@ CODE;
     }
 });
 
-$bot->hear(\Jove\EventHandler::UPDATE_TYPE_POLLING);
+$bot->hear();

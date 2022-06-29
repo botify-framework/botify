@@ -41,9 +41,6 @@ class TelegramAPI
     use Methods;
 
     private static $client;
-    private static int $inactivityTimeout = 100000;
-    private static int $transferTimeout = 100000;
-    private static int $bodySizeLimit = 100000;
     private array $default_attributes = [];
     /**
      * @var EventHandler[] $eventHandlers
@@ -298,9 +295,9 @@ class TelegramAPI
                     $this->generateBody($data)
                 );
             }
-            $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
-            $request->setTransferTimeout(static::$transferTimeout * 1000);
-            $request->setBodySizeLimit(static::$bodySizeLimit * 1000);
+            $request->setInactivityTimeout(config('telegram.http.inactivity_timeout') * 1000);
+            $request->setTransferTimeout(config('telegram.http.transfer_timeout') * 1000);
+            $request->setBodySizeLimit(config('telegram.http.body_size_limit') * 1000);
         });
     }
 
