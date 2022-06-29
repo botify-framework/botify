@@ -3,12 +3,8 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
-use Jove\Utils\FileSystem;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
-use function Amp\File\createDirectoryRecursively;
-use function Amp\File\isDirectory;
-use function Amp\File\openFile;
 
 /**
  * Message
@@ -437,9 +433,9 @@ class Message extends LazyJsonMapper
     public function download($dist = null, bool $includeReply = false): Promise
     {
         return call(function () use ($includeReply, $dist) {
-            return (($includeReply && $this->reply_to_message?->hasDownloadable())
-                    ? $this->reply_to_message->hasDownloadable()
-                    : ($this->hasDownloadable() ?: null)
+            return (($includeReply && $this->reply_to_message?->getDownloadable())
+                    ? $this->reply_to_message->getDownloadable()
+                    : ($this->getDownloadable() ?: null)
                 )?->download($dist) ?? false;
         });
     }
