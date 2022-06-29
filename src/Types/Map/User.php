@@ -121,30 +121,7 @@ class User extends LazyJsonMapper
 
             if ($profiles->isSuccess()) {
                 return collect(yield gather(array_map(
-                    function (array $photos) {
-                        return call(function () use ($photos) {
-                            $photo = array_pop($photos);
-
-                            if ([$path, $link] = yield $this->api->getDownloadableLink($photo->file_id)) {
-                                $path = storage_path($path);
-
-                                (yield isDirectory($dir = dirname($path)))
-                                || (yield createDirectoryRecursively($dir, 0755));
-
-                                if ($file = yield openFile($path, 'c+')) {
-                                    $body = yield $this->api->get($link, stream: true);
-
-                                    while (null !== $chunk = yield $body->read(1024)) {
-                                        $file->write($chunk);
-                                    }
-
-                                    yield $file->close();
-
-                                    return new FileSystem($path);
-                                }
-                            }
-                        });
-                    },
+                    fn(array $photos) => call(fn() => end($photos)->download()),
                     $profiles->photos
                 )));
             }
