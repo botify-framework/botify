@@ -324,10 +324,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return $this->items;
     }
 
-    public function each(callable $fn)
+    public function each(callable $fn): Collection
     {
         foreach ($this->items as $index => $item) {
             if ($fn($item, $index) === false) break;
         }
+
+        return $this;
     }
 }
