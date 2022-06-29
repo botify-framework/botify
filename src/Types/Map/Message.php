@@ -411,11 +411,11 @@ class Message extends LazyJsonMapper
     }
 
     /**
-     * Check the current message is downloadable
+     * Determine the current message contains a downloadable
      *
      * @return ?LazyJsonMapper
      */
-    public function isDownloadable(): ?LazyJsonMapper
+    public function hasDownloadable(): ?LazyJsonMapper
     {
         if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
             return is_array($this->{$type})
@@ -426,9 +426,17 @@ class Message extends LazyJsonMapper
         return null;
     }
 
-    public function download($dist = null)
+    /**
+     * Download current media
+     *
+     * @param $dist
+     * @return Promise
+     */
+    public function download($dist = null): Promise
     {
-        return $this->isDownloadable()?->download($dist);
+        return call(function () use ($dist) {
+            return $this->hasDownloadable()?->download($dist) ?? false;
+        });
     }
 
     /**
