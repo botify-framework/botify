@@ -2,6 +2,7 @@
 
 namespace Jove\Types\Map;
 
+use Jove\Traits\Downloadable;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -70,6 +71,8 @@ use Jove\Utils\LazyJsonMapper;
 class Sticker extends LazyJsonMapper
 {
 
+    use Downloadable;
+
     const JSON_PROPERTY_MAP = [
         'file_id' => 'string',
         'file_unique_id' => 'string',
@@ -83,4 +86,9 @@ class Sticker extends LazyJsonMapper
         'mask_position' => 'MaskPosition',
         'file_size' => 'int',
     ];
+
+    public function getDownloadableId(): string
+    {
+        return $this->getFileId();
+    }
 }

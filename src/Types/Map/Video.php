@@ -2,6 +2,7 @@
 
 namespace Jove\Types\Map;
 
+use Jove\Traits\Downloadable;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -60,6 +61,8 @@ use Jove\Utils\LazyJsonMapper;
 class Video extends LazyJsonMapper
 {
 
+    use Downloadable;
+
     const JSON_PROPERTY_MAP = [
         'file_id' => 'string',
         'file_unique_id' => 'string',
@@ -71,4 +74,9 @@ class Video extends LazyJsonMapper
         'mime_type' => 'string',
         'file_size' => 'int',
     ];
+
+    public function getDownloadableId(): string
+    {
+        return $this->getFileId();
+    }
 }
