@@ -24,7 +24,7 @@ if (!function_exists('retry')) {
             return $callback($attempts);
         } catch (Exception $e) {
             if ($times < 1) throw $e;
-            $sleep && \sleep($sleep);
+            $sleep && sleep($sleep);
             goto beginning;
         }
     }
@@ -392,5 +392,12 @@ if (!function_exists('abs_path')) {
         }
 
         return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $absolutes);
+    }
+}
+
+if (!function_exists('println')) {
+    function println($value)
+    {
+        echo $value, "\n";
     }
 }
