@@ -41,8 +41,9 @@ class TelegramAPI
     use Methods;
 
     private static $client;
-    private static int $inactivityTimeout = 10000;
-    private static int $transferTimeout = 10000;
+    private static int $inactivityTimeout = 100000;
+    private static int $transferTimeout = 100000;
+    private static int $bodySizeLimit = 100000;
     private array $default_attributes = [];
     /**
      * @var EventHandler[] $eventHandlers
@@ -299,6 +300,7 @@ class TelegramAPI
             }
             $request->setInactivityTimeout(static::$inactivityTimeout * 1000);
             $request->setTransferTimeout(static::$transferTimeout * 1000);
+            $request->setBodySizeLimit(static::$bodySizeLimit * 1000);
         });
     }
 
