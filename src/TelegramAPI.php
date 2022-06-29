@@ -160,6 +160,8 @@ class TelegramAPI
         $arguments = isset($arguments[0])
             ? value(function () use ($arguments) {
                 if (isset($arguments[0]) && is_array($head = $arguments[0])) {
+                    unset($arguments[0]);
+
                     return [array_merge($head, $arguments)];
                 }
 
