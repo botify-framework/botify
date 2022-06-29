@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Utils\FileSystem;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
 use function Amp\File\createDirectoryRecursively;
@@ -503,7 +504,7 @@ class Message extends LazyJsonMapper
 
                         yield $file->close();
 
-                        return $path;
+                        return new FileSystem($path);
                     }
                 }
             }
