@@ -2,12 +2,13 @@
 
 namespace Jove\Utils;
 
+use ArrayAccess;
 use ArrayIterator;
 use Closure;
 use Countable;
 use IteratorAggregate;
 
-class Collection implements IteratorAggregate, Countable
+class Collection implements IteratorAggregate, Countable, ArrayAccess
 {
     protected array $items;
 
@@ -287,5 +288,29 @@ class Collection implements IteratorAggregate, Countable
         }
 
         return $this;
+    }
+
+    public function offsetExists(mixed $offset)
+    {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset)
+    {
+        return $this->items[$offset];
+    }
+
+    public function offsetSet(mixed $offset, mixed $value)
+    {
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    public function offsetUnset(mixed $offset)
+    {
+        unset($this->items[$offset]);
     }
 }
