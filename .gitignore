@@ -4,4 +4,4 @@
 vendor
 composer.lock
 tests
-server.php
+local-server.php
