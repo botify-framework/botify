@@ -107,7 +107,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return abs_path(__DIR__ . '/../' . trim($path, '/'));
+        return DIRECTORY_SEPARATOR . abs_path(__DIR__ . '/../' . trim($path, '/'));
     }
 }
 

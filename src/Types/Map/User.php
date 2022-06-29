@@ -95,7 +95,7 @@ class User extends LazyJsonMapper
         parent::_init();
 
         $this->_setProperty('is_admin', in_array(
-            $this->id, config('telegram.admins'),
+            $this->id, config('telegram.admins', []),
         ));
 
         $this->_setProperty(
