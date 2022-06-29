@@ -412,10 +412,11 @@ class Message extends LazyJsonMapper
 
     /**
      * Determine the current message contains a downloadable
+     * Returns downloadable media object if found
      *
      * @return ?LazyJsonMapper
      */
-    public function hasDownloadable(): ?LazyJsonMapper
+    public function getDownloadable(): ?LazyJsonMapper
     {
         if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
             return is_array($this->{$type})
@@ -436,9 +437,9 @@ class Message extends LazyJsonMapper
     public function download($dist = null, bool $includeReply = false): Promise
     {
         return call(function () use ($includeReply, $dist) {
-            return ($this->hasDownloadable() ?: (($includeReply && $this->reply_to_message?->hasDownloadable())
+            return (($includeReply && $this->reply_to_message?->hasDownloadable())
                     ? $this->reply_to_message->hasDownloadable()
-                    : null)
+                    : ($this->hasDownloadable() ?: null)
                 )?->download($dist) ?? false;
         });
     }
