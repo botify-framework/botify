@@ -14,7 +14,7 @@ $bot->on('callback_query', function (CallbackQuery $callbackQuery) {
 });
 
 $bot->on(['message', 'edited_message'], function (Message $message) {
-    $text = $message->text;
+    $text = $message->text ?: $message->caption;
     $from = $message->from;
     $isAllowed = $from->is_admin;
 
