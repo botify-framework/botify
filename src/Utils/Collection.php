@@ -314,7 +314,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         unset($this->items[$offset]);
     }
 
-    public function all()
+    /**
+     * Access to all items of current collection
+     *
+     * @return array
+     */
+    public function all(): array
     {
         return $this->items;
     }
