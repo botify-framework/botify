@@ -107,7 +107,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return realpath(__DIR__ . '/../' . trim($path, '/'));
+        return realpath(__DIR__ . '/..') . '/' . trim($path, '/');
     }
 }
 
