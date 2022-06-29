@@ -161,6 +161,10 @@ class TelegramAPI
             ? [array_merge(array_shift($arguments), $arguments)]
             : [$arguments];
 
+        if (method_exists($this, $name)) {
+            return $this->{$name}(... $arguments);
+        }
+
         /**
          * Prepend method name to arguments
          */

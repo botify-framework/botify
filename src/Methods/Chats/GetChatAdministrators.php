@@ -16,7 +16,7 @@ trait GetChatAdministrators
      * @param array $args
      * @return Promise|ChatMember[]
      */
-    public function getChatAdministrators(...$args): Promise
+    protected function getChatAdministrators(...$args): Promise
     {
         return call(function () use ($args) {
             $response = yield $this->post('getChatAdministrators', isset($args[0])

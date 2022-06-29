@@ -10,7 +10,14 @@ use function Amp\call;
 trait GetUpdates
 {
 
-    public function getUpdates(
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @param int $timeout
+     * @param array $allowed_updates
+     * @return Promise|Update[]
+     */
+    protected function getUpdates(
         int   $offset = -1,
         int   $limit = 100,
         int   $timeout = 0,

@@ -9,7 +9,11 @@ trait GetDownloadableLink
 {
     private string $url = 'https://api.telegram.org/file/bot%s/%s';
 
-    public function getDownloadableLink(string $fileId): Promise
+    /**
+     * @param string $fileId
+     * @return Promise|array
+     */
+    protected function getDownloadableLink(string $fileId): Promise
     {
         return call(function () use ($fileId) {
             $file = yield $this->getFile(

@@ -3,6 +3,7 @@
 namespace Jove\Methods\Messages;
 
 use Amp\Promise;
+use Jove\Types\Map\Message;
 use function Amp\call;
 
 trait GetMessages
@@ -13,7 +14,7 @@ trait GetMessages
      * @param int $message_id
      * @return Promise
      */
-    public function getMessage($chat_id, int $message_id): Promise
+    protected function getMessage($chat_id, int $message_id): Promise
     {
         return call(function () use ($chat_id, $message_id) {
             $responses = yield $this->getMessages($chat_id, $message_id);
@@ -25,9 +26,9 @@ trait GetMessages
     /**
      * @param $chat_id
      * @param $message_ids
-     * @return Promise
+     * @return Promise|Message[]
      */
-    public function getMessages($chat_id, $message_ids): Promise
+    protected function getMessages($chat_id, $message_ids): Promise
     {
         return call(function () use ($chat_id, $message_ids) {
             $promises = [];

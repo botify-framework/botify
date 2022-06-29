@@ -12,9 +12,9 @@ trait GetMyCommands
 
     /**
      * @param array $args
-     * @return Promise
+     * @return Promise|BotCommand[]
      */
-    public function getMyCommands(...$args): Promise
+    protected function getMyCommands(...$args): Promise
     {
         return call(function () use ($args) {
             $response = yield $this->post('getMyCommands', isset($args[0])

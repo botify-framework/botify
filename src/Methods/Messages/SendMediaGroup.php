@@ -16,7 +16,7 @@ trait SendMediaGroup
      * @param array $args
      * @return Promise|Message[]
      */
-    public function sendMediaGroup(...$args): Promise
+    protected function sendMediaGroup(...$args): Promise
     {
         return call(function () use ($args) {
             $response = yield $this->post('sendMediaGroup', isset($args[0])
