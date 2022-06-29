@@ -422,6 +422,8 @@ class Message extends LazyJsonMapper
                 ? end($this->{$type})
                 : $this->{$type};
         }
+
+        return null;
     }
 
     public function download($dist = null)
