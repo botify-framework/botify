@@ -27,6 +27,6 @@ class UserProfilePhotos extends LazyJsonMapper
 
     const JSON_PROPERTY_MAP = [
         'total_count' => 'int',
-        'photos' => 'PhotoSize[]',
+        'photos' => 'PhotoSize[][]',
     ];
 }

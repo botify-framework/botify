@@ -121,25 +121,29 @@ class User extends LazyJsonMapper
 
             if ($profiles->isSuccess()) {
                 return collect(yield gather(array_map(
-                    function (PhotoSize $photo) {
-                        if ([$path, $link] = yield $this->api->getDownloadableLink($photo->file_id)) {
-                            $path = storage_path($path);
+                    function (array $photos) {
+                        return call(function () use ($photos) {
+                            $photo = array_pop($photos);
 
-                            (yield isDirectory($dir = dirname($path)))
-                            || (yield createDirectoryRecursively($dir, 0755));
+                            if ([$path, $link] = yield $this->api->getDownloadableLink($photo->file_id)) {
+                                $path = storage_path($path);
 
-                            if ($file = yield openFile($path, 'c+')) {
-                                $body = yield $this->api->get($link, stream: true);
+                                (yield isDirectory($dir = dirname($path)))
+                                || (yield createDirectoryRecursively($dir, 0755));
 
-                                while (null !== $chunk = yield $body->read(1024)) {
-                                    $file->write($chunk);
+                                if ($file = yield openFile($path, 'c+')) {
+                                    $body = yield $this->api->get($link, stream: true);
+
+                                    while (null !== $chunk = yield $body->read(1024)) {
+                                        $file->write($chunk);
+                                    }
+
+                                    yield $file->close();
+
+                                    return new FileSystem($path);
                                 }
-
-                                yield $file->close();
-
-                                return new FileSystem($path);
                             }
-                        }
+                        });
                     },
                     $profiles->photos
                 )));

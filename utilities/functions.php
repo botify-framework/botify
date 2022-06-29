@@ -107,7 +107,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path): string
     {
-        return DIRECTORY_SEPARATOR . abs_path(__DIR__ . '/../' . trim($path, '/'));
+        return abs_path(__DIR__ . '/../' . trim($path, '/'));
     }
 }
 
@@ -391,6 +391,6 @@ if (!function_exists('abs_path')) {
             }
         }
 
-        return implode(DIRECTORY_SEPARATOR, $absolutes);
+        return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 }
