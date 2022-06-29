@@ -313,4 +313,9 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     {
         unset($this->items[$offset]);
     }
+
+    public function all()
+    {
+        return $this->items;
+    }
 }
