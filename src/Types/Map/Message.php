@@ -436,7 +436,7 @@ class Message extends LazyJsonMapper
     public function download($dist = null, bool $includeReply = false): Promise
     {
         return call(function () use ($includeReply, $dist) {
-            return ($this->hasDownloadable() ?: (($includeReply && $this->reply_to_message->hasDownloadable())
+            return ($this->hasDownloadable() ?: (($includeReply && $this->reply_to_message?->hasDownloadable())
                     ? $this->reply_to_message->hasDownloadable()
                     : null)
                 )?->download($dist) ?? false;
