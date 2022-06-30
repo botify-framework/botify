@@ -15,6 +15,7 @@ use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Promise;
 use Amp\Socket;
+use Exception;
 use Jove\Methods\Methods;
 use Jove\Middlewares\AuthorizeWebhooks;
 use Jove\Types\Map\Chat;
@@ -35,6 +36,16 @@ use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
+use function array_filter;
+use function file_exists;
+use function filesize;
+use function http_build_query;
+use function is_string;
+use function ltrim;
+use function sprintf;
+use function tap;
+use const SIGINT;
+use const STDOUT;
 
 class TelegramAPI
 {
@@ -46,6 +57,7 @@ class TelegramAPI
      * @var EventHandler[] $eventHandlers
      */
     private array $eventHandlers = [];
+    private string $id;
     /**
      * Map all methods responses
      *
@@ -125,6 +137,16 @@ class TelegramAPI
     ];
 
     private static ?EventHandler $eventHandler = null;
+    /**
+     * @var array|Utils\Config|mixed|void
+     */
+    private $token;
+
+    public function __construct()
+    {
+        $this->token = config('telegram.token');
+        $this->id = explode(':', $this->token, 2)[0];
+    }
 
     /**
      * @param $event
@@ -144,7 +166,7 @@ class TelegramAPI
      * @param string $name
      * @param array $arguments
      * @return Promise
-     * @throws \Exception
+     * @throws Exception
      */
     public function __call(string $name, array $arguments = [])
     {
@@ -160,16 +182,18 @@ class TelegramAPI
                 if (isset($arguments[0]) && is_array($head = $arguments[0])) {
                     unset($arguments[0]);
 
-                    return [array_merge($head, $arguments)];
+                    return array_merge($head, $arguments);
                 }
 
                 return $arguments;
             })
-            : [$arguments];
+            : $arguments;
 
         if (method_exists($this, $name)) {
             return $this->{$name}(... $arguments);
         }
+
+        $arguments = [$arguments];
 
         /**
          * Prepend method name to arguments
@@ -289,7 +313,7 @@ class TelegramAPI
         $method = strtoupper($method);
         $queries = $method === 'GET' ? $data : [];
 
-        return \tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
+        return tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
             if (empty($queries) && !empty($data)) {
                 $request->setBody(
                     $this->generateBody($data)
@@ -308,14 +332,14 @@ class TelegramAPI
      */
     private function generateUri($uri, array $queries = []): string
     {
-        $uri = \ltrim($uri, '/');
+        $uri = ltrim($uri, '/');
 
-        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: \sprintf(
-            'https://api.telegram.org/bot%s/%s', \getenv('BOT_TOKEN'), $uri
+        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: sprintf(
+            'https://api.telegram.org/bot%s/%s', $this->token, $uri
         );
 
         if (!empty($queries))
-            $url .= '?' . \http_build_query($queries);
+            $url .= '?' . http_build_query($queries);
 
         return $url;
     }
@@ -327,10 +351,10 @@ class TelegramAPI
     private function generateBody(array $fields): FormBody
     {
         $body = new FormBody();
-        $fields = \array_filter($fields);
+        $fields = array_filter($fields);
 
         foreach ($fields as $fieldName => $content)
-            if (\is_string($content) && \file_exists($content) && \filesize($content) > 0)
+            if (is_string($content) && file_exists($content) && filesize($content) > 0)
                 $body->addFile($fieldName, $content);
             else
                 $body->addField($fieldName, $content);
@@ -343,7 +367,7 @@ class TelegramAPI
      *
      * @param int $updateType
      * @param string $uri
-     * @throws \Exception
+     * @throws Exception
      */
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
@@ -381,7 +405,7 @@ class TelegramAPI
                     });
 
 
-                    Loop::onSignal(\SIGINT, function (string $watcherId) {
+                    Loop::onSignal(SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
                         exit();
                     });
@@ -394,7 +418,7 @@ class TelegramAPI
                         Socket\Server::listen('[::]:8000'),
                     ];
 
-                    $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
+                    $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
                     $logHandler->setFormatter(new ConsoleFormatter);
                     $logger = new Logger('server');
                     $logger->pushHandler($logHandler);
@@ -418,13 +442,13 @@ class TelegramAPI
 
                     yield $server->start();
 
-                    Loop::onSignal(\SIGINT, function (string $watcherId) use ($server) {
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($server) {
                         Loop::cancel($watcherId);
                         yield $server->stop();
                     });
                 });
             default:
-                throw new \Exception('Unsupported update handling type.');
+                throw new Exception('Unsupported update handling type.');
         }
     }
 
@@ -458,7 +482,7 @@ class TelegramAPI
      *
      * @param $eventHandler
      * @return EventHandler
-     * @throws \Exception
+     * @throws Exception
      */
     public function setEventHandler($eventHandler): EventHandler
     {
@@ -466,7 +490,7 @@ class TelegramAPI
             return $this->eventHandlers[] = $eventHandler;
         }
 
-        throw new \Exception(sprintf(
+        throw new Exception(sprintf(
             'The eventHandler must be instance of %s', EventHandler::class,
         ));
 
