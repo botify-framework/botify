@@ -200,8 +200,6 @@ class TelegramAPI
          */
         array_unshift($arguments, $name);
 
-        dump($arguments);
-
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
