@@ -16,19 +16,15 @@ trait GetChatsMember
      * @param $user_id
      * @return Promise|ChatMember[]
      */
-    private function getChatsMember(...$args): Promise
+    private function getChatsMember(array $chat_ids, int $user_id): Promise
     {
-        return call(function () use ($args) {
-            $args = isset($args[0])
-                ? array_merge(array_shift($args), $args)
-                : $args;
-
+        return call(function () use ($user_id, $chat_ids) {
             $promises = [];
 
-            foreach ($args['chat_ids'] as $chat_id)
+            foreach ($chat_ids as $chat_id)
                 $promises[$chat_id] = $this->getChatMember(
                     chat_id: $chat_id,
-                    user_id: $args['user_id']
+                    user_id: $user_id
                 );
 
             return collect(yield gather($promises));
