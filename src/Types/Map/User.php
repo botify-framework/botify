@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Generator;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
 
@@ -104,9 +105,57 @@ class User extends LazyJsonMapper
      *
      * @param int $offset
      * @param int $limit
-     * @return Promise
+     * @param bool $aggressive
+     * @return Promise|Generator
      */
-    public function downloadProfilePhotos(int $offset = 0, int $limit = 10): Promise
+    public function downloadProfilePhotos(int $offset = 0, int $limit = 10, bool $aggressive = false): Promise|Generator
+    {
+        if ($aggressive === false) {
+            return call(function ($limit, &$offset) {
+                $profiles = yield $this->api->getUserProfilePhotos(
+                    user_id: $this->id,
+                    offset: $offset,
+                    limit: $limit,
+                );
+
+                if ($profiles->isSuccess()) {
+                    return collect(yield gather(array_map(
+                        fn(array $photos) => call(fn() => end($photos)->download()),
+                        $profiles->photos
+                    )));
+                }
+
+                return $profiles;
+            }, $limit, $offset);
+        }
+
+        return call(function () use ($limit, $offset) {
+            $current = 0;
+            $offset = 0;
+            $total = abs($limit) ?: (1 << 31) - 1;
+            $limit = min(100, $total);
+
+            while (true) {
+                if ($photos = yield $this->getChunk($offset, $limit)) {
+                    $offset += count($photos);
+
+                    foreach ($photos as $photo) {
+                        yield $photo;
+
+                        $current++;
+
+                        if ($current >= $limit) {
+                            return;
+                        }
+                    }
+                } else {
+                    return;
+                }
+            }
+        });
+    }
+
+    private function getChunk($offset, $limit): Promise
     {
         return call(function () use ($limit, $offset) {
             $profiles = yield $this->api->getUserProfilePhotos(
@@ -116,13 +165,10 @@ class User extends LazyJsonMapper
             );
 
             if ($profiles->isSuccess()) {
-                return collect(yield gather(array_map(
-                    fn(array $photos) => call(fn() => end($photos)->download()),
-                    $profiles->photos
-                )));
+                return $profiles['photos'];
             }
 
-            return $profiles;
+            return false;
         });
     }
 }
