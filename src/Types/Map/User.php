@@ -168,7 +168,10 @@ class User extends LazyJsonMapper
             );
 
             if ($profiles->isSuccess()) {
-                return $profiles['photos'];
+                return collect(yield gather(array_map(
+                    fn(array $photos) => call(fn() => end($photos)->download()),
+                    $profiles->photos
+                )));
             }
 
             return false;
