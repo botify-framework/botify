@@ -21,7 +21,7 @@ trait GetUsers
             );
 
             if ($response->isSuccess() && $response->type === 'private') {
-                return new User($response);
+                return new User($response->toArray());
             }
 
             return false;
@@ -41,7 +41,7 @@ trait GetUsers
                 ), $ids
             )))->where(
                 fn($response) => $response->isSuccess() && $response->type === 'private'
-            )->map(fn($user) => new User($user));
+            )->map(fn($user) => new User($user->toArray()));
         });
     }
 }
