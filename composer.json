@@ -25,5 +25,10 @@
     "amphp/http-client": "^4.6",
     "amphp/file": "^2.0",
     "lazyjsonmapper/lazyjsonmapper": "^2.0"
+  },
+  "scripts": {
+    "publish-dotenv": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
   }
 }
