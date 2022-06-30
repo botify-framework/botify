@@ -2,6 +2,7 @@
 
 namespace Jove\Types\Map;
 
+use Amp\Producer;
 use Amp\Promise;
 use Generator;
 use Jove\Utils\LazyJsonMapper;
@@ -129,29 +130,31 @@ class User extends LazyJsonMapper
             }, $limit, $offset);
         }
 
-        return call(function () use ($limit, $offset) {
-            $current = 0;
-            $offset = 0;
-            $total = abs($limit) ?: (1 << 31) - 1;
-            $limit = min(100, $total);
+        return call(function () use ($limit) {
+            return new Producer(function (callable $emit) use ($limit) {
+                $current = 0;
+                $offset = 0;
+                $total = abs($limit) ?: (1 << 31) - 1;
+                $limit = min(100, $total);
 
-            while (true) {
-                if ($photos = yield $this->getChunk($offset, $limit)) {
-                    $offset += count($photos);
+                while (true) {
+                    if ($photos = yield $this->getChunk($offset, $limit)) {
+                        $offset += count($photos);
 
-                    foreach ($photos as $photo) {
-                        yield $photo;
+                        foreach ($photos as $photo) {
+                            yield $emit($photo);
 
-                        $current++;
+                            $current++;
 
-                        if ($current >= $limit) {
-                            return;
+                            if ($current >= $limit) {
+                                return;
+                            }
                         }
+                    } else {
+                        return;
                     }
-                } else {
-                    return;
                 }
-            }
+            });
         });
     }
 
