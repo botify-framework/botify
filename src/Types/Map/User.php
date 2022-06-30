@@ -140,7 +140,7 @@ class User extends LazyJsonMapper
                     $offset += count($photos);
 
                     foreach ($photos as $photo) {
-                        yield $photo;
+                        yield from $photo;
 
                         $current++;
 
