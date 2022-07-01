@@ -36,14 +36,6 @@ use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
-use function array_filter;
-use function file_exists;
-use function filesize;
-use function http_build_query;
-use function is_string;
-use function ltrim;
-use function sprintf;
-use function tap;
 use const SIGINT;
 use const STDOUT;
 
@@ -140,12 +132,12 @@ class TelegramAPI
     /**
      * @var array|Utils\Config|mixed|void
      */
-    private $token;
+    private static $token;
 
     public function __construct()
     {
-        $this->token = config('telegram.token');
-        $this->id = explode(':', $this->token, 2)[0];
+        self::$token = config('telegram.token');
+        $this->id = explode(':', self::$token, 2)[0];
     }
 
     /**
