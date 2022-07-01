@@ -401,3 +401,10 @@ if (!function_exists('println')) {
         echo $value, "\n";
     }
 }
+
+if (!function_exists('is_json')) {
+    function is_json($value): bool
+    {
+        return is_string($value) && is_array(json_decode($value, true));
+    }
+}
