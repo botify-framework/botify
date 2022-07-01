@@ -408,3 +408,16 @@ if (!function_exists('is_json')) {
         return is_string($value) && is_array(json_decode($value, true));
     }
 }
+
+if (!function_exists('array_some')) {
+    function array_some(array $array, callable $fn): bool
+    {
+        foreach ($array as $index => $item) {
+            if ($fn($item, $index)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
