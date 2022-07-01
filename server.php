@@ -50,9 +50,10 @@ CODE;
                 'In Line : ' . $e->getLine() . "\n" .
                 'At File : ' . basename($e->getFile());
         }
+        $buffers = trim(implode("\n", $buffers));
 
         $result .= !empty($buffers) ? "<b>Result:</b>\n" . htmlspecialchars(
-                implode("\n", $buffers)
+                $buffers
             ) . "\n" : null;
 
         $result .= !empty($errors) ? "<b>Errors:</b>\n" . htmlspecialchars(
@@ -71,7 +72,7 @@ CODE;
 
         if (mb_strlen($result, 'utf8') > 4096) {
             file_put_contents($file = new FileSystem(storage_path(sprintf(
-                'result.%s', is_json($result) ? 'json' : 'txt'
+                'result.%s', is_json($buffers) ? 'json' : 'txt'
             ))), $result);
             yield $this->replyDocument($file);
             yield $file->delete();
