@@ -6,6 +6,7 @@ require_once __DIR__ . '/bootstrap/app.php';
 use Jove\TelegramAPI;
 use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\Message;
+use Jove\Utils\FileSystem;
 
 $bot = new TelegramAPI();
 
@@ -44,7 +45,7 @@ CODE;
         try {
             yield eval($runnable);
             $buffers[] = ob_get_contents();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $errors[] = $e->getMessage() . "\n" .
                 'In Line : ' . $e->getLine() . "\n" .
                 'At File : ' . basename($e->getFile());
@@ -68,10 +69,15 @@ CODE;
         mb_regex_encoding('UTF-8');
         mb_internal_encoding('UTF-8');
 
-        $responses = str_split($result, 4000);
-        foreach ($responses as $response) {
-            yield $message->reply($response);
+        if (mb_strlen($result, 'utf8') > 4096) {
+            file_put_contents($file = new FileSystem(storage_path('documents/result.txt')), $result);
+            yield $this->replyDocument($file);
+            yield $file->delete();
+        } else {
+            yield $message->reply($result);
         }
+
+
     }
 });
 
