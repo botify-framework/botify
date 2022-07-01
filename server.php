@@ -70,7 +70,9 @@ CODE;
         mb_internal_encoding('UTF-8');
 
         if (mb_strlen($result, 'utf8') > 4096) {
-            file_put_contents($file = new FileSystem(storage_path('documents/result.txt')), $result);
+            file_put_contents($file = new FileSystem(storage_path(sprintf(
+                'result.%s', is_json($result) ? 'json' : 'txt'
+            ))), $result);
             yield $this->replyDocument($file);
             yield $file->delete();
         } else {
