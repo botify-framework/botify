@@ -169,23 +169,24 @@ class TelegramAPI
                 foreach ($methods as $method)
                     $mapped[strtolower($method)] = $response;
 
-        $arguments = isset($arguments[0])
-            ? value(function () use ($arguments) {
-                if (isset($arguments[0]) && is_array($head = $arguments[0])) {
-                    unset($arguments[0]);
+        $arguments = value(function () use ($arguments) {
+            $attributes = [];
 
-                    return array_merge($head, $arguments);
-                }
+            foreach ($arguments as $index => &$argument) {
+                $attributes[] = [$index => $argument];
+            }
 
-                return $arguments;
-            })
-            : $arguments;
+            return $attributes;
+        });
+        $arguments = array_merge(... $arguments);
 
         if (method_exists($this, $name)) {
             return $this->{$name}(... $arguments);
         }
 
-        $arguments = [$arguments];
+        $arguments = isset($arguments[0])
+            ? [array_merge(array_shift($arguments), $arguments)]
+            : [$arguments];
 
         /**
          * Prepend method name to arguments
