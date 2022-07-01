@@ -136,7 +136,7 @@ class User extends LazyJsonMapper
                 $limit = min(100, $total);
 
                 while (true) {
-                    if ($photos = yield $this->getChunk($offset, $limit)) {
+                    if (($chunk = yield $this->getChunk($offset, $limit)) && [$totalCount, $photos] = $chunk) {
                         $offset += count($photos);
 
                         foreach ($photos as $photo) {
@@ -144,7 +144,7 @@ class User extends LazyJsonMapper
 
                             $current++;
 
-                            if ($current >= $total) {
+                            if ($current >= $totalCount || $current >= $total) {
                                 return;
                             }
                         }
@@ -166,10 +166,10 @@ class User extends LazyJsonMapper
             );
 
             if ($profiles->isSuccess()) {
-                return collect(yield gather(array_map(
+                return [$profiles->total_count, collect(yield gather(array_map(
                     fn(array $photos) => call(fn() => end($photos)->download()),
                     $profiles->photos
-                )));
+                )))];
             }
 
             return false;
