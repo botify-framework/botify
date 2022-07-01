@@ -170,14 +170,16 @@ class TelegramAPI
                     $mapped[strtolower($method)] = $response;
 
         $arguments = isset($arguments[0]) && is_array($arguments[0])
-            ? array_merge(array_shift($arguments), $arguments)
+            ? value(function () use ($arguments) {
+                $arguments = array_merge(array_shift($arguments), $arguments);
+
+                return array_some($arguments, fn($v, $k) => is_string($k))
+                    ? $arguments
+                    : [$arguments];
+            })
             : $arguments;
 
         if (method_exists($this, $name)) {
-            $arguments = array_some($arguments, fn($v, $k) => is_string($k))
-                ? $arguments
-                : [$arguments];
-
             return $this->{$name}(... $arguments);
         }
 
