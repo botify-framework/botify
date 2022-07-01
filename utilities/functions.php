@@ -396,9 +396,9 @@ if (!function_exists('abs_path')) {
 }
 
 if (!function_exists('println')) {
-    function println($value)
+    function println(...$vars)
     {
-        echo $value, "\n";
+        echo implode("\n", $vars);
     }
 }
 
