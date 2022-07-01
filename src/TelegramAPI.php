@@ -328,7 +328,7 @@ class TelegramAPI
         $uri = ltrim($uri, '/');
 
         $url = filter_var($uri, FILTER_VALIDATE_URL) ?: sprintf(
-            'https://api.telegram.org/bot%s/%s', $this->token, $uri
+            'https://api.telegram.org/bot%s/%s', static::$token, $uri
         );
 
         if (!empty($queries))
