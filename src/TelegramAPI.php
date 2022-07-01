@@ -18,20 +18,7 @@ use Amp\Socket;
 use Exception;
 use Jove\Methods\Methods;
 use Jove\Middlewares\AuthorizeWebhooks;
-use Jove\Types\Map\Chat;
-use Jove\Types\Map\ChatInviteLink;
-use Jove\Types\Map\ChatMember;
-use Jove\Types\Map\File;
-use Jove\Types\Map\MenuButton;
-use Jove\Types\Map\MenuButtonCommands;
-use Jove\Types\Map\Message;
-use Jove\Types\Map\MessageId;
-use Jove\Types\Map\Poll;
-use Jove\Types\Map\SentWebAppMessage;
-use Jove\Types\Map\StickerSet;
-use Jove\Types\Map\User;
-use Jove\Types\Map\UserProfilePhotos;
-use Jove\Types\Map\WebhookInfo;
+use Jove\Types\Map;
 use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
@@ -56,13 +43,13 @@ class TelegramAPI
      * @var array|string[][]
      */
     private array $responses_map = [
-        WebhookInfo::class => [
+        Map\WebhookInfo::class => [
             'getWebhookInfo'
         ],
-        User::class => [
+        Map\User::class => [
             'getMe'
         ],
-        Message::class => [
+        Map\Message::class => [
             'sendMessage',
             'forwardMessage',
             'sendPhoto',
@@ -88,42 +75,42 @@ class TelegramAPI
             'sendGame',
             'setGameScore',
         ],
-        MessageId::class => [
+        Map\MessageId::class => [
             'copyMessage'
         ],
-        UserProfilePhotos::class => [
+        Map\UserProfilePhotos::class => [
             'getUserProfilePhotos',
         ],
-        File::class => [
+        Map\File::class => [
             'getFile',
             'uploadStickerFile',
             'createNewStickerSet',
             'addStickerToSet',
         ],
-        ChatInviteLink::class => [
+        Map\ChatInviteLink::class => [
             'createChatInviteLink',
             'editChatInviteLink',
             'revokeChatInviteLink',
         ],
-        Chat::class => [
+        Map\Chat::class => [
             'getChat',
         ],
-        ChatMember::class => [
+        Map\Map\ChatMember::class => [
             'getChatMember',
         ],
-        MenuButtonCommands::class => [
+        Map\MenuButtonCommands::class => [
             'getChatMenuButton',
         ],
-        MenuButton::class => [
+        Map\MenuButton::class => [
             'getChatMenuButton',
         ],
-        Poll::class => [
+        Map\Poll::class => [
             'stopPoll',
         ],
-        StickerSet::class => [
+        Map\StickerSet::class => [
             'getStickerSet',
         ],
-        SentWebAppMessage::class => [
+        Map\SentWebAppMessage::class => [
             'answerWebAppQuery',
         ]
     ];
