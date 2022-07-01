@@ -4,7 +4,6 @@ namespace Jove\Types\Map;
 
 use Amp\Producer;
 use Amp\Promise;
-use Generator;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
 
@@ -106,12 +105,11 @@ class User extends LazyJsonMapper
      *
      * @param int $offset
      * @param int $limit
-     * @param bool $aggressive
-     * @return Promise|Generator
+     * @return Promise
      */
-    public function downloadProfilePhotos(int $offset = 0, int $limit = 10, bool $aggressive = false): Promise|Generator
+    public function downloadProfilePhotos(int $offset = 0, int $limit = 10): Promise
     {
-        if ($aggressive === false) {
+        if ($limit <= 100) {
             return call(function ($limit, &$offset) {
                 $profiles = yield $this->api->getUserProfilePhotos(
                     user_id: $this->id,
@@ -146,7 +144,7 @@ class User extends LazyJsonMapper
 
                             $current++;
 
-                            if ($current >= $limit) {
+                            if ($current >= $total) {
                                 return;
                             }
                         }
