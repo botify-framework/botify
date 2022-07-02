@@ -28,7 +28,7 @@
     "jove/medoo": "dev-master"
   },
   "scripts": {
-    "publish-dotenv": [
+    "pre-install-cmd": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ]
   }
