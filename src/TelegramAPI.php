@@ -23,6 +23,7 @@ use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
+use function Amp\coroutine;
 use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
@@ -395,40 +396,45 @@ class TelegramAPI
                     }
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
-                    $servers = [
-                        Socket\Server::listen('0.0.0.0:8000'),
-                        Socket\Server::listen('[::]:8000'),
-                    ];
+                    if ($options = config('database.connections')[config('database.default')]) {
+                        $database = yield connect(array_shift($options), $options);
+                        $servers = [
+                            Socket\Server::listen('0.0.0.0:8000'),
+                            Socket\Server::listen('[::]:8000'),
+                        ];
 
-                    $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
-                    $logHandler->setFormatter(new ConsoleFormatter);
-                    $logger = new Logger('server');
-                    $logger->pushHandler($logHandler);
-                    $router = new Server\Router();
+                        $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+                        $logHandler->setFormatter(new ConsoleFormatter);
+                        $logger = new Logger('server');
+                        $logger->pushHandler($logHandler);
+                        $router = new Server\Router();
 
-                    foreach (['GET', 'POST'] as $method)
-                        $router->addRoute($method, $uri, Server\Middleware\stack(
-                            new CallableRequestHandler(function (Server\Request $request) {
-                                $update = new Update(
-                                    json_decode(yield $request->getBody()->buffer(), true)
-                                );
-                                array_map(
-                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
-                                );
-                                return new Response(Status::OK);
-                            }),
-                            new AuthorizeWebhooks()
-                        ));
+                        foreach (['GET', 'POST'] as $method)
+                            $router->addRoute($method, $uri, Server\Middleware\stack(
+                                new CallableRequestHandler(function (Server\Request $request) use ($database) {
+                                    $update = new Update(
+                                        json_decode(yield $request->getBody()->buffer(), true)
+                                    );
+                                    yield gather(array_map(
+                                        fn($eventHandler) => call(
+                                            fn() => $eventHandler->boot($update, $database)
+                                        ), $this->eventHandlers
+                                    ));
+                                    return new Response(Status::OK);
+                                }),
+                                new AuthorizeWebhooks()
+                            ));
 
-                    $server = new Server\Server($servers, $router, $logger);
+                        $server = new Server\Server($servers, $router, $logger);
 
-                    yield $server->start();
+                        yield $server->start();
 
-                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
-                        yield $database->close();
-                        Loop::cancel($watcherId);
-                        yield $server->stop();
-                    });
+                        Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
+                            yield $database->close();
+                            Loop::cancel($watcherId);
+                            yield $server->stop();
+                        });
+                    }
                 default:
                     throw new Exception('Unsupported update handling type.');
             }
@@ -464,18 +470,24 @@ class TelegramAPI
      * Set the event handler for avoiding updates
      *
      * @param $eventHandler
-     * @return EventHandler
+     * @return Promise
      * @throws Exception
      */
-    public function setEventHandler($eventHandler): EventHandler
+    public function setEventHandler($eventHandler): Promise
     {
-        if ($eventHandler instanceof EventHandler) {
-            return $this->eventHandlers[] = $eventHandler;
-        }
+        return call(function () use ($eventHandler) {
+            $eventHandler = new $eventHandler();
+            $eventHandler->setApi($this);
 
-        throw new Exception(sprintf(
-            'The eventHandler must be instance of %s', EventHandler::class,
-        ));
+            yield coroutine([$eventHandler, 'onStart'])();
 
+            if ($eventHandler instanceof EventHandler) {
+                return $this->eventHandlers[] = $eventHandler;
+            }
+
+            throw new Exception(sprintf(
+                'The eventHandler must be instance of %s', EventHandler::class,
+            ));
+        });
     }
 }

@@ -21,9 +21,14 @@ class EventHandler implements ArrayAccess
     const UPDATE_TYPE_SOCKET_SERVER = 3;
     private static array $events = [];
     public $current;
-    private Update $update;
+    private ?Update $update = null;
     public ?DatabaseConnection $database = null;
+    public ?TelegramAPI $api = null;
 
+    public function setApi(TelegramAPI $api)
+    {
+        $this->api = $api;
+    }
 
     public static function on($events, callable $listener)
     {
@@ -49,7 +54,9 @@ class EventHandler implements ArrayAccess
             return $this->current->{$name}(... $arguments);
         }
 
-        return $this->update->api->{$name}(... $arguments);
+        return $this->api->{$name}(... $arguments) ?? trigger_error(sprintf(
+                'Trying to call undefined method [%s]', $name
+            ), E_USER_ERROR);
     }
 
     public function boot(Update $update, ?DatabaseConnection $database = null): Promise
@@ -57,6 +64,7 @@ class EventHandler implements ArrayAccess
         return call(function () use ($database, $update) {
             $this->update = $update;
             $this->database = $database;
+            $this->api = $update->api;
 
             call([$this, 'onAny'], $update);
 
@@ -157,5 +165,9 @@ class EventHandler implements ArrayAccess
     public function offsetUnset(mixed $offset)
     {
         unset($this->current[$offset]);
+    }
+
+    public function onStart()
+    {
     }
 }
