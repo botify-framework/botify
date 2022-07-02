@@ -54,46 +54,48 @@ class EventHandler implements ArrayAccess
 
     public function boot(Update $update, ?DatabaseConnection $database = null): Promise
     {
-        $this->update = $update;
-        $this->database = $database;
+        return call(function () use ($database, $update) {
+            $this->update = $update;
+            $this->database = $database;
 
-        call([$this, 'onAny'], $update);
+            call([$this, 'onAny'], $update);
 
-        $events = array_merge_recursive(static::$events, [
-            'message' => [
-                [$this, 'onUpdateNewMessage']
-            ],
-            'edited_message' => [
-                [$this, 'onUpdateNewMessage']
-            ],
-            'callback_query' => [
-                [$this, 'onUpdateCallbackQuery']
-            ],
-            'inline_query' => [
-                [$this, 'onUpdateInlineQuery']
-            ]
-        ]);
+            $events = array_merge_recursive(static::$events, [
+                'message' => [
+                    [$this, 'onUpdateNewMessage']
+                ],
+                'edited_message' => [
+                    [$this, 'onUpdateNewMessage']
+                ],
+                'callback_query' => [
+                    [$this, 'onUpdateCallbackQuery']
+                ],
+                'inline_query' => [
+                    [$this, 'onUpdateInlineQuery']
+                ]
+            ]);
 
-        foreach ($events as $event => $listeners) {
-            if (isset ($update[$event])) {
-                $current = $update[$event];
+            foreach ($events as $event => $listeners) {
+                if (isset ($update[$event])) {
+                    $current = $update[$event];
 
-                foreach ($listeners as $listener) {
-                    if ($listener instanceof Closure) {
-                        $self = clone $this;
-                        $self->current = $current;
-                        $listener = $listener->bindTo($self);
+                    foreach ($listeners as $listener) {
+                        if ($listener instanceof Closure) {
+                            $self = clone $this;
+                            $self->current = $current;
+                            $listener = $listener->bindTo($self);
+                        }
+                        if (is_array($listener)) {
+                            $self = clone $listener[0];
+                            $self->current = $current;
+                            $listener[0] = $self;
+                        }
+
+                        call($listener, $update[$event]);
                     }
-                    if (is_array($listener)) {
-                        $self = clone $listener[0];
-                        $self->current = $current;
-                        $listener[0] = $self;
-                    }
-
-                    call($listener, $update[$event]);
                 }
             }
-        }
+        });
     }
 
     /**

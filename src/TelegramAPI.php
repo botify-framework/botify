@@ -366,7 +366,7 @@ class TelegramAPI
                     );
 
                     yield gather(array_map(
-                        fn($eventHandler) => call(fn() => $eventHandler->boot($update, $database)), $this->eventHandlers
+                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
                     ));
 
                     yield $database->close();
