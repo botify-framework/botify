@@ -375,7 +375,7 @@ class TelegramAPI
                         $offset = -1;
                         yield $this->deleteWebhook();
 
-                        Loop::repeat(100, function () use ($database, $options, &$offset) {
+                        Loop::repeat(config('telegram.loop_interval'), function () use ($database, $options, &$offset) {
                             $updates = yield $this->getUpdates($offset);
 
                             if (is_collection($updates) && $updates->isNotEmpty()) {
