@@ -372,12 +372,11 @@ class TelegramAPI
                         $offset = -1;
                         yield $this->deleteWebhook();
 
-                        Loop::repeat(100, function () use ($database, &$offset) {
+                        Loop::repeat(100, function () use ($database, $options, &$offset) {
                             $updates = yield $this->getUpdates($offset);
 
                             if (is_collection($updates) && $updates->isNotEmpty()) {
                                 foreach ($updates as $update) {
-
                                     yield gather(array_map(
                                         fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
                                     ));
