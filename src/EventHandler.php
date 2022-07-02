@@ -20,16 +20,18 @@ class EventHandler implements ArrayAccess
     const UPDATE_TYPE_POLLING = 2;
     const UPDATE_TYPE_SOCKET_SERVER = 3;
     private static array $events = [];
-    public $current;
-    private ?Update $update = null;
-    public ?DatabaseConnection $database = null;
     public ?TelegramAPI $api = null;
+    public $current;
+    public ?DatabaseConnection $database = null;
+    private ?Update $update = null;
 
-    public function setApi(TelegramAPI $api)
-    {
-        $this->api = $api;
-    }
-
+    /**
+     * Use this method for inline events
+     *
+     * @param $events
+     * @param callable $listener
+     * @return void
+     */
     public static function on($events, callable $listener)
     {
         $events = array_map(fn($event) => strtolower($event), (array)$events);
@@ -59,6 +61,18 @@ class EventHandler implements ArrayAccess
             ), E_USER_ERROR);
     }
 
+    public function __get($name)
+    {
+        return $this->current->{$name};
+    }
+
+    /**
+     * Bootstrap the event handler
+     *
+     * @param Update $update
+     * @param DatabaseConnection|null $database
+     * @return Promise
+     */
     public function boot(Update $update, ?DatabaseConnection $database = null): Promise
     {
         return call(function () use ($database, $update) {
@@ -112,52 +126,6 @@ class EventHandler implements ArrayAccess
         });
     }
 
-    /**
-     * @param Update $update
-     * @return Generator
-     */
-    public function onAny(Update $update): Generator
-    {
-    }
-
-    /**
-     * @param CallbackQuery $callbackQuery
-     * @return Generator
-     */
-    public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
-    {
-    }
-
-    /**
-     * @param InlineQuery $inlineQuery
-     * @return Generator
-     */
-    public function onUpdateInlineQuery(InlineQuery $inlineQuery): Generator
-    {
-    }
-
-    /**
-     * @param Message $message
-     * @return Generator
-     */
-    public function onUpdateNewMessage(Message $message): Generator
-    {
-    }
-
-    /**
-     * @param Message $message
-     * @return void
-     */
-    public function onUpdateNewChannelMessage(Message $message)
-    {
-
-    }
-
-    public function __get($name)
-    {
-        return $this->current->{$name};
-    }
-
     public function offsetExists(mixed $offset)
     {
         return isset($this->current->{$offset});
@@ -182,7 +150,64 @@ class EventHandler implements ArrayAccess
         unset($this->current[$offset]);
     }
 
-    public function onStart()
+    /**
+     * @param Update $update
+     * @return Generator
+     */
+    public function onAny(Update $update): Generator
     {
+    }
+
+    /**
+     * This action called when eventHandler was started
+     *
+     * @return Generator
+     */
+    public function onStart(): Generator
+    {
+    }
+
+    /**
+     * @param CallbackQuery $callbackQuery
+     * @return Generator
+     */
+    public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
+    {
+    }
+
+    /**
+     * @param InlineQuery $inlineQuery
+     * @return Generator
+     */
+    public function onUpdateInlineQuery(InlineQuery $inlineQuery): Generator
+    {
+    }
+
+    /**
+     * @param Message $message
+     * @return void
+     */
+    public function onUpdateNewChannelMessage(Message $message)
+    {
+
+    }
+
+    /**
+     * @param Message $message
+     * @return Generator
+     */
+    public function onUpdateNewMessage(Message $message): Generator
+    {
+    }
+
+    /**
+     * Set TelegramAPI instance
+     *
+     * @param TelegramAPI $api
+     * @return void
+     */
+    public function setApi(TelegramAPI $api)
+    {
+        $this->api = $api;
     }
 }
