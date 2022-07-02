@@ -350,51 +350,50 @@ class TelegramAPI
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
         Loop::run(function () use ($updateType, $uri) {
-            $database = null;
-
-            if ($options = config('database.connections')[config('database.default')]) {
-                $database = yield connect(array_shift($options), $options);
-            }
-
             array_unshift($this->eventHandlers, static::$eventHandler);
 
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
-                    $this->finish();
-                    $update = new Update(
-                        json_decode(file_get_contents('php://input'), true) ?? []
-                    );
-
-                    yield gather(array_map(
-                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
-                    ));
-
-                    yield $database->close();
+                    if ($options = config('database.connections')[config('database.default')]) {
+                        $database = yield connect(array_shift($options), $options);
+                        $this->finish();
+                        $update = new Update(
+                            json_decode(file_get_contents('php://input'), true) ?? []
+                        );
+                        yield gather(array_map(
+                            fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                        ));
+                        yield $database->close();
+                    }
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
-                    $offset = -1;
-                    yield $this->deleteWebhook();
+                    if ($options = config('database.connections')[config('database.default')]) {
+                        $database = yield connect(array_shift($options), $options);
+                        $offset = -1;
+                        yield $this->deleteWebhook();
 
-                    Loop::repeat(100, function () use ($database, &$offset) {
-                        $updates = yield $this->getUpdates($offset);
+                        Loop::repeat(100, function () use ($database, &$offset) {
+                            $updates = yield $this->getUpdates($offset);
 
-                        if (is_collection($updates) && $updates->isNotEmpty()) {
-                            foreach ($updates as $update) {
-                                array_map(
-                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update, $database)), $this->eventHandlers
-                                );
-                                $offset = $update->update_id + 1;
+                            if (is_collection($updates) && $updates->isNotEmpty()) {
+                                foreach ($updates as $update) {
+
+                                    yield gather(array_map(
+                                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                                    ));
+
+                                    $offset = $update->update_id + 1;
+                                }
                             }
-                        }
 
-                    });
+                        });
 
-
-                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
-                        yield $database->close();
-                        Loop::cancel($watcherId);
-                        exit();
-                    });
+                        Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
+                            yield $database->close();
+                            Loop::cancel($watcherId);
+                            exit();
+                        });
+                    }
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
                     $servers = [
