@@ -23,6 +23,7 @@ use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
+use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
 
@@ -348,32 +349,38 @@ class TelegramAPI
      */
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
-        array_unshift($this->eventHandlers, static::$eventHandler);
+        Loop::run(function () use ($updateType, $uri) {
+            $database = null;
 
-        switch ($updateType) {
-            case EventHandler::UPDATE_TYPE_WEBHOOK:
-                Loop::run(function () {
-                    $this->finish(uniqid());
+            if ($options = config('database.connections')[config('database.default')]) {
+                $database = yield connect(array_shift($options), $options);
+            }
+
+            array_unshift($this->eventHandlers, static::$eventHandler);
+
+            switch ($updateType) {
+                case EventHandler::UPDATE_TYPE_WEBHOOK:
+                    $this->finish();
                     $update = new Update(
                         json_decode(file_get_contents('php://input'), true) ?? []
                     );
                     array_map(
-                        fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
+                        fn($eventHandler) => call(fn() => $eventHandler->boot($update, $database)), $this->eventHandlers
                     );
-                });
-                break;
-            case EventHandler::UPDATE_TYPE_POLLING:
-                Loop::run(function () {
+
+                    yield $database->close();
+                    break;
+                case EventHandler::UPDATE_TYPE_POLLING:
                     $offset = -1;
                     yield $this->deleteWebhook();
 
-                    Loop::repeat(100, function () use (&$offset) {
+                    Loop::repeat(100, function () use ($database, &$offset) {
                         $updates = yield $this->getUpdates($offset);
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
                                 array_map(
-                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update)), $this->eventHandlers
+                                    fn($eventHandler) => call(fn() => $eventHandler->boot($update, $database)), $this->eventHandlers
                                 );
                                 $offset = $update->update_id + 1;
                             }
@@ -382,14 +389,13 @@ class TelegramAPI
                     });
 
 
-                    Loop::onSignal(SIGINT, function (string $watcherId) {
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
+                        yield $database->close();
                         Loop::cancel($watcherId);
                         exit();
                     });
-                });
-                break;
-            case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
-                Loop::run(function () use ($uri) {
+                    break;
+                case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
                     $servers = [
                         Socket\Server::listen('0.0.0.0:8000'),
                         Socket\Server::listen('[::]:8000'),
@@ -419,14 +425,15 @@ class TelegramAPI
 
                     yield $server->start();
 
-                    Loop::onSignal(SIGINT, function (string $watcherId) use ($server) {
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
+                        yield $database->close();
                         Loop::cancel($watcherId);
                         yield $server->stop();
                     });
-                });
-            default:
-                throw new Exception('Unsupported update handling type.');
-        }
+                default:
+                    throw new Exception('Unsupported update handling type.');
+            }
+        });
     }
 
     /**
