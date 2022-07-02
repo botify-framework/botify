@@ -351,7 +351,9 @@ class TelegramAPI
     public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
         Loop::run(function () use ($updateType, $uri) {
-            array_unshift($this->eventHandlers, static::$eventHandler);
+            if (!is_null(static::$eventHandler)) {
+                array_unshift($this->eventHandlers, static::$eventHandler);
+            }
 
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
