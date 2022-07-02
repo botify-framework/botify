@@ -24,7 +24,8 @@
     "vlucas/phpdotenv": "^5.4",
     "amphp/http-client": "^4.6",
     "amphp/file": "^2.0",
-    "lazyjsonmapper/lazyjsonmapper": "^2.0"
+    "lazyjsonmapper/lazyjsonmapper": "^2.0",
+    "jove/medoo": "dev-master"
   },
   "scripts": {
     "publish-dotenv": [
