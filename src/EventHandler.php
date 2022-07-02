@@ -75,6 +75,12 @@ class EventHandler implements ArrayAccess
                 'edited_message' => [
                     [$this, 'onUpdateNewMessage']
                 ],
+                'channel_post' => [
+                    [$this, 'onUpdateNewChannelMessage']
+                ],
+                'edited_channel_post' => [
+                    [$this, 'onUpdateNewChannelMessage']
+                ],
                 'callback_query' => [
                     [$this, 'onUpdateCallbackQuery']
                 ],
@@ -136,6 +142,15 @@ class EventHandler implements ArrayAccess
      */
     public function onUpdateNewMessage(Message $message): Generator
     {
+    }
+
+    /**
+     * @param Message $message
+     * @return void
+     */
+    public function onUpdateNewChannelMessage(Message $message)
+    {
+
     }
 
     public function __get($name)
