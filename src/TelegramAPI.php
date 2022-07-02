@@ -364,9 +364,10 @@ class TelegramAPI
                     $update = new Update(
                         json_decode(file_get_contents('php://input'), true) ?? []
                     );
-                    array_map(
+
+                    yield gather(array_map(
                         fn($eventHandler) => call(fn() => $eventHandler->boot($update, $database)), $this->eventHandlers
-                    );
+                    ));
 
                     yield $database->close();
                     break;
