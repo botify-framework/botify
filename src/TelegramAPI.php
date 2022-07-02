@@ -95,7 +95,7 @@ class TelegramAPI
         Map\Chat::class => [
             'getChat',
         ],
-        Map\Map\ChatMember::class => [
+        Map\ChatMember::class => [
             'getChatMember',
         ],
         Map\MenuButtonCommands::class => [
