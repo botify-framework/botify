@@ -23,7 +23,6 @@ use Jove\Types\Update;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
-use function Amp\coroutine;
 use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
@@ -480,16 +479,14 @@ class TelegramAPI
         return call(function () use ($eventHandler) {
             $eventHandler = new $eventHandler();
             $eventHandler->setApi($this);
-
-            yield coroutine([$eventHandler, 'onStart'])();
-
             if ($eventHandler instanceof EventHandler) {
-                return $this->eventHandlers[] = $eventHandler;
+                $this->eventHandlers[] = $eventHandler;
+                yield call([$eventHandler, 'onStart']);
+            } else {
+                throw new Exception(sprintf(
+                    'The eventHandler must be instance of %s', EventHandler::class,
+                ));
             }
-
-            throw new Exception(sprintf(
-                'The eventHandler must be instance of %s', EventHandler::class,
-            ));
         });
     }
 }
