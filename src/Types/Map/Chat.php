@@ -2,6 +2,7 @@
 
 namespace Jove\Types\Map;
 
+use Amp\Promise;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -137,4 +138,18 @@ class Chat extends LazyJsonMapper
         'linked_chat_id' => 'int',
         'location' => 'ChatLocation',
     ];
+
+    /**
+     * Getting specified user info in current chat
+     *
+     * @param $user_id
+     * @return Promise<ChatMember>
+     */
+    public function getMember($user_id): Promise
+    {
+        return $this->api->getChatMember(
+            chat_id: $this->id,
+            user_id: $user_id
+        );
+    }
 }
