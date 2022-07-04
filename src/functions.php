@@ -436,10 +436,12 @@ if (!function_exists('button')) {
         $json = $args['json'] ?? true;
         $options = $args['options'] ?? [];
         $default = $args['default'] ?? null;
-        unset($args['json'], $args['options']);
+        unset($args['json'], $args['options'], $args['default']);
 
         if (is_array($value = value(data_get($keyboards, $id, $default)))) {
             return Button::make($value, $options, $json);
         }
+
+        return $default;
     }
 }
