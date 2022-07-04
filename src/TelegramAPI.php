@@ -349,7 +349,7 @@ class TelegramAPI
         }
 
         foreach ($attributes as $attribute => &$value)
-            if (strtolower($value) === 'me' && in_array($attribute, static::$meable_attributes))
+            if (is_string($value) && strtolower($value) === 'me' && in_array($attribute, static::$meable_attributes))
                 $value = $this->id;
     }
 
