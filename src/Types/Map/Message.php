@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\Stringable;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
 
@@ -320,6 +321,8 @@ use function Amp\call;
  */
 class Message extends LazyJsonMapper
 {
+    use Stringable;
+
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
         'message_id' => 'int',
@@ -652,12 +655,11 @@ class Message extends LazyJsonMapper
      */
     public function replyMediaGroup(array $media, ...$args): Promise
     {
-        return $this->api->sendMediaGroup(
-            $args,
-            chat_id: $this->chat->id,
-            media: json_encode($media),
-            reply_to_message_id: $this->message_id,
-        );
+        return $this->api->sendMediaGroup(array_merge($args, [
+            'chat_id' => $this->chat->id,
+            'media' => json_encode($media),
+            'reply_to_message_id' => $this->message_id,
+        ]));
     }
 
     /**
@@ -791,5 +793,10 @@ class Message extends LazyJsonMapper
             voice: $voice,
             reply_to_message_id: $this->message_id,
         );
+    }
+
+    protected function getStringableValue(): ?string
+    {
+        return $this->text ?? $this->caption;
     }
 }
