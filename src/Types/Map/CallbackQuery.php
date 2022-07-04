@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\Stringable;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -51,6 +52,8 @@ use Jove\Utils\LazyJsonMapper;
 class CallbackQuery extends LazyJsonMapper
 {
 
+    use Stringable;
+
     const JSON_PROPERTY_MAP = [
         'id' => 'string',
         'from' => 'User',
@@ -77,5 +80,10 @@ class CallbackQuery extends LazyJsonMapper
             text: $text,
             show_alert: $showAlert,
         );
+    }
+
+    protected function getStringableValue(): ?string
+    {
+        return $this->data;
     }
 }
