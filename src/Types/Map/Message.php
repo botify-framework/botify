@@ -537,6 +537,7 @@ class Message extends LazyJsonMapper
             text: $text,
             parse_mode: 'html',
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -554,6 +555,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             animation: $animation,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -571,6 +573,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             audio: $audio,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -590,6 +593,7 @@ class Message extends LazyJsonMapper
             phone_number: $phone_number,
             first_name: $first_name,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -607,6 +611,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             emoji: $emoji,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -624,6 +629,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             document: $document,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -643,6 +649,7 @@ class Message extends LazyJsonMapper
             latitude: $latitude,
             longitude: $longitude,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -659,6 +666,7 @@ class Message extends LazyJsonMapper
             'chat_id' => $this->chat->id,
             'media' => json_encode($media),
             'reply_to_message_id' => $this->message_id,
+            'allow_sending_without_reply' => true
         ]));
     }
 
@@ -676,6 +684,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             photo: $photo,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -695,6 +704,7 @@ class Message extends LazyJsonMapper
             question: $question,
             options: json_encode($options),
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -712,6 +722,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             sticker: $sticker,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -741,6 +752,7 @@ class Message extends LazyJsonMapper
             title: $title,
             address: $address,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -758,6 +770,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             video: $video,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -775,6 +788,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             video_note: $video_note,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
@@ -792,6 +806,7 @@ class Message extends LazyJsonMapper
             chat_id: $this->chat->id,
             voice: $voice,
             reply_to_message_id: $this->message_id,
+            allow_sending_without_reply: true
         );
     }
 
