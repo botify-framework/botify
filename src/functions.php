@@ -140,9 +140,9 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('value')) {
-    function value($value)
+    function value($value, ...$args)
     {
-        return $value instanceof Closure ? $value() : $value;
+        return $value instanceof Closure ? $value(... $args) : $value;
     }
 }
 
@@ -426,7 +426,7 @@ if (!function_exists('array_some')) {
 if (!function_exists('button')) {
     /**
      * @param $id
-     * @param $default
+     * @param mixed ...$args
      * @return mixed
      */
     function button($id, ...$args): mixed
@@ -438,7 +438,7 @@ if (!function_exists('button')) {
         $default = $args['default'] ?? null;
         unset($args['json'], $args['options'], $args['default']);
 
-        if (is_array($value = value(data_get($keyboards, $id, $default)))) {
+        if (is_array($value = value(data_get($keyboards, $id, $default), ... $args))) {
             return Button::make($value, $options, $json);
         }
 
