@@ -4,7 +4,6 @@ namespace Jove\Traits;
 
 trait Stringable
 {
-
     public function endsWith($needles): bool
     {
         return array_some(

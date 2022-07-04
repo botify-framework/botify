@@ -2,6 +2,7 @@
 
 use Amp\Delayed;
 use Amp\Promise;
+use Jove\Utils\Button;
 use Jove\Utils\Collection;
 use Jove\Utils\Config;
 use function Amp\call;
@@ -419,5 +420,25 @@ if (!function_exists('array_some')) {
         }
 
         return false;
+    }
+}
+
+if (!function_exists('button')) {
+    /**
+     * @param $id
+     * @param $default
+     * @return mixed
+     */
+    function button($id, ...$args): mixed
+    {
+        static $keyboards = null;
+        $keyboards ??= require_once __DIR__ . '/../utils/keyboards.php';
+        $json = $args['json'] ?? true;
+        $options = $args['options'] ?? [];
+        unset($args['json'], $args['options']);
+
+        if (is_array($value = value(data_get($keyboards, $id)))) {
+            return Button::make($value, $options, $json);
+        }
     }
 }

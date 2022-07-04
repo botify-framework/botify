@@ -7,7 +7,7 @@
       "Jove\\": "src/"
     },
     "files": [
-      "utilities/functions.php"
+      "src/functions.php"
     ]
   },
   "require-dev": {
