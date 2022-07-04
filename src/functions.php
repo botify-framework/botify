@@ -435,9 +435,10 @@ if (!function_exists('button')) {
         $keyboards ??= require_once __DIR__ . '/../utils/keyboards.php';
         $json = $args['json'] ?? true;
         $options = $args['options'] ?? [];
+        $default = $args['default'] ?? null;
         unset($args['json'], $args['options']);
 
-        if (is_array($value = value(data_get($keyboards, $id)))) {
+        if (is_array($value = value(data_get($keyboards, $id, $default)))) {
             return Button::make($value, $options, $json);
         }
     }
