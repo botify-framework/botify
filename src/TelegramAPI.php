@@ -122,6 +122,10 @@ class TelegramAPI
      */
     private static $token;
 
+    private static array $meable_attributes = [
+        'user_id', 'chat_id',
+    ];
+
     public function __construct()
     {
         self::$token = config('telegram.token');
@@ -203,15 +207,7 @@ class TelegramAPI
      */
     public function post($uri, array $attributes = [], bool $stream = false): Promise
     {
-        if (isset($attributes['text'])) {
-            $text = &$attributes['text'];
-
-            if (is_array($text)) {
-                $text = print_r($text, true);
-            } elseif (is_object($text) && method_exists($text, '__toString')) {
-                $text = var_export($text, true);
-            }
-        }
+        $this->bindAttributes($attributes);
 
         return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
     }
@@ -338,6 +334,23 @@ class TelegramAPI
                 $body->addField($fieldName, $content);
 
         return $body;
+    }
+
+    public function bindAttributes(&$attributes)
+    {
+        if (isset($attributes['text'])) {
+            $text = &$attributes['text'];
+
+            if (is_array($text)) {
+                $text = print_r($text, true);
+            } elseif (is_object($text) && method_exists($text, '__toString')) {
+                $text = var_export($text, true);
+            }
+        }
+
+        foreach ($attributes as $attribute => &$value)
+            if (strtolower($value) === 'me' && in_array($attribute, static::$meable_attributes))
+                $value = $this->id;
     }
 
     /**
