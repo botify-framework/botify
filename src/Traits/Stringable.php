@@ -77,7 +77,7 @@ trait Stringable
      */
     public function between($from, $to): string
     {
-        return $this->beforeLast($this->after($from), $to);
+        return static::of($this->after($from))->beforeLast($to);
     }
 
     /**
@@ -157,6 +157,22 @@ trait Stringable
     public function trim(string $characters = " \t\n\r\0\x0B"): string
     {
         return trim($this->value(), $characters);
+    }
+
+    public static function of($value): object
+    {
+        return new class ($value) {
+            use Stringable;
+
+            public function __construct(public string $value)
+            {
+            }
+
+            protected function getStringableValue(): ?string
+            {
+                return $this->value;
+            }
+        };
     }
 
     abstract protected function getStringableValue(): ?string;
