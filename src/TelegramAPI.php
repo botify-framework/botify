@@ -427,7 +427,7 @@ class TelegramAPI
                             $router->addRoute($method, $uri, Server\Middleware\stack(
                                 new CallableRequestHandler(function (Server\Request $request) use ($database) {
                                     $update = new Update(
-                                        json_decode(yield $request->getBody()->buffer(), true)
+                                        json_decode(yield $request->getBody()->buffer(), true) ?? []
                                     );
                                     yield gather(array_map(
                                         fn($eventHandler) => call(
@@ -449,6 +449,7 @@ class TelegramAPI
                             yield $server->stop();
                         });
                     }
+                    break;
                 default:
                     throw new Exception('Unsupported update handling type.');
             }
