@@ -352,7 +352,7 @@ class TelegramAPI
         if (isset($attributes['reply_markup'])) {
             $replyMarkup = &$attributes['reply_markup'];
 
-            if (!$replyMarkup instanceof Button) {
+            if (is_array($replyMarkup)) {
                 $replyMarkup = Button::make($replyMarkup);
             }
         }
