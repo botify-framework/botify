@@ -454,3 +454,33 @@ if (!function_exists('button')) {
         return $default;
     }
 }
+
+if (!function_exists('array_first')) {
+    /**
+     * Getting first element of array
+     * @param array $array
+     * @return mixed
+     * @example
+     * array_first(some_function_returns_array());
+     *
+     */
+    function array_first(array $array): mixed
+    {
+        return reset($array);
+    }
+}
+
+if (!function_exists('array_last')) {
+    /**
+     * Getting last element of array
+     * @param array $array
+     * @return mixed
+     * @example
+     * array_last(some_function_returns_array());
+     *
+     */
+    function array_last(array $array): mixed
+    {
+        return end($array);
+    }
+}
