@@ -20,6 +20,7 @@ use Jove\Methods\Methods;
 use Jove\Middlewares\AuthorizeWebhooks;
 use Jove\Types\Map;
 use Jove\Types\Update;
+use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
 use function Amp\call;
@@ -348,9 +349,19 @@ class TelegramAPI
             }
         }
 
-        foreach ($attributes as $attribute => &$value)
-            if (is_string($value) && strtolower($value) === 'me' && in_array($attribute, static::$meable_attributes))
-                $value = $this->id;
+        if (isset($attributes['reply_markup'])) {
+            $replyMarkup = &$attributes['reply_markup'];
+
+            if (!$replyMarkup instanceof Button) {
+                $replyMarkup = Button::make($replyMarkup);
+            }
+        }
+
+        foreach (static::$meable_attributes as $attribute)
+            if (isset($attributes[$attribute]) && is_string($attribute = &$attributes[$attribute]) && $attribute === 'me')
+                $attribute = $this->id;
+
+
     }
 
     /**
