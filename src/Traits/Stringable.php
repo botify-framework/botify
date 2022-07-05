@@ -81,11 +81,11 @@ trait Stringable
 
         if ($case === true) {
             $value = strtolower($value);
-            $needles = array_map(fn($needle) => strtolower($needle), (array)$needles);
+            $needles = array_map('strtolower', (array)$needles);
         }
 
-        return array_some($needles, function ($needle) use ($value) {
-            return str_contains($value, strtolower($needle));
+        return array_some((array)$needles, function ($needle) use ($value) {
+            return str_contains($value, $needle);
         });
     }
 
