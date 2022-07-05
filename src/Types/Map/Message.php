@@ -810,10 +810,19 @@ class Message extends LazyJsonMapper
         );
     }
 
-    public function resetKeyboard(): Promise
+    /**
+     * Remove current chat keyboards
+     *
+     * @param string $with
+     * @return Promise
+     */
+    public function resetKeyboard(string $with = '🔄'): Promise
     {
-        return call(function () {
-            $replied = yield $this->reply('.');
+        return call(function () use ($with) {
+            $replied = yield $this->reply(
+                $with, reply_markup: button(remove: true)
+            );
+
             return yield $replied->delete();
         });
     }
