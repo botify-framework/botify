@@ -436,7 +436,7 @@ if (!function_exists('button')) {
      * @param mixed ...$args
      * @return mixed
      */
-    function button($id, ...$args): mixed
+    function button($id = null, ...$args): mixed
     {
         static $keyboards = null;
         $keyboards ??= require_once __DIR__ . '/../utils/keyboards.php';
