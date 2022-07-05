@@ -810,6 +810,14 @@ class Message extends LazyJsonMapper
         );
     }
 
+    public function resetKeyboard(): Promise
+    {
+        return call(function () {
+            $replied = yield $this->reply('.');
+            return yield $replied->delete();
+        });
+    }
+
     protected function getStringableValue(): ?string
     {
         return $this->text ?? $this->caption;
