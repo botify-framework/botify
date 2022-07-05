@@ -5,21 +5,6 @@ namespace Jove\Traits;
 trait Stringable
 {
     /**
-     * Get string after a phrase
-     *
-     * @param string $search
-     * @return string
-     */
-    public function after(string $search): string
-    {
-        return $search === '' ? $this->value() : value(function () use ($search) {
-            $split = explode($search, $this->value(), 2);
-
-            return end($split);
-        });
-    }
-
-    /**
      * Get string after latest a phrase
      *
      * @param string $search
@@ -34,6 +19,16 @@ trait Stringable
 
             return mb_substr($this->value(), $position + mb_strlen($search));
         });
+    }
+
+    /**
+     * Alias of getStringableValue method
+     *
+     * @return ?string
+     */
+    private function value(): ?string
+    {
+        return $this->getStringableValue();
     }
 
     /**
@@ -81,6 +76,43 @@ trait Stringable
     }
 
     /**
+     * Create new instance
+     *
+     * @param $value
+     * @return object
+     */
+    public static function of($value): object
+    {
+        return new class ($value) {
+            use Stringable;
+
+            public function __construct(public string $value)
+            {
+            }
+
+            protected function getStringableValue(): ?string
+            {
+                return $this->value;
+            }
+        };
+    }
+
+    /**
+     * Get string after a phrase
+     *
+     * @param string $search
+     * @return string
+     */
+    public function after(string $search): string
+    {
+        return $search === '' ? $this->value() : value(function () use ($search) {
+            $split = explode($search, $this->value(), 2);
+
+            return end($split);
+        });
+    }
+
+    /**
      * Check string contains a needle
      *
      * @param $needles
@@ -99,16 +131,6 @@ trait Stringable
         return array_some((array)$needles, function ($needle) use ($value) {
             return $needle !== '' && str_contains($value, $needle);
         });
-    }
-
-    /**
-     * Alias of getStringableValue method
-     *
-     * @return ?string
-     */
-    private function value(): ?string
-    {
-        return $this->getStringableValue();
     }
 
     /**
@@ -157,22 +179,6 @@ trait Stringable
     public function trim(string $characters = " \t\n\r\0\x0B"): string
     {
         return trim($this->value(), $characters);
-    }
-
-    public static function of($value): object
-    {
-        return new class ($value) {
-            use Stringable;
-
-            public function __construct(public string $value)
-            {
-            }
-
-            protected function getStringableValue(): ?string
-            {
-                return $this->value;
-            }
-        };
     }
 
     abstract protected function getStringableValue(): ?string;
