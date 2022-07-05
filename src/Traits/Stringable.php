@@ -69,6 +69,18 @@ trait Stringable
     }
 
     /**
+     * Get string between 2 phrase
+     *
+     * @param $from
+     * @param $to
+     * @return string
+     */
+    public function between($from, $to): string
+    {
+        return $this->beforeLast($this->after($from), $to);
+    }
+
+    /**
      * Check string contains a needle
      *
      * @param $needles
@@ -85,7 +97,7 @@ trait Stringable
         }
 
         return array_some((array)$needles, function ($needle) use ($value) {
-            return str_contains($value, $needle);
+            return $needle !== '' && str_contains($value, $needle);
         });
     }
 
