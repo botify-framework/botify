@@ -396,10 +396,17 @@ if (!function_exists('abs_path')) {
     }
 }
 
+if (!function_exists('sprintln')) {
+    function sprintln(...$vars)
+    {
+        return implode("\n", $vars);
+    }
+}
+
 if (!function_exists('println')) {
     function println(...$vars)
     {
-        echo implode("\n", $vars), "\n";
+        echo sprintln(... $vars), "\n";
     }
 }
 
