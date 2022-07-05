@@ -13,7 +13,7 @@ trait Stringable
     public function after(string $search): string
     {
         return $search === '' ? $this->value() : value(function () use ($search) {
-            $split = explode($this->value(), $search, 2);
+            $split = explode($search, $this->value(), 2);
 
             return end($split);
         });
