@@ -69,6 +69,19 @@ trait Stringable
     }
 
     /**
+     * Check string contains a needle
+     *
+     * @param $needles
+     * @return bool
+     */
+    public function contains($needles): bool
+    {
+        return array_some((array)$needles, function ($needle) {
+            return str_contains(strtolower($this->value()), strtolower($needle));
+        });
+    }
+
+    /**
      * Alias of getStringableValue method
      *
      * @return ?string
