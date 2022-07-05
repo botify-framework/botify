@@ -72,12 +72,20 @@ trait Stringable
      * Check string contains a needle
      *
      * @param $needles
+     * @param bool $case
      * @return bool
      */
-    public function contains($needles): bool
+    public function contains($needles, bool $case = false): bool
     {
-        return array_some((array)$needles, function ($needle) {
-            return str_contains(strtolower($this->value()), strtolower($needle));
+        $value = $this->value();
+
+        if ($case === true) {
+            $value = strtolower($value);
+            $needles = array_map(fn($needle) => strtolower($needle), (array)$needles);
+        }
+
+        return array_some($needles, function ($needle) use ($value) {
+            return str_contains($value, strtolower($needle));
         });
     }
 
