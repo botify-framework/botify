@@ -23,6 +23,7 @@ use function Amp\call;
  * @method string getForwardSenderName()
  * @method Int getForwardDate()
  * @method bool getIsAutomaticForward()
+ * @method Message getReply()
  * @method Message getReplyToMessage()
  * @method User getViaBot()
  * @method Int getEditDate()
@@ -85,6 +86,7 @@ use function Amp\call;
  * @method bool isForwardSenderName()
  * @method bool isForwardDate()
  * @method bool isIsAutomaticForward()
+ * @method bool isReply()
  * @method bool isReplyToMessage()
  * @method bool isViaBot()
  * @method bool isEditDate()
@@ -147,6 +149,7 @@ use function Amp\call;
  * @method $this setForwardSenderName(string $value)
  * @method $this setForwardDate(int $value)
  * @method $this setIsAutomaticForward(bool $value)
+ * @method $this setReply(Message $value)
  * @method $this setReplyToMessage(Message $value)
  * @method $this setViaBot(User $value)
  * @method $this setEditDate(int $value)
@@ -209,6 +212,7 @@ use function Amp\call;
  * @method $this unsetForwardSenderName()
  * @method $this unsetForwardDate()
  * @method $this unsetIsAutomaticForward()
+ * @method $this unsetReply()
  * @method $this unsetReplyToMessage()
  * @method $this unsetViaBot()
  * @method $this unsetEditDate()
@@ -271,6 +275,7 @@ use function Amp\call;
  * @property string $forward_sender_name
  * @property Int $forward_date
  * @property bool $is_automatic_forward
+ * @property Message $reply
  * @property Message $reply_to_message
  * @property User $via_bot
  * @property Int $edit_date
@@ -337,6 +342,7 @@ class Message extends LazyJsonMapper
         'forward_sender_name' => 'string',
         'forward_date' => 'int',
         'is_automatic_forward' => 'bool',
+        'reply' => 'Message',
         'reply_to_message' => 'Message',
         'via_bot' => 'User',
         'edit_date' => 'int',
@@ -407,6 +413,7 @@ class Message extends LazyJsonMapper
         parent::_init();
 
         $this->_setProperty('id', $this->_getProperty('message_id'));
+        $this->_setProperty('reply', $this->_getProperty('reply_to_message'));
     }
 
     /**
