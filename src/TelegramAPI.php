@@ -434,7 +434,7 @@ class TelegramAPI
                                             fn() => $eventHandler->boot($update, $database)
                                         ), $this->eventHandlers
                                     ));
-                                    return new Response(Status::OK);
+                                    return new Response(Status::OK, stringOrStream: 'HTTP Ok');
                                 }),
                                 new AuthorizeWebhooks()
                             ));
