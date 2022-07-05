@@ -445,7 +445,9 @@ if (!function_exists('button')) {
         $default = $args['default'] ?? null;
         unset($args['json'], $args['options'], $args['default']);
 
-        if (is_array($value = value(data_get($keyboards, $id, $default), ... $args))) {
+        if (isset($args['remove']) && $args['remove'] === true) {
+            return Button::remove();
+        } elseif (is_array($value = value(data_get($keyboards, $id, $default), ... $args))) {
             return Button::make($value, $options, $json);
         }
 

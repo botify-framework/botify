@@ -100,4 +100,11 @@ class Button
             'keyboard'
         ));
     }
+
+    public static function remove(): string
+    {
+        return json_encode([
+            'remove_keyboard' => true,
+        ]);
+    }
 }
