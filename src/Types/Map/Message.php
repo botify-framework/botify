@@ -454,7 +454,7 @@ class Message extends LazyJsonMapper
         $to ??= $this->chat->id;
 
         return $this->api->forwardMessage(
-            $args,
+            ... $args,
             chat_id: $to,
             from_chat_id: $this->chat->id,
             message_id: $this->message_id
@@ -473,7 +473,7 @@ class Message extends LazyJsonMapper
         $to ??= $this->chat->id;
 
         return $this->api->copyMessage(
-            $args,
+            ... $args,
             chat_id: $to,
             from_chat_id: $this->chat->id,
             message_id: $this->message_id
@@ -510,12 +510,12 @@ class Message extends LazyJsonMapper
 
         return $this->isText()
             ? $this->api->editMessageText(
-                $args,
+                ... $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 text: $text
             ) : $this->api->editMessageCaption(
-                $args,
+                ... $args,
                 chat_id: $chatId,
                 message_id: $messageId,
                 caption: $text
@@ -532,7 +532,7 @@ class Message extends LazyJsonMapper
     public function reply(string $text, mixed ...$args): Promise
     {
         return $this->api->sendMessage(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             text: $text,
             parse_mode: 'html',
@@ -551,7 +551,7 @@ class Message extends LazyJsonMapper
     public function replyAnimation(string $animation, ...$args): Promise
     {
         return $this->api->sendAnimation(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             animation: $animation,
             reply_to_message_id: $this->message_id,
@@ -569,7 +569,7 @@ class Message extends LazyJsonMapper
     public function replyAudio(string $audio, ...$args): Promise
     {
         return $this->api->sendAudio(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             audio: $audio,
             reply_to_message_id: $this->message_id,
@@ -588,7 +588,7 @@ class Message extends LazyJsonMapper
     public function replyContact(string $phone_number, string $first_name, ...$args): Promise
     {
         return $this->api->sendContact(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             phone_number: $phone_number,
             first_name: $first_name,
@@ -607,7 +607,7 @@ class Message extends LazyJsonMapper
     public function replyDice(string $emoji, ...$args): Promise
     {
         return $this->api->sendDice(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             emoji: $emoji,
             reply_to_message_id: $this->message_id,
@@ -625,7 +625,7 @@ class Message extends LazyJsonMapper
     public function replyDocument(string $document, ...$args): Promise
     {
         return $this->api->sendDocument(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             document: $document,
             reply_to_message_id: $this->message_id,
@@ -644,7 +644,7 @@ class Message extends LazyJsonMapper
     public function replyLocation(float $latitude, float $longitude, ...$args): Promise
     {
         return $this->api->sendLocation(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             latitude: $latitude,
             longitude: $longitude,
@@ -680,7 +680,7 @@ class Message extends LazyJsonMapper
     public function replyPhoto(string $photo, ...$args): Promise
     {
         return $this->api->sendPhoto(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             photo: $photo,
             reply_to_message_id: $this->message_id,
@@ -699,7 +699,7 @@ class Message extends LazyJsonMapper
     public function replyPoll(string $question, array $options, array ...$args): Promise
     {
         return $this->api->sendPoll(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             question: $question,
             options: json_encode($options),
@@ -718,7 +718,7 @@ class Message extends LazyJsonMapper
     public function replySticker(string $sticker, ...$args): Promise
     {
         return $this->api->sendSticker(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             sticker: $sticker,
             reply_to_message_id: $this->message_id,
@@ -745,7 +745,7 @@ class Message extends LazyJsonMapper
     ): Promise
     {
         return $this->api->sendVenue(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             latitude: $latitude,
             longitude: $longitude,
@@ -766,7 +766,7 @@ class Message extends LazyJsonMapper
     public function replyVideo(string $video, ...$args): Promise
     {
         return $this->api->sendVideo(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             video: $video,
             reply_to_message_id: $this->message_id,
@@ -784,7 +784,7 @@ class Message extends LazyJsonMapper
     public function replyVideoNote(string $video_note, ...$args): Promise
     {
         return $this->api->sendVideoNote(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             video_note: $video_note,
             reply_to_message_id: $this->message_id,
@@ -802,7 +802,7 @@ class Message extends LazyJsonMapper
     public function replyVoice(string $voice, ...$args): Promise
     {
         return $this->api->sendVoice(
-            $args,
+            ... $args,
             chat_id: $this->chat->id,
             voice: $voice,
             reply_to_message_id: $this->message_id,
