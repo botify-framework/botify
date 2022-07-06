@@ -399,14 +399,14 @@ if (!function_exists('abs_path')) {
 if (!function_exists('sprintln')) {
     function sprintln(...$vars)
     {
-        return implode("\n", $vars);
+        return implode(PHP_EOL, $vars) . PHP_EOL;
     }
 }
 
 if (!function_exists('println')) {
     function println(...$vars)
     {
-        echo sprintln(... $vars), "\n";
+        echo sprintln(... $vars);
     }
 }
 

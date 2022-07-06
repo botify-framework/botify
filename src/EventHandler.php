@@ -9,7 +9,9 @@ use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
+use Jove\Utils\Logger;
 use Medoo\DatabaseConnection;
+use Psr\Log\LoggerInterface;
 use function Amp\call;
 
 class EventHandler implements ArrayAccess
@@ -23,6 +25,12 @@ class EventHandler implements ArrayAccess
     public $current;
     public ?DatabaseConnection $database = null;
     private ?Update $update = null;
+    public LoggerInterface $logger;
+
+    public function __construct()
+    {
+        $this->logger = new Logger(config('app.logger_level'));
+    }
 
     /**
      * Use this method for inline events

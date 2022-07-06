@@ -1,10 +1,9 @@
 <?php
 
-use Jove\Utils\Config;
-
 define('START_TIME', microtime(true));
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
 
 $repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
     ->addAdapter(Dotenv\Repository\Adapter\EnvConstAdapter::class)
@@ -14,3 +13,5 @@ $repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
 
 $dotenv = Dotenv\Dotenv::create($repository, __DIR__ . '/..');
 $dotenv->load();
+
+date_default_timezone_set(config('app.timezone'));
