@@ -5,7 +5,6 @@ namespace Jove;
 use Amp\Promise;
 use ArrayAccess;
 use Closure;
-use Generator;
 use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
@@ -80,7 +79,7 @@ class EventHandler implements ArrayAccess
             $this->database = $database;
             $this->api = $update->api;
 
-            call([$this, 'onAny'], $update);
+            yield call([$this, 'onAny'], $update);
 
             $events = array_merge_recursive(static::$events, [
                 'message' => [
@@ -119,7 +118,7 @@ class EventHandler implements ArrayAccess
                             $listener[0] = $self;
                         }
 
-                        call($listener, $update[$event]);
+                        yield call($listener, $update[$event]);
                     }
                 }
             }
@@ -152,51 +151,43 @@ class EventHandler implements ArrayAccess
 
     /**
      * @param Update $update
-     * @return Generator
      */
-    public function onAny(Update $update): Generator
+    public function onAny(Update $update)
     {
     }
 
     /**
      * This action called when eventHandler was started
-     *
-     * @return Generator
      */
-    public function onStart(): Generator
+    public function onStart()
     {
     }
 
     /**
      * @param CallbackQuery $callbackQuery
-     * @return Generator
      */
-    public function onUpdateCallbackQuery(CallbackQuery $callbackQuery): Generator
+    public function onUpdateCallbackQuery(CallbackQuery $callbackQuery)
     {
     }
 
     /**
      * @param InlineQuery $inlineQuery
-     * @return Generator
      */
-    public function onUpdateInlineQuery(InlineQuery $inlineQuery): Generator
+    public function onUpdateInlineQuery(InlineQuery $inlineQuery)
     {
     }
 
     /**
      * @param Message $message
-     * @return void
      */
     public function onUpdateNewChannelMessage(Message $message)
     {
-
     }
 
     /**
      * @param Message $message
-     * @return Generator
      */
-    public function onUpdateNewMessage(Message $message): Generator
+    public function onUpdateNewMessage(Message $message)
     {
     }
 
