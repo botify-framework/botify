@@ -290,17 +290,17 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return $this;
     }
 
-    public function offsetExists(mixed $offset)
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->items[$offset]);
     }
 
-    public function offsetGet(mixed $offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->items[$offset];
     }
 
-    public function offsetSet(mixed $offset, mixed $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (is_null($offset)) {
             $this->items[] = $value;
@@ -309,7 +309,7 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         }
     }
 
-    public function offsetUnset(mixed $offset)
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->items[$offset]);
     }
