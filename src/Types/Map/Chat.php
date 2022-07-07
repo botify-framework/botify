@@ -154,9 +154,9 @@ class Chat extends LazyJsonMapper
     }
 
     /**
-     * Left from current chat
+     * Leave from current chat
      *
-     * @return mixed
+     * @return Promise
      */
     public function leave(): Promise
     {
