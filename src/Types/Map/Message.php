@@ -416,6 +416,16 @@ class Message extends LazyJsonMapper
         if ($reply = $this->_getProperty('reply_to_message')) {
             $this->_setProperty('reply', $reply);
         }
+
+        if (isset($this->entities) && $entity = array_first($this->entities)) {
+            if ($entity->type === 'bot_command'
+                && ($command = mb_substr($this->text, $entity->offset, $entity->length))
+                && str_ends_with(strtolower($command), 'bot') && false !== $position = mb_strpos($command, '@')) {
+                $this->_setProperty('text', implode(explode(
+                    mb_substr($command, $position), $this->_getProperty('text')
+                )));
+            }
+        }
     }
 
     /**
