@@ -135,7 +135,15 @@ if (!function_exists('config_path')) {
 if (!function_exists('env')) {
     function env($key, $default = null)
     {
-        return getenv($key) ?? $default;
+        return ($value = getenv($key)) ? value(function () use ($value) {
+            return match (strtolower($value)) {
+                'true', '(true)' => true,
+                'false', '(false)' => false,
+                'empty', '(empty)' => '',
+                'null', '(null)' => null,
+                default => $value
+            };
+        }) : $default;
     }
 }
 
