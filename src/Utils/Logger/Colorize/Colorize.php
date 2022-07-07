@@ -11,6 +11,19 @@ class Colorize
         return static::apply($text, Color::BLACK, Background::LIGHT_YELLOW);
     }
 
+    public static function apply(
+        $text,
+        $color = Color::WHITE,
+        $background = Background::DEFAULT,
+        $entity = Entity::BOLD): string
+    {
+        return sprintln(
+            env('APP_RUNNING_IN_CONSOLE') ?? in_array(PHP_SAPI, ['php-dbg', 'cli'])
+                ? concat($color, $background, $entity, $text, static::RESET)
+                : $text
+        );
+    }
+
     public static function critical($text)
     {
         return static::apply($text, Color::WHITE, Background::LIGHT_RED);
@@ -24,19 +37,6 @@ class Colorize
     public static function emergency($text)
     {
         return static::apply($text, Color::BLACK, Background::RED);
-    }
-
-    public static function apply(
-        $text,
-        $color = Color::WHITE,
-        $background = Background::DEFAULT,
-        $entity = Entity::BOLD): string
-    {
-        return sprintln(
-            env('APP_RUNNING_IN_CONSOLE') ?? in_array(PHP_SAPI, ['php-dbg', 'cli'])
-                ? concat($color, $background, $entity, $text, static::RESET)
-                : $text
-        );
     }
 
     public static function error($text)

@@ -28,6 +28,16 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     }
 
     /**
+     * Access to all items of current collection
+     *
+     * @return array
+     */
+    public function all(): array
+    {
+        return $this->items;
+    }
+
+    /**
      * Get count of items
      *
      * @return int
@@ -35,6 +45,15 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     public function count(): int
     {
         return count($this->items);
+    }
+
+    public function each(callable $fn): Collection
+    {
+        foreach ($this->items as $index => $item) {
+            if ($fn($item, $index) === false) break;
+        }
+
+        return $this;
     }
 
     /**
@@ -155,6 +174,30 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     public function toArray(): array
     {
         return $this->items;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->items[$offset];
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        unset($this->items[$offset]);
     }
 
     /**
@@ -285,49 +328,6 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
             return $callback($this, $value) ?? $this;
         } elseif ($default) {
             return $default($this, $value) ?? $this;
-        }
-
-        return $this;
-    }
-
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->items[$offset]);
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        return $this->items[$offset];
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if (is_null($offset)) {
-            $this->items[] = $value;
-        } else {
-            $this->items[$offset] = $value;
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->items[$offset]);
-    }
-
-    /**
-     * Access to all items of current collection
-     *
-     * @return array
-     */
-    public function all(): array
-    {
-        return $this->items;
-    }
-
-    public function each(callable $fn): Collection
-    {
-        foreach ($this->items as $index => $item) {
-            if ($fn($item, $index) === false) break;
         }
 
         return $this;

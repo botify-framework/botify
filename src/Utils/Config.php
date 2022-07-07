@@ -87,20 +87,6 @@ class Config
 
     /**
      * @param $id
-     * @param $value
-     * @return void
-     */
-    public function push($id, $value)
-    {
-        $array = $this->get($id);
-
-        $array[] = $value;
-
-        $this->set($id, $array);
-    }
-
-    /**
-     * @param $id
      * @param $default
      * @return array|mixed
      */
@@ -140,5 +126,19 @@ class Config
 
         foreach ($ids as $id => $value)
             data_set(static::$items, $id, $value, true);
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return void
+     */
+    public function push($id, $value)
+    {
+        $array = $this->get($id);
+
+        $array[] = $value;
+
+        $this->set($id, $array);
     }
 }

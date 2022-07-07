@@ -33,12 +33,23 @@ class TelegramAPI
     use Methods;
 
     private static $client;
+    private static ?EventHandler $eventHandler = null;
+    private static array $meable_attributes = [
+        'user_id', 'chat_id',
+    ];
+    /**
+     * @var array|Utils\Config|mixed|void
+     */
+    private static $token;
     private array $default_attributes = [];
+
     /**
      * @var EventHandler[] $eventHandlers
      */
     private array $eventHandlers = [];
     private string $id;
+    public Utils\Logger\Logger $logger;
+
     /**
      * Map all methods responses
      *
@@ -117,32 +128,11 @@ class TelegramAPI
         ]
     ];
 
-    private static ?EventHandler $eventHandler = null;
-    /**
-     * @var array|Utils\Config|mixed|void
-     */
-    private static $token;
-
-    private static array $meable_attributes = [
-        'user_id', 'chat_id',
-    ];
-
     public function __construct()
     {
         self::$token = config('telegram.token');
         $this->id = explode(':', self::$token, 2)[0];
-    }
-
-    /**
-     * @param $event
-     * @param callable $listener
-     * @return void
-     */
-    public function on($event, callable $listener)
-    {
-        static::$eventHandler ??= new EventHandler();
-
-        static::$eventHandler->on($event, $listener);
+        $this->logger = new Utils\Logger\Logger(config('app.logger_level'));
     }
 
     /**
@@ -213,15 +203,31 @@ class TelegramAPI
         return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
     }
 
-    /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function get($uri, array $attributes = [], bool $stream = false): Promise
+    public function bindAttributes(&$attributes)
     {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+        if (isset($attributes['text'])) {
+            $text = &$attributes['text'];
+
+            if (is_array($text)) {
+                $text = print_r($text, true);
+            } elseif (is_object($text) && method_exists($text, '__toString')) {
+                $text = var_export($text, true);
+            }
+        }
+
+        if (isset($attributes['reply_markup'])) {
+            $replyMarkup = &$attributes['reply_markup'];
+
+            if (is_array($replyMarkup)) {
+                $replyMarkup = Button::make($replyMarkup);
+            }
+        }
+
+        foreach (static::$meable_attributes as $attribute)
+            if (isset($attributes[$attribute]) && is_string($attribute = &$attributes[$attribute]) && $attribute === 'me')
+                $attribute = $this->id;
+
+
     }
 
     /**
@@ -337,31 +343,15 @@ class TelegramAPI
         return $body;
     }
 
-    public function bindAttributes(&$attributes)
+    /**
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function get($uri, array $attributes = [], bool $stream = false): Promise
     {
-        if (isset($attributes['text'])) {
-            $text = &$attributes['text'];
-
-            if (is_array($text)) {
-                $text = print_r($text, true);
-            } elseif (is_object($text) && method_exists($text, '__toString')) {
-                $text = var_export($text, true);
-            }
-        }
-
-        if (isset($attributes['reply_markup'])) {
-            $replyMarkup = &$attributes['reply_markup'];
-
-            if (is_array($replyMarkup)) {
-                $replyMarkup = Button::make($replyMarkup);
-            }
-        }
-
-        foreach (static::$meable_attributes as $attribute)
-            if (isset($attributes[$attribute]) && is_string($attribute = &$attributes[$attribute]) && $attribute === 'me')
-                $attribute = $this->id;
-
-
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
     }
 
     /**
@@ -490,6 +480,18 @@ class TelegramAPI
             litespeed_finish_request();
         if (function_exists('fastcgi_finish_request'))
             fastcgi_finish_request();
+    }
+
+    /**
+     * @param $event
+     * @param callable $listener
+     * @return void
+     */
+    public function on($event, callable $listener)
+    {
+        static::$eventHandler ??= new EventHandler();
+
+        static::$eventHandler->on($event, $listener);
     }
 
     /**

@@ -44,6 +44,18 @@ class Logger extends AbstractLogger
         $this->minLevel = $minLevel;
     }
 
+    public function exceptionToArray(Throwable $e): array
+    {
+        return [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'code' => $e->getCode(),
+            'backtrace' => array_slice($e->getTrace(), 0, 3),
+        ];
+    }
+
     public function log($level, $message, array $context = []): void
     {
         if ((static::$levels[$level] < $this->minLevel) || strtolower(config('app.environment')) === 'production') {
@@ -59,8 +71,16 @@ class Logger extends AbstractLogger
 
         if (str_contains($message, '{')) {
             foreach ($context as $key => $value) {
-                if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
-                    $replace['{' . $key . '}'] = $value;
+                if ($value instanceof Throwable) {
+                    $replace['{' . $key . '}'] = $this->exceptionToArray($value);
+                } else {
+                    if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
+                        $replace['{' . $key . '}'] = $value;
+                    } else {
+                        if (is_array($value)) {
+                            $replace['{' . $key . '}'] = json_encode($value, 448);
+                        }
+                    }
                 }
             }
 
@@ -72,12 +92,7 @@ class Logger extends AbstractLogger
             date('Y/m/d H:i:s'),
             $level,
             $message,
-            $context ? sprintln(var_export($context, true)) : null
+            $context ? sprintln($context) : null
         ));
-    }
-
-    public static function exceptionToArray(Throwable $e)
-    {
-        return [];
     }
 }

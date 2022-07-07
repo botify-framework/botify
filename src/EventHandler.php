@@ -9,9 +9,9 @@ use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
-use Jove\Utils\Logger\Logger;
 use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use function Amp\call;
 
 class EventHandler implements ArrayAccess
@@ -24,13 +24,8 @@ class EventHandler implements ArrayAccess
     public ?TelegramAPI $api = null;
     public $current;
     public ?DatabaseConnection $database = null;
-    private ?Update $update = null;
     public LoggerInterface $logger;
-
-    public function __construct()
-    {
-        $this->logger = new Logger(config('app.logger_level'));
-    }
+    private ?Update $update = null;
 
     /**
      * Use this method for inline events
@@ -86,8 +81,7 @@ class EventHandler implements ArrayAccess
             $this->update = $update;
             $this->database = $database;
             $this->api = $update->api;
-
-            yield call([$this, 'onAny'], $update);
+            $this->logger = $this->api->logger;
 
             $events = array_merge_recursive(static::$events, [
                 'message' => [
@@ -110,6 +104,8 @@ class EventHandler implements ArrayAccess
                 ]
             ]);
 
+            $promises = [call([$this, 'onAny'], $update)];
+
             foreach ($events as $event => $listeners) {
                 if (isset ($update[$event])) {
                     $current = $update[$event];
@@ -126,9 +122,15 @@ class EventHandler implements ArrayAccess
                             $listener[0] = $self;
                         }
 
-                        yield call($listener, $update[$event]);
+                        $promises[] = call($listener, $update[$event]);
                     }
                 }
+            }
+
+            try {
+                yield gather($promises);
+            } catch (Throwable $e) {
+                $this->logger->critical($e);
             }
         });
     }

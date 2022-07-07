@@ -417,57 +417,6 @@ class Message extends LazyJsonMapper
     }
 
     /**
-     * Determine the current message contains a downloadable
-     * Returns downloadable media object if found
-     *
-     * @return ?LazyJsonMapper
-     */
-    protected function getDownloadable(): ?LazyJsonMapper
-    {
-        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
-            return is_array($this->{$type})
-                ? end($this->{$type})
-                : $this->{$type};
-        }
-
-        return null;
-    }
-
-    /**
-     * Download current media
-     *
-     * @param null $dist
-     * @param bool $includeReply
-     * @return Promise
-     */
-    public function download($dist = null, bool $includeReply = false): Promise
-    {
-        return call(function () use ($includeReply, $dist) {
-            return (($includeReply && $this->reply_to_message?->getDownloadable())
-                    ? $this->reply_to_message->getDownloadable()
-                    : ($this->getDownloadable() ?: null)
-                )?->download($dist) ?? false;
-        });
-    }
-
-    /**
-     * Forward current message to specified chat
-     * @param $to
-     * @param ...$args
-     * @return mixed
-     */
-    public function forward($to = null, ...$args): mixed
-    {
-        $to ??= $this->chat->id;
-
-        return $this->api->forwardMessage(... $args + [
-                'chat_id' => $to,
-                'from_chat_id' => $this->chat->id,
-                'message_id' => $this->message_id,
-            ]);
-    }
-
-    /**
      * Copy current message to specified chat
      *
      * @param $to
@@ -502,6 +451,40 @@ class Message extends LazyJsonMapper
     }
 
     /**
+     * Download current media
+     *
+     * @param null $dist
+     * @param bool $includeReply
+     * @return Promise
+     */
+    public function download($dist = null, bool $includeReply = false): Promise
+    {
+        return call(function () use ($includeReply, $dist) {
+            return (($includeReply && $this->reply_to_message?->getDownloadable())
+                    ? $this->reply_to_message->getDownloadable()
+                    : ($this->getDownloadable() ?: null)
+                )?->download($dist) ?? false;
+        });
+    }
+
+    /**
+     * Determine the current message contains a downloadable
+     * Returns downloadable media object if found
+     *
+     * @return ?LazyJsonMapper
+     */
+    protected function getDownloadable(): ?LazyJsonMapper
+    {
+        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
+            return is_array($this->{$type})
+                ? end($this->{$type})
+                : $this->{$type};
+        }
+
+        return null;
+    }
+
+    /**
      * Edit current message
      *
      * @param string $text
@@ -526,20 +509,19 @@ class Message extends LazyJsonMapper
     }
 
     /**
-     * Replying text on current message
-     *
-     * @param string $text
-     * @param mixed $args
-     * @return Promise
+     * Forward current message to specified chat
+     * @param $to
+     * @param ...$args
+     * @return mixed
      */
-    public function reply(string $text, mixed ...$args): Promise
+    public function forward($to = null, ...$args): mixed
     {
-        return $this->api->sendMessage(... $args + [
-                'chat_id' => $this->chat->id,
-                'text' => $text,
-                'parse_mode' => 'html',
-                'reply_to_message_id' => $this->message_id,
-                'allow_sending_without_reply' => true
+        $to ??= $this->chat->id;
+
+        return $this->api->forwardMessage(... $args + [
+                'chat_id' => $to,
+                'from_chat_id' => $this->chat->id,
+                'message_id' => $this->message_id,
             ]);
     }
 
@@ -814,6 +796,24 @@ class Message extends LazyJsonMapper
 
             return yield $replied->delete();
         });
+    }
+
+    /**
+     * Replying text on current message
+     *
+     * @param string $text
+     * @param mixed $args
+     * @return Promise
+     */
+    public function reply(string $text, mixed ...$args): Promise
+    {
+        return $this->api->sendMessage(... $args + [
+                'chat_id' => $this->chat->id,
+                'text' => $text,
+                'parse_mode' => 'html',
+                'reply_to_message_id' => $this->message_id,
+                'allow_sending_without_reply' => true
+            ]);
     }
 
     protected function getStringableValue(): ?string
