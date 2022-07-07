@@ -14,7 +14,7 @@ trait Stringable
     {
         return $search === '' ? $this->value() : value(function () use ($search) {
             if (false === $position = mb_strrpos($this->value(), $search)) {
-                return $this->value();
+                return false;
             }
 
             return mb_substr($this->value(), $position + mb_strlen($search));
@@ -56,7 +56,7 @@ trait Stringable
     {
         return $search === '' ? $this->value() : value(function () use ($search) {
             if (false === $position = mb_strpos($this->value(), $search)) {
-                return $this->value();
+                return false;
             }
 
             return mb_substr($this->value(), 0, $position);
