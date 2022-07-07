@@ -1,11 +1,13 @@
 <?php
 
-namespace Jove\Utils;
+namespace Jove\Utils\Logger;
 
 use Exception;
+use Jove\Utils\Logger\Colorize\Colorize;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
+use Throwable;
 
 class Logger extends AbstractLogger
 {
@@ -65,12 +67,17 @@ class Logger extends AbstractLogger
             $message = strtr($message, $replace);
         }
 
-        return sprintln(sprintf(
+        return Colorize::log($level, sprintf(
             '[%s] [%s] %s %s',
             date('Y/m/d H:i:s'),
             $level,
             $message,
             $context ? sprintln(var_export($context, true)) : null
         ));
+    }
+
+    public static function exceptionToArray(Throwable $e)
+    {
+        return [];
     }
 }

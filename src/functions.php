@@ -484,3 +484,10 @@ if (!function_exists('array_last')) {
         return end($array);
     }
 }
+
+if (!function_exists('concat')) {
+    function concat(...$vars): string
+    {
+        return implode($vars);
+    }
+}

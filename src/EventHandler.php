@@ -9,7 +9,7 @@ use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
-use Jove\Utils\Logger;
+use Jove\Utils\Logger\Logger;
 use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
 use function Amp\call;
