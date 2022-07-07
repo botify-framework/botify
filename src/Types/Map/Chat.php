@@ -152,4 +152,31 @@ class Chat extends LazyJsonMapper
             user_id: $user_id
         );
     }
+
+    /**
+     * Left from current chat
+     *
+     * @return mixed
+     */
+    public function leave(): Promise
+    {
+        return $this->api->leaveChat(
+            chat_id: $this->id
+        );
+    }
+
+    /**
+     * Send a message to current chat
+     *
+     * @param $text
+     * @param ...$args
+     * @return Promise
+     */
+    public function notify($text, ...$args): Promise
+    {
+        return $this->api->sendMessage(... $args + [
+                'chat_id' => $this->id,
+                'text' => $text,
+            ]);
+    }
 }
