@@ -5,7 +5,6 @@ use Amp\Promise;
 use Jove\Utils\Button;
 use Jove\Utils\Collection;
 use Jove\Utils\Config;
-use function Amp\call;
 
 if (!function_exists('retry')) {
     /**
@@ -53,17 +52,25 @@ if (!function_exists('gather')) {
     }
 }
 
+if (!function_exists('ausleep')) {
+    /**
+     * @param $microseconds
+     * @return Delayed
+     */
+    function ausleep($microseconds)
+    {
+        return new Delayed($microseconds);
+    }
+}
+
 if (!function_exists('asleep')) {
     /**
      * @param $time
-     * @param $value
      * @return Promise
      */
-    function asleep($time, $value = null): Promise
+    function asleep($time): Promise
     {
-        return call(function () use ($time, $value) {
-            return new Delayed($time * 1000, $value);
-        });
+        return ausleep($time * 1000);
     }
 }
 
