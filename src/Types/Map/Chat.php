@@ -166,6 +166,20 @@ class Chat extends LazyJsonMapper
     }
 
     /**
+     * Delete messages from current chat
+     *
+     * @param $ids
+     * @return Promise
+     */
+    public function delete($ids): Promise
+    {
+        return gather(array_map(fn($id) => $this->api->deleteMessage(
+            chat_id: $this->id,
+            message_id: $id
+        ), (array)$ids));
+    }
+
+    /**
      * Send a message to current chat
      *
      * @param $text
