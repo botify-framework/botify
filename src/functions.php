@@ -499,3 +499,21 @@ if (!function_exists('concat')) {
         return implode($vars);
     }
 }
+
+if (!function_exists('str_splice')) {
+    function str_splice($haystack, ?int $offset, ?int $length)
+    {
+        $search = substr($haystack, $offset, $length);
+
+        return implode(explode($search, $haystack, 2));
+    }
+}
+
+if (!function_exists('mb_str_splice')) {
+    function mb_str_splice($haystack, ?int $offset, ?int $length, ?string $encoding = null)
+    {
+        $search = mb_substr($haystack, $offset, $length);
+
+        return implode(explode($search, $haystack, 2));
+    }
+}
