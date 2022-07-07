@@ -419,10 +419,10 @@ class Message extends LazyJsonMapper
 
         if (isset($this->entities) && $entity = array_first($this->entities)) {
             if ($entity->type === 'bot_command'
-                && ($command = mb_substr($this->text, $entity->offset, $entity->length))
+                && ($command = mb_substr($text = $this->_getProperty('text'), $entity->offset, $entity->length))
                 && str_ends_with(strtolower($command), 'bot') && false !== $position = mb_strpos($command, '@')) {
                 $this->_setProperty('text', implode(explode(
-                    mb_substr($command, $position), $this->_getProperty('text')
+                    mb_substr($command, $position), $text
                 )));
             }
         }
