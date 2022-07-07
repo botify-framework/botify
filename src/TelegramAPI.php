@@ -254,9 +254,9 @@ class TelegramAPI
             if ($stream === true)
                 return $body;
 
-            return json_decode(
-                yield $body->buffer(), true
-            );
+            return is_json($response = yield $body->buffer()) ? json_decode(
+                $response
+            ) : $response;
         });
     }
 
