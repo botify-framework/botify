@@ -501,7 +501,7 @@ if (!function_exists('concat')) {
 }
 
 if (!function_exists('str_splice')) {
-    function str_splice($haystack, ?int $offset, ?int $length)
+    function str_splice($haystack, ?int $offset, ?int $length): string
     {
         $search = substr($haystack, $offset, $length);
 
@@ -510,7 +510,7 @@ if (!function_exists('str_splice')) {
 }
 
 if (!function_exists('mb_str_splice')) {
-    function mb_str_splice($haystack, ?int $offset, ?int $length, ?string $encoding = null)
+    function mb_str_splice($haystack, ?int $offset, ?int $length, ?string $encoding = null): string
     {
         $search = mb_substr($haystack, $offset, $length);
 
