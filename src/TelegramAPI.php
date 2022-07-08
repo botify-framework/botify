@@ -210,8 +210,12 @@ class TelegramAPI
 
             if (is_array($text)) {
                 $text = print_r($text, true);
-            } elseif (is_object($text) && method_exists($text, '__toString')) {
-                $text = var_export($text, true);
+            } elseif (is_object($text)) {
+                if (method_exists($text, '__toString')) {
+                    $text = (string)$text;
+                } else {
+                    $text = var_export($text, true);
+                }
             }
         }
 
@@ -223,8 +227,8 @@ class TelegramAPI
             }
         }
 
-        foreach (static::$meable_attributes as $attribute)
-            if (isset($attributes[$attribute]) && is_string($attribute = &$attributes[$attribute]) && $attribute === 'me')
+        foreach (static::$meable_attributes as $attr)
+            if (isset($attributes[$attr]) && is_string($attribute = &$attributes[$attr]) && $attribute === 'me')
                 $attribute = $this->id;
 
 
