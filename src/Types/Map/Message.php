@@ -521,6 +521,22 @@ class Message extends LazyJsonMapper
     }
 
     /**
+     * Edit current message reply markup
+     *
+     * @param $keyboard
+     * @param ...$args
+     * @return Promise
+     */
+    public function editKeys($keyboard, ...$args): Promise
+    {
+        return $this->api->editMessageReplyMarkup(array_merge($args, [
+            'chat_id' => $this->chat->id,
+            'message_id' => $this->message_id,
+            'reply_markup' => $keyboard,
+        ]));
+    }
+
+    /**
      * Forward current message to specified chat
      * @param $to
      * @param ...$args
