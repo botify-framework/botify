@@ -3,6 +3,3 @@
 .idea
 vendor
 composer.lock
-tests
-local-server.php
-database.sqlite
