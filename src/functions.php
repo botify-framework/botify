@@ -110,12 +110,12 @@ if (!function_exists('base_path')) {
     /**
      * Resolve base path
      *
-     * @param $path
+     * @param string $path
      * @return string
      */
-    function base_path($path): string
+    function base_path(string $path = ''): string
     {
-        return abs_path(__DIR__ . '/../' . trim($path, '/'));
+        return abs_path(rtrim(__BASE_DIR__, '/') . '/' . ltrim($path, '/'));
     }
 }
 
@@ -393,8 +393,7 @@ if (!function_exists('abs_path')) {
      */
     function abs_path(string $path): string
     {
-        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
-        $segments = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $segments = explode(DIRECTORY_SEPARATOR, $path);
         $absolutes = [];
 
         foreach ($segments as $segment) {
@@ -407,7 +406,7 @@ if (!function_exists('abs_path')) {
             }
         }
 
-        return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $absolutes);
+        return implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 }
 
@@ -454,7 +453,7 @@ if (!function_exists('button')) {
     function button($id = null, ...$args): mixed
     {
         static $keyboards = null;
-        $keyboards ??= require_once __DIR__ . '/../utils/keyboards.php';
+        $keyboards ??= require_once base_path('utils/keyboards.php');
         $json = $args['json'] ?? true;
         $options = $args['options'] ?? [];
         $default = $args['default'] ?? null;
@@ -522,5 +521,23 @@ if (!function_exists('mb_str_splice')) {
         $search = mb_substr($haystack, $offset, $length);
 
         return implode($replacement, explode($search, $haystack, 2));
+    }
+}
+
+if (!function_exists('array_map_recursive')) {
+    /**
+     * Recursive map into a array
+     *
+     * @param callable $callback
+     * @param $array
+     * @return array
+     */
+    function array_map_recursive(callable $callback, $array): array
+    {
+        $fn = function ($item) use (&$fn, &$callback) {
+            return is_array($item) ? array_map($fn, $item) : call_user_func($callback, $item);
+        };
+
+        return array_map($fn, $array);
     }
 }
