@@ -28,7 +28,7 @@
     "jove/medoo": "dev-master"
   },
   "scripts": {
-    "pre-install-cmd": [
+    "post-install-cmd": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ]
   }
