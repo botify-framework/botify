@@ -372,6 +372,12 @@ class TelegramAPI
                 array_unshift($this->eventHandlers, static::$eventHandler);
             }
 
+            $forceRunInCli = function () {
+                if (!in_array(PHP_SAPI, ['cli', 'php-dbg'])) {
+                    throw new Exception('You must use this type in cli');
+                }
+            };
+
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
                     if ($options = config('database.connections')[config('database.default')]) {
@@ -387,6 +393,8 @@ class TelegramAPI
                     }
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
+                    $forceRunInCli();
+
                     if ($options = config('database.connections')[config('database.default')]) {
                         $database = yield connect(array_shift($options), $options);
                         $offset = -1;
@@ -415,11 +423,16 @@ class TelegramAPI
                     }
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
+                    $forceRunInCli();
+
                     if ($options = config('database.connections')[config('database.default')]) {
                         $database = yield connect(array_shift($options), $options);
+                        $host = config('telegram.socket_server.host');
+                        $port = config('telegram.socket_server.port');
+
                         $servers = [
-                            Socket\Server::listen('0.0.0.0:8000'),
-                            Socket\Server::listen('[::]:8000'),
+                            Socket\Server::listen("{$host}:{$port}"),
+                            Socket\Server::listen('[::]:' . $port),
                         ];
 
                         $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
