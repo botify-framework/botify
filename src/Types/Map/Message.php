@@ -429,6 +429,34 @@ class Message extends LazyJsonMapper
     }
 
     /**
+     * Pin current message in a chat
+     *
+     * @param bool $disable_notification
+     * @return Promise
+     */
+    public function pin(bool $disable_notification = false): Promise
+    {
+        return $this->api->pinChatMessage([
+            'chat_id' => $this->chat->id,
+            'message_id' => $this->id,
+            'disable_notification' => $disable_notification
+        ]);
+    }
+
+    /**
+     * Unpin current message in a chat
+     *
+     * @return Promise
+     */
+    public function unpin(): Promise
+    {
+        return $this->api->unpinChatMessage([
+            'chat_id' => $this->chat->id,
+            'message_id' => $this->id,
+        ]);
+    }
+
+    /**
      * Copy current message to specified chat
      *
      * @param $to
