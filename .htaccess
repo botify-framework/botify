@@ -1,4 +1,0 @@
-RewriteEngine On
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (.*) http://127.0.0.1:8000/ [L,P,QSA]
