@@ -18,5 +18,9 @@ return [
         'transfer_timeout' => env('TRANSFER_TIMEOUT', 10000),
         'body_size_limit' => env('BODY_SIZE_LIMIT', 10000),
     ],
-    'loop_interval' => 100
+    'loop_interval' => env('LOOP_INTERVAL', 100),
+    'socket_server' => [
+        'host' => env('SERVER_ADDRESS', '0.0.0.0'),
+        'port' => env('SERVER_PORT', 8000)
+    ]
 ];
