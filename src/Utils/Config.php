@@ -2,22 +2,57 @@
 
 namespace Jove\Utils;
 
-class Config
+use ArrayAccess;
+use Closure;
+
+class Config implements ArrayAccess
 {
 
     public static array $items = [];
 
-    public static function make()
+    private static array $loadedDirs = [];
+
+    public function __construct()
     {
-        return new static();
+        // Load default configs
+        $this->loadFromDir(abs_path(__DIR__ . '/../../config'));
+        // Override configs from base directory
+        $this->loadFromDir(config_path());
+
+        // Bind all closures to Config class
+        static::$items = array_map_recursive(function ($item) {
+            if ($item instanceof Closure) {
+                $item = $item->bindTo($this);
+            }
+
+            return $item;
+        }, static::$items);
     }
 
     /**
-     * @return array
+     * Load all configs contains in a directory
+     *
+     * @param string $dir
+     * @return void
      */
-    public function all(): array
+    public function loadFromDir(string $dir)
     {
-        return static::$items;
+        if (!in_array($dir, static::$loadedDirs)) {
+            if (is_dir($dir)) {
+                static::$loadedDirs[] = $dir;
+                if ($files = glob(rtrim($dir, '/') . '/*.php')) {
+                    foreach ($files as $file) {
+                        if (is_array($data = require_once $file)) {
+                            $namespace = pathinfo($file, PATHINFO_FILENAME);
+
+                            static::$items[$namespace] = array_merge(
+                                static::$items[$namespace] ?? [], $data
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -62,13 +97,20 @@ class Config
      */
     public function load($key): array
     {
-        return static::$items[$key] ??= value(function () use ($key) {
-            if (file_exists($path = config_path($key . '.php'))) {
-                return is_array($data = require_once $path) ? $data : [];
-            }
+        return static::$items[$key] ?? [];
+    }
 
-            return [];
-        });
+    public static function make()
+    {
+        return new static();
+    }
+
+    /**
+     * @return array
+     */
+    public function all(): array
+    {
+        return static::$items;
     }
 
     /**
@@ -140,5 +182,27 @@ class Config
         $array[] = $value;
 
         $this->set($id, $array);
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return isset(static::$items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->get($offset);
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (!is_null($offset)) {
+            $this->set($offset, $value);
+        }
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        unset(static::$items[$offset]);
     }
 }
