@@ -2,10 +2,10 @@
 
 namespace Jove\Traits;
 
+use Amp\File;
 use Amp\Promise;
 use Jove\Utils\FileSystem;
 use function Amp\call;
-use Amp\File;
 
 trait Downloadable
 {
@@ -18,7 +18,7 @@ trait Downloadable
         return call(function () use ($dist) {
             if ($fileId = $this->getDownloadableId()) {
                 if ([$path, $link] = yield $this->api->getDownloadableLink($fileId)) {
-                    if (yield File\isDirectory($dir = dirname($path = $dist ?? storage_path($path)))) {
+                    if (!yield File\isDirectory($dir = dirname($path = $dist ?? storage_path($path)))) {
                         yield File\createDirectoryRecursively($dir, 0755);
                     }
 
