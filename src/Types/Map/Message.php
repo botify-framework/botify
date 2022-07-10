@@ -37,6 +37,7 @@ use function Amp\call;
  * @method Document getDocument()
  * @method PhotoSize[] getPhoto()
  * @method Sticker getSticker()
+ * @method Sticker getType()
  * @method Video getVideo()
  * @method VideoNote getVideoNote()
  * @method Voice getVoice()
@@ -100,6 +101,7 @@ use function Amp\call;
  * @method bool isDocument()
  * @method bool isPhoto()
  * @method bool isSticker()
+ * @method bool isType()
  * @method bool isVideo()
  * @method bool isVideoNote()
  * @method bool isVoice()
@@ -163,6 +165,7 @@ use function Amp\call;
  * @method $this setDocument(Document $value)
  * @method $this setPhoto(PhotoSize[] $value)
  * @method $this setSticker(Sticker $value)
+ * @method $this setType(Sticker $value)
  * @method $this setVideo(Video $value)
  * @method $this setVideoNote(VideoNote $value)
  * @method $this setVoice(Voice $value)
@@ -226,6 +229,7 @@ use function Amp\call;
  * @method $this unsetDocument()
  * @method $this unsetPhoto()
  * @method $this unsetSticker()
+ * @method $this unsetType()
  * @method $this unsetVideo()
  * @method $this unsetVideoNote()
  * @method $this unsetVoice()
@@ -289,6 +293,7 @@ use function Amp\call;
  * @property Document $document
  * @property PhotoSize[] $photo
  * @property Sticker $sticker
+ * @property Sticker $type
  * @property Video $video
  * @property VideoNote $video_note
  * @property Voice $voice
@@ -357,6 +362,7 @@ class Message extends LazyJsonMapper
         'document' => 'Document',
         'photo' => 'PhotoSize[]',
         'sticker' => 'Sticker',
+        'type' => 'string',
         'video' => 'Video',
         'video_note' => 'VideoNote',
         'voice' => 'Voice',
@@ -428,9 +434,7 @@ class Message extends LazyJsonMapper
             }
         }
 
-        if (!is_null($downloadable = $this->getDownloadable())) {
-            $this->_setProperty('file_id', $downloadable['file_id']);
-        }
+        $this->bindDownloadable();
     }
 
     /**
@@ -516,14 +520,46 @@ class Message extends LazyJsonMapper
      * Determine the current message contains a downloadable
      * Returns downloadable media object if found
      *
-     * @return ?LazyJsonMapper
+     * @return mixed
      */
-    protected function getDownloadable(): ?LazyJsonMapper
+    public function getDownloadable(): mixed
     {
-        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
+        if ($type = $this->type) {
             return is_array($this->{$type})
                 ? end($this->{$type})
                 : $this->{$type};
+        }
+
+        return null;
+    }
+
+    /**
+     * Detect downloadable object
+     *
+     * @return mixed|null
+     */
+    protected function getDownloadableType(): mixed
+    {
+        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
+            $this->_setProperty('type', $type);
+
+            return $type;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ?LazyJsonMapper
+     */
+    protected function bindDownloadable(): ?LazyJsonMapper
+    {
+        if ($type = $this->getDownloadableType()) {
+            $downloadable = is_array($this->{$type})
+                ? end($this->{$type})
+                : $this->{$type};
+
+            $this->_setProperty('file_id', $downloadable['file_id']);
         }
 
         return null;
