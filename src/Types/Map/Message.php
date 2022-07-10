@@ -335,6 +335,7 @@ class Message extends LazyJsonMapper
         'sender_chat' => 'Chat',
         'date' => 'int',
         'chat' => 'Chat',
+        'file_id' => 'string',
         'forward_from' => 'User',
         'forward_from_chat' => 'Chat',
         'forward_from_message_id' => 'int',
@@ -425,6 +426,10 @@ class Message extends LazyJsonMapper
                     mb_substr($command, $position), $text
                 )));
             }
+        }
+
+        if (!is_null($downloadable = $this->getDownloadable())) {
+            $this->_setProperty('file_id', $downloadable['file_id']);
         }
     }
 
