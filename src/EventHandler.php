@@ -107,7 +107,16 @@ class EventHandler implements ArrayAccess
             $promises = [call([$this, 'onAny'], $update)];
 
             foreach ($events as $event => $listeners) {
-                if (isset ($update[$event])) {
+                if ($event === 'any') {
+                    foreach ($listeners as $listener) {
+                        if ($listener instanceof Closure) {
+                            $self = clone $this;
+                            $listener = $listener->bindTo($self);
+                        }
+
+                        $promises[] = call($listener, $update[$event]);
+                    }
+                } elseif (isset ($update[$event])) {
                     $current = $update[$event];
 
                     foreach ($listeners as $listener) {

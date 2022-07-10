@@ -500,13 +500,19 @@ class TelegramAPI
     }
 
     /**
+     * A decorator for defining events
+     *
      * @param $event
-     * @param callable $listener
+     * @param ?callable $listener
      * @return void
      */
-    public function on($event, callable $listener)
+    public function on($event, ?callable $listener = null)
     {
         static::$eventHandler ??= new EventHandler();
+
+        if (is_callable($event)) {
+            [$event, $listener] = ['any', $event];
+        }
 
         static::$eventHandler->on($event, $listener);
     }
