@@ -7,11 +7,9 @@ use function Amp\call;
 
 trait GetDownloadableLink
 {
-    private string $url = 'https://api.telegram.org/file/bot%s/%s';
-
     /**
      * @param string $fileId
-     * @return Promise|array
+     * @return Promise<array>
      */
     protected function getDownloadableLink(string $fileId): Promise
     {
@@ -21,7 +19,14 @@ trait GetDownloadableLink
             );
 
             if ($file->isSuccess()) {
-                return [$file->file_path, sprintf($this->url, getenv('BOT_TOKEN'), $file->file_path)];
+                return [
+                    $file->file_path,
+                    sprintf(
+                        '%s/file/bot%s/%s',
+                        rtrim(config('telegram.base_uri')),
+                        getenv('BOT_TOKEN'), $file->file_path
+                    )
+                ];
             }
 
             return false;
