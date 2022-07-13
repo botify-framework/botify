@@ -72,14 +72,18 @@ class EventHandler implements ArrayAccess
      * Bootstrap the event handler
      *
      * @param Update $update
-     * @param DatabaseConnection|null $database
+     * @param DatabaseConnection|bool|null $database
      * @return Promise
      */
-    public function boot(Update $update, ?DatabaseConnection $database = null): Promise
+    public function boot(Update $update, DatabaseConnection|bool|null $database = null): Promise
     {
         return call(function () use ($database, $update) {
             $this->update = $update;
-            $this->database = $database;
+            if (!$database) {
+                unset($this->database);
+            } else {
+                $this->database = $database;
+            }
             $this->api = $update->api;
             $this->logger = $this->api->logger;
 

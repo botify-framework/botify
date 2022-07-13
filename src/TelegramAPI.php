@@ -23,6 +23,7 @@ use Jove\Types\Update;
 use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
 use Monolog\Logger;
+use Throwable;
 use function Amp\call;
 use function Medoo\connect;
 use const SIGINT;
@@ -42,6 +43,7 @@ class TelegramAPI
      */
     private static $token;
     private array $default_attributes = [];
+    private static array $databases = [];
 
     /**
      * @var EventHandler[] $eventHandlers
@@ -128,6 +130,28 @@ class TelegramAPI
         ]
     ];
 
+    private function getDatabase($driver = null): Promise
+    {
+        return call(function () use ($driver) {
+            $driver ??= config('database.default');
+
+            return static::$databases[$driver] ??= yield call(function () use ($driver) {
+                $connections = config('database.connections');
+
+                if (isset($connections[$driver]) && $options = $connections[$driver]) {
+                    try {
+                        return yield connect(array_shift($options), $options);
+                    } catch (Throwable $e) {
+                        $this->logger->error($e);
+                        $this->logger->notice('You must provide a database connection');
+                    }
+                }
+
+                return false;
+            });
+        });
+    }
+
     public function __construct()
     {
         self::$token = config('telegram.token');
@@ -203,6 +227,12 @@ class TelegramAPI
         return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
     }
 
+    /**
+     * Bind attributes before passing to request
+     *
+     * @param $attributes
+     * @return void
+     */
     public function bindAttributes(&$attributes)
     {
         if (isset($attributes['text'])) {
@@ -380,93 +410,88 @@ class TelegramAPI
 
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
-                    if ($options = config('database.connections')[config('database.default')]) {
-                        $database = yield connect(array_shift($options), $options);
-                        $this->finish();
-                        $update = new Update(
-                            json_decode(file_get_contents('php://input'), true) ?? []
-                        );
-                        yield gather(array_map(
-                            fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
-                        ));
-                        yield $database->close();
-                    }
+                    $database = yield $this->getDatabase();
+                    $this->finish();
+                    $update = new Update(
+                        json_decode(file_get_contents('php://input'), true) ?? []
+                    );
+                    yield gather(array_map(
+                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                    ));
+                    yield $database->close();
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
                     $forceRunInCli();
 
-                    if ($options = config('database.connections')[config('database.default')]) {
-                        $database = yield connect(array_shift($options), $options);
-                        $offset = -1;
-                        yield $this->deleteWebhook();
+                    $database = yield $this->getDatabase();
 
-                        Loop::repeat(config('telegram.loop_interval'), function () use ($database, $options, &$offset) {
-                            $updates = yield $this->getUpdates($offset);
+                    $offset = -1;
+                    yield $this->deleteWebhook();
 
-                            if (is_collection($updates) && $updates->isNotEmpty()) {
-                                foreach ($updates as $update) {
-                                    yield gather(array_map(
-                                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
-                                    ));
+                    Loop::repeat(config('telegram.loop_interval'), function () use ($database, &$offset) {
+                        $updates = yield $this->getUpdates($offset);
 
-                                    $offset = $update->update_id + 1;
-                                }
+                        if (is_collection($updates) && $updates->isNotEmpty()) {
+                            foreach ($updates as $update) {
+                                yield gather(array_map(
+                                    fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                                ));
+
+                                $offset = $update->update_id + 1;
                             }
+                        }
 
-                        });
+                    });
 
-                        Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
-                            yield $database->close();
-                            Loop::cancel($watcherId);
-                            exit();
-                        });
-                    }
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
+                        yield $database->close();
+                        Loop::cancel($watcherId);
+                        exit();
+                    });
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
                     $forceRunInCli();
 
-                    if ($options = config('database.connections')[config('database.default')]) {
-                        $database = yield connect(array_shift($options), $options);
-                        $host = config('telegram.socket_server.host');
-                        $port = config('telegram.socket_server.port');
+                    $database = yield $this->getDatabase();
+                    $host = config('telegram.socket_server.host');
+                    $port = config('telegram.socket_server.port');
 
-                        $servers = [
-                            Socket\Server::listen("{$host}:{$port}"),
-                            Socket\Server::listen('[::]:' . $port),
-                        ];
+                    $servers = [
+                        Socket\Server::listen("{$host}:{$port}"),
+                        Socket\Server::listen('[::]:' . $port),
+                    ];
 
-                        $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
-                        $logHandler->setFormatter(new ConsoleFormatter);
-                        $logger = new Logger('server');
-                        $logger->pushHandler($logHandler);
-                        $router = new Server\Router();
+                    $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+                    $logHandler->setFormatter(new ConsoleFormatter);
+                    $logger = new Logger('server');
+                    $logger->pushHandler($logHandler);
+                    $router = new Server\Router();
 
-                        foreach (['GET', 'POST'] as $method)
-                            $router->addRoute($method, $uri, Server\Middleware\stack(
-                                new CallableRequestHandler(function (Server\Request $request) use ($database) {
-                                    $update = new Update(
-                                        json_decode(yield $request->getBody()->buffer(), true) ?? []
-                                    );
-                                    yield gather(array_map(
-                                        fn($eventHandler) => call(
-                                            fn() => $eventHandler->boot($update, $database)
-                                        ), $this->eventHandlers
-                                    ));
-                                    return new Response(Status::OK, stringOrStream: 'HTTP Ok');
-                                }),
-                                new AuthorizeWebhooks()
-                            ));
+                    foreach (['GET', 'POST'] as $method)
+                        $router->addRoute($method, $uri, Server\Middleware\stack(
+                            new CallableRequestHandler(function (Server\Request $request) use ($database) {
+                                $update = new Update(
+                                    json_decode(yield $request->getBody()->buffer(), true) ?? []
+                                );
+                                yield gather(array_map(
+                                    fn($eventHandler) => call(
+                                        fn() => $eventHandler->boot($update, $database)
+                                    ), $this->eventHandlers
+                                ));
+                                return new Response(Status::OK, stringOrStream: 'HTTP Ok');
+                            }),
+                            new AuthorizeWebhooks()
+                        ));
 
-                        $server = new Server\Server($servers, $router, $logger);
+                    $server = new Server\Server($servers, $router, $logger);
 
-                        yield $server->start();
+                    yield $server->start();
 
-                        Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
-                            yield $database->close();
-                            Loop::cancel($watcherId);
-                            yield $server->stop();
-                        });
-                    }
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
+                        yield $database->close();
+                        Loop::cancel($watcherId);
+                        yield $server->stop();
+                    });
                     break;
                 default:
                     throw new Exception('Unsupported update handling type.');
