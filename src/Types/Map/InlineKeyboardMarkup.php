@@ -21,6 +21,6 @@ class InlineKeyboardMarkup extends LazyJsonMapper
 {
 
     const JSON_PROPERTY_MAP = [
-        'inline_keyboard' => 'InlineKeyboardButton[]',
+        'inline_keyboard' => 'InlineKeyboardButton[][]',
     ];
 }

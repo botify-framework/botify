@@ -22,6 +22,7 @@ use Jove\Types\Map;
 use Jove\Types\Update;
 use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
+use Medoo\DatabaseConnection;
 use Monolog\Logger;
 use Throwable;
 use function Amp\call;
@@ -408,9 +409,10 @@ class TelegramAPI
                 }
             };
 
+            $database = yield $this->getDatabase();
+
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
-                    $database = yield $this->getDatabase();
                     $this->finish();
                     $update = new Update(
                         json_decode(file_get_contents('php://input'), true) ?? []
@@ -418,7 +420,7 @@ class TelegramAPI
                     yield gather(array_map(
                         fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
                     ));
-                    yield $database->close();
+                    $database instanceof DatabaseConnection && yield $database->close();
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
                     $forceRunInCli();
@@ -444,7 +446,7 @@ class TelegramAPI
                     });
 
                     Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
-                        yield $database->close();
+                        $database instanceof DatabaseConnection && yield $database->close();
                         Loop::cancel($watcherId);
                         exit();
                     });
@@ -488,7 +490,7 @@ class TelegramAPI
                     yield $server->start();
 
                     Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
-                        yield $database->close();
+                        $database instanceof DatabaseConnection && yield $database->close();
                         Loop::cancel($watcherId);
                         yield $server->stop();
                     });
@@ -509,13 +511,13 @@ class TelegramAPI
     {
         while (ob_get_level() > 0)
             ob_end_clean();
-        header('Connection: close');
+        @header('Connection: close');
         ignore_user_abort(true);
         ob_start();
         print $message;
         $size = ob_get_length();
-        header("Content-Length: $size");
-        header('Content-Type: application/json');
+        @header("Content-Length: $size");
+        @header('Content-Type: application/json');
         ob_end_flush();
         flush();
         if (function_exists('litespeed_finish_request'))
