@@ -79,12 +79,12 @@ class Logger extends AbstractLogger
         $log = $this->interpolate($level, $message, $context);
 
         if ($this->type & static::ECHO_TYPE) {
-            echo $log;
+            echo Colorize::log($level, $log);
         }
 
         if ($this->type & static::FILE_TYPE) {
             is_dir($logsDir = storage_path('logs')) || mkdir($logsDir, recursive: true);
-            file_put_contents(storage_path('logs/apb.log'), $log, FILE_APPEND);
+            file_put_contents(storage_path('logs/apb.log'), sprintln($log), FILE_APPEND);
         }
     }
 
@@ -110,16 +110,12 @@ class Logger extends AbstractLogger
             $message = strtr($message, $replace);
         }
 
-        $log = sprintf(
+        return sprintf(
             '[%s] [%s] %s %s',
             date('Y/m/d H:i:s'),
             $level,
             $message,
             $context ? sprintln($context) : null
         );
-
-        return in_array($this->type, static::COLORABLE_TYPES)
-            ? Colorize::log($level, $log)
-            : $log;
     }
 }
