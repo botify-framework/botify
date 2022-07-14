@@ -435,6 +435,11 @@ class Message extends LazyJsonMapper
         }
 
         $this->bindDownloadable();
+
+        call(function () {
+            yield $this->api->redis?->set($key = 'messages:' . $this->chat->id . '.' . $this->id, serialize($this));
+            yield $this->api->redis?->expireAt($key, strtotime('+48 hours'));
+        });
     }
 
     /**

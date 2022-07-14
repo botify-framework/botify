@@ -4,5 +4,5 @@ namespace Jove\Methods\Messages;
 
 trait Messages
 {
-    use SendMediaGroup;
+    use GetMessages, SendMediaGroup;
 }
