@@ -14,6 +14,9 @@ use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Promise;
+use Amp\Redis\Config;
+use Amp\Redis\Redis;
+use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
 use Exception;
 use Jove\Methods\Methods;
@@ -52,6 +55,7 @@ class TelegramAPI
     private array $eventHandlers = [];
     private string $id;
     public Utils\Logger\Logger $logger;
+    public ?Redis $redis;
 
     /**
      * Map all methods responses
@@ -161,6 +165,24 @@ class TelegramAPI
         self::$token = config('telegram.token');
         $this->id = explode(':', self::$token, 2)[0];
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
+        $this->redis = $this->getRedis();
+    }
+
+    private function getRedis(): ?Redis
+    {
+        $config = config('redis');
+
+        if (isset($config['host']) && isset($config['port'])) {
+            $uri = Config::fromUri('redis://' . $config['host'] . ':' . $config['port'] . '?' . http_build_query([
+                    'password' => $config['password'] ?? '',
+                    'timeout' => $config['timeout'] ?? '',
+                    'database' => $config['database'] ?? 0,
+                ]));
+
+            return new Redis(new RemoteExecutor($uri));
+        }
+
+        return null;
     }
 
     /**
