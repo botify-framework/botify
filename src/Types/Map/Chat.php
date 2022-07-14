@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\Notifiable;
 use Jove\Utils\LazyJsonMapper;
 
 /**
@@ -116,6 +117,8 @@ use Jove\Utils\LazyJsonMapper;
 class Chat extends LazyJsonMapper
 {
 
+    use Notifiable;
+
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
         'type' => 'string',
@@ -179,18 +182,8 @@ class Chat extends LazyJsonMapper
         ), (array)$ids));
     }
 
-    /**
-     * Send a message to current chat
-     *
-     * @param $text
-     * @param ...$args
-     * @return Promise
-     */
-    public function notify($text, ...$args): Promise
+    private function getNotifiableId()
     {
-        return $this->api->sendMessage(... $args + [
-                'chat_id' => $this->id,
-                'text' => $text,
-            ]);
+        return $this->id;
     }
 }

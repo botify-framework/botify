@@ -4,6 +4,7 @@ namespace Jove\Types\Map;
 
 use Amp\Producer;
 use Amp\Promise;
+use Jove\Traits\Notifiable;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
 
@@ -72,6 +73,7 @@ use function Amp\call;
  */
 class User extends LazyJsonMapper
 {
+    use Notifiable;
 
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
@@ -174,5 +176,10 @@ class User extends LazyJsonMapper
 
             return false;
         });
+    }
+
+    private function getNotifiableId()
+    {
+        return $this->id;
     }
 }

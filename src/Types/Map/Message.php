@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\Notifiable;
 use Jove\Traits\Stringable;
 use Jove\Utils\LazyJsonMapper;
 use function Amp\call;
@@ -331,7 +332,7 @@ use function Amp\call;
  */
 class Message extends LazyJsonMapper
 {
-    use Stringable;
+    use Notifiable, Stringable;
 
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
@@ -438,7 +439,9 @@ class Message extends LazyJsonMapper
 
         call(function () {
             if (config('telegram.cache_messages')) {
-                yield $this->api->redis?->set($key = 'messages:' . $this->chat->id . '.' . $this->id, serialize($this));
+                yield $this->api->redis?->set(
+                    $key = 'messages:' . $this->chat->id . '.' . $this->id, json_encode($this->toArray())
+                );
                 yield $this->api->redis?->expireAt($key, strtotime('+48 hours'));
             }
         });
@@ -547,7 +550,7 @@ class Message extends LazyJsonMapper
      */
     protected function getDownloadableType(): mixed
     {
-        if ($type = collect(static::$downloadable_types)->first(fn($item) => $this->{$item})) {
+        if ($type = collect(static::$downloadable_types)->first(fn($item) => isset($this->{$item}))) {
             $this->_setProperty('type', $type);
 
             return $type;
@@ -923,5 +926,10 @@ class Message extends LazyJsonMapper
     protected function getStringableValue(): ?string
     {
         return $this->text ?? $this->caption;
+    }
+
+    private function getNotifiableId()
+    {
+        return $this->chat->id;
     }
 }
