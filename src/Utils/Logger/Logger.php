@@ -13,6 +13,17 @@ class Logger extends AbstractLogger
 {
     use LoggerTrait;
 
+    /**
+     * Logger types
+     */
+    const ECHO_TYPE = 1;
+    const FILE_TYPE = 2;
+    const DEFAULT_TYPE = self::ECHO_TYPE;
+
+    const COLORABLE_TYPES = [
+        self::ECHO_TYPE
+    ];
+
     protected static array $levels = [
         LogLevel::DEBUG => 0,
         LogLevel::INFO => 1,
@@ -26,7 +37,9 @@ class Logger extends AbstractLogger
 
     protected int $minLevel;
 
-    public function __construct(int $level = 0)
+    protected int $type = self::DEFAULT_TYPE;
+
+    public function __construct(int $level = 0, $type = self::DEFAULT_TYPE)
     {
         $minLevel = !is_null($level) ? $level : match ((int)env('SHELL_VERBOSITY')) {
             -1 => static::$levels[LogLevel::ERROR],
@@ -42,6 +55,7 @@ class Logger extends AbstractLogger
         }
 
         $this->minLevel = $minLevel;
+        $this->type = $type;
     }
 
     public function exceptionToArray(Throwable $e): array
@@ -62,7 +76,16 @@ class Logger extends AbstractLogger
             return;
         }
 
-        echo $this->interpolate($level, $message, $context);
+        $log = $this->interpolate($level, $message, $context);
+
+        if ($this->type & static::ECHO_TYPE) {
+            echo $log;
+        }
+
+        if ($this->type & static::FILE_TYPE) {
+            is_dir($logsDir = storage_path('logs')) || mkdir($logsDir, recursive: true);
+            file_put_contents(storage_path('logs/apb.log'), $log, FILE_APPEND);
+        }
     }
 
     public function interpolate($level, $message, array $context = []): string
@@ -87,12 +110,16 @@ class Logger extends AbstractLogger
             $message = strtr($message, $replace);
         }
 
-        return Colorize::log($level, sprintf(
+        $log = sprintf(
             '[%s] [%s] %s %s',
             date('Y/m/d H:i:s'),
             $level,
             $message,
             $context ? sprintln($context) : null
-        ));
+        );
+
+        return in_array($this->type, static::COLORABLE_TYPES)
+            ? Colorize::log($level, $log)
+            : $log;
     }
 }

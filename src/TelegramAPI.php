@@ -160,7 +160,7 @@ class TelegramAPI
         )]);
         self::$token = config('telegram.token');
         $this->id = explode(':', self::$token, 2)[0];
-        $this->logger = new Utils\Logger\Logger(config('app.logger_level'));
+        $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
     }
 
     /**
