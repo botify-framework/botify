@@ -36,6 +36,8 @@ trait GetMessages
             if ($message = yield $this->redis?->get('messages:' . $chat_id . '.' . $message_id)) {
                 return unserialize($message);
             }
+
+            return new Message([]);
         });
     }
 }
