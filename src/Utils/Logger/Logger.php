@@ -70,6 +70,13 @@ class Logger extends AbstractLogger
         ];
     }
 
+    private function getLoggerFile()
+    {
+        is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('apb.log'))))
+        || mkdir($logsDir, recursive: true);
+        return $logFile;
+    }
+
     public function log($level, $message, array $context = []): void
     {
         if ((static::$levels[$level] < $this->minLevel) || strtolower(config('app.environment')) === 'production') {
@@ -78,13 +85,20 @@ class Logger extends AbstractLogger
 
         $log = $this->interpolate($level, $message, $context);
 
+        $loggerFile = $this->getLoggerFile();
+
+        if (filesize($loggerFile) > config('app.logger_max_size')) {
+            file_put_contents($loggerFile, null);
+        }
+
         if ($this->type & static::ECHO_TYPE) {
             echo Colorize::log($level, $log);
         }
 
         if ($this->type & static::FILE_TYPE) {
-            is_dir($logsDir = storage_path('logs')) || mkdir($logsDir, recursive: true);
-            file_put_contents(storage_path('logs/apb.log'), sprintln($log), FILE_APPEND);
+            is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('apb.log'))))
+            || mkdir($logsDir, recursive: true);
+            file_put_contents($logFile, sprintln($log), FILE_APPEND);
         }
     }
 
