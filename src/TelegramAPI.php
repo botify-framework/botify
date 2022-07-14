@@ -153,8 +153,11 @@ class TelegramAPI
         });
     }
 
-    public function __construct()
+    public function __construct(array $config = [])
     {
+        config(['telegram' => array_merge(
+            config('telegram'), $config
+        )]);
         self::$token = config('telegram.token');
         $this->id = explode(':', self::$token, 2)[0];
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'));
