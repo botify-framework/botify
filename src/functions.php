@@ -432,15 +432,28 @@ if (!function_exists('is_json')) {
 }
 
 if (!function_exists('array_some')) {
-    function array_some(array $array, callable $fn): bool
+    function array_some(array $array, ?callable $fn = null): bool
     {
         foreach ($array as $index => $item) {
-            if ($fn($item, $index)) {
+            if (is_callable($fn) ? $fn($item, $index) : $item) {
                 return true;
             }
         }
 
         return false;
+    }
+}
+
+if (!function_exists('array_every')) {
+    function array_every(array $array, ?callable $fn = null): bool
+    {
+        foreach ($array as $index => $item) {
+            if (!(is_callable($fn) ? $fn($item, $index) : $item)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
