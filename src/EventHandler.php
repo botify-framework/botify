@@ -9,6 +9,7 @@ use Jove\Types\Map\CallbackQuery;
 use Jove\Types\Map\InlineQuery;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
+use Jove\Utils\Plugins\Plugin;
 use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -108,7 +109,8 @@ class EventHandler implements ArrayAccess
                 ]
             ]);
 
-            $promises = [call([$this, 'onAny'], $update)];
+            $plugins = Plugin::factory(config('telegram.plugins_dir'), $this->api, $update);
+            $promises = [call([$this, 'onAny'], $update), $plugins->gather()];
 
             foreach ($events as $event => $listeners) {
                 if ($event === 'any') {

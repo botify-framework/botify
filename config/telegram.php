@@ -24,4 +24,5 @@ return [
         'port' => env('SERVER_PORT', 8000)
     ],
     'cache_messages' => true,
+    'plugins_dir' => base_path('plugins')
 ];
