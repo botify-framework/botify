@@ -1,13 +1,12 @@
 <?php
 
 
-use Jove\TelegramAPI;
 use Jove\Types\Map\Message;
-use Jove\Types\Update;
 use Jove\Utils\Plugins\Pluggable;
+use const Jove\Utils\Plugins\Filter\IS_MESSAGE;
 
 $filters = [
-    fn(TelegramAPI $api, Update $update) => isset($update['message']) || isset($update['edited_message'])
+    IS_MESSAGE,
 ];
 return new class($filters) extends Pluggable {
     public Message $message;

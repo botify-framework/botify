@@ -1,12 +1,10 @@
 <?php
 
-
-use Jove\TelegramAPI;
-use Jove\Types\Update;
 use Jove\Utils\Plugins\Plugin;
+use const Jove\Utils\Plugins\Filter\IS_MESSAGE;
 
 $filters = [
-    fn(TelegramAPI $api, Update $update) => isset($update['message'])
+    IS_MESSAGE
 ];
 
 return Plugin::apply($filters, function () {
