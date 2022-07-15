@@ -9,7 +9,7 @@ $filters = [
     fn(TelegramAPI $api, Update $update) => isset($update['message'])
 ];
 
-return Plugin::apply(function () {
+return Plugin::apply($filters, function () {
     $message = $this->message;
 
     if ($message->eq('/id')) {
