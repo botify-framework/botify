@@ -28,7 +28,7 @@ class Plugin
             if (is_dir($content)) {
                 $this->loadPlugins($content);
             } else {
-                if ($plugin = require_once $content) {
+                if (true !== $plugin = require_once $content) {
                     $name = pathinfo(strtolower(basename($content)), PATHINFO_FILENAME);
                     if (is_callable($plugin) || is_object($plugin)) {
                         if ($matches = preg_grep("/^{$name}#?/", array_keys(static::$plugins))) {
@@ -38,8 +38,6 @@ class Plugin
                         }
 
                         if ($plugin instanceof Pluggable) {
-                            $plugin->setApi($this->api);
-                            $plugin->setUpdate($this->update);
                             static::$plugins[$name] = $plugin;
                         }
                     }
@@ -77,17 +75,22 @@ class Plugin
         return new static($directory, $api, $update);
     }
 
-    public function gather(): Promise
+    public function wait(): Promise
     {
         return gather(array_filter(array_map(function (Pluggable $plugin) {
             return call(function () use ($plugin) {
+                $plugin->setApi($this->api);
+                $plugin->setUpdate($this->update);
+
                 if (method_exists($plugin, 'boot')) {
                     yield call([$plugin, 'boot']);
                 }
 
                 if (array_every(yield $plugin->applyFilters())) {
-                    return $plugin->call($this->api, $this->update);
+                    yield $plugin->call($this->api, $this->update);
                 }
+
+                $plugin->reset();
             });
         }, static::$plugins)));
     }

@@ -110,7 +110,7 @@ class EventHandler implements ArrayAccess
             ]);
 
             $plugins = Plugin::factory(config('telegram.plugins_dir'), $this->api, $update);
-            $promises = [call([$this, 'onAny'], $update), $plugins->gather()];
+            $promises = [call([$this, 'onAny'], $update), $plugins->wait()];
 
             foreach ($events as $event => $listeners) {
                 if ($event === 'any') {

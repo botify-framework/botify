@@ -100,4 +100,9 @@ abstract class Pluggable
     {
         return coroutine($this->callback ?? [$this, 'handle']);
     }
+
+    public function reset()
+    {
+        unset($this->api, $this->update);
+    }
 }
