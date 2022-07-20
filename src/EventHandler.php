@@ -120,7 +120,7 @@ class EventHandler implements ArrayAccess
                             $listener = $listener->bindTo($self);
                         }
 
-                        $promises[] = call($listener, $update[$event]);
+                        $promises[] = call($listener, $update);
                     }
                 } elseif (isset ($update[$event])) {
                     $current = $update[$event];
