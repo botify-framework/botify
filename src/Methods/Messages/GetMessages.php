@@ -2,6 +2,7 @@
 
 namespace Jove\Methods\Messages;
 
+use Amp\Producer;
 use Amp\Promise;
 use Jove\Types\Map\Message;
 use Jove\Utils\Collection;
@@ -9,6 +10,36 @@ use function Amp\call;
 
 trait GetMessages
 {
+
+    /**
+     * @param int $chat_id
+     * @param ?callable $filter
+     * @return Producer
+     */
+    protected function getHistory(int $chat_id, callable $filter = null): Producer
+    {
+        return new Producer(function ($emit) use ($chat_id, $filter) {
+            $keys = yield $this->redis?->getKeys('messages:' . $chat_id . '.*');
+
+            yield gather(array_map(
+                fn($key) => call(function () use ($key, $emit, $filter) {
+                    if ($data = json_decode(yield $this->redis?->get($key), true)) {
+                        if ($message = new Message($data)) {
+                            if (is_callable($filter)) {
+                                if ($filter($message)) {
+                                    return yield $emit($message);
+                                }
+                            } else {
+                                yield $emit($message);
+                            }
+                        } else {
+                            yield $emit(new Message());
+                        }
+                    }
+                }), $keys ?? []
+            ));
+        });
+    }
 
     /**
      * @param $chat_id
