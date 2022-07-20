@@ -21,21 +21,19 @@ trait GetMessages
         return new Producer(function ($emit) use ($chat_id, $filter) {
             $keys = yield $this->redis?->getKeys('messages:' . $chat_id . '.*');
 
-            yield gather(array_map(
-                fn($key) => call(function () use ($key, $emit, $filter) {
-                    if ($data = json_decode(yield $this->redis?->get($key), true)) {
-                        if ($message = new Message($data)) {
-                            if (is_callable($filter)) {
-                                if ($filter($message)) {
-                                    return yield $emit($message);
-                                }
-                            } else {
-                                yield $emit($message);
+            foreach ($keys as $key) {
+                if ($data = json_decode(yield $this->redis?->get($key), true)) {
+                    if ($message = new Message($data)) {
+                        if (is_callable($filter)) {
+                            if ($filter($message)) {
+                                return yield $emit($message);
                             }
+                        } else {
+                            yield $emit($message);
                         }
                     }
-                }), $keys ?? []
-            ));
+                }
+            }
         });
     }
 
