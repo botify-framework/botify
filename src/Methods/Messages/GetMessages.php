@@ -32,8 +32,6 @@ trait GetMessages
                             } else {
                                 yield $emit($message);
                             }
-                        } else {
-                            yield $emit(new Message());
                         }
                     }
                 }), $keys ?? []
