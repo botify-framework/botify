@@ -15,7 +15,7 @@ trait GetMessages
      * @param array $ids
      * @return Promise<Collection<?Message>>
      */
-    public function getMessages($chat_id, array $ids = []): Promise
+    protected function getMessages($chat_id, array $ids = []): Promise
     {
         return call(
             fn() => collect(yield gather(array_map(
