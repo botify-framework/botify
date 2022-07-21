@@ -2,6 +2,7 @@
 
 namespace Jove\Utils\Logger;
 
+use ErrorException;
 use Exception;
 use Jove\Utils\Logger\Colorize\Colorize;
 use Psr\Log\AbstractLogger;
@@ -56,6 +57,14 @@ class Logger extends AbstractLogger
 
         $this->minLevel = $minLevel;
         $this->type = $type;
+
+        set_error_handler(function ($code, $message, $file, $line) {
+            $this->error(new ErrorException($message, 0, $code, $file, $line));
+        });
+
+        set_exception_handler(function ($e) {
+            $this->critical($e);
+        });
     }
 
     public function exceptionToArray(Throwable $e): array

@@ -12,7 +12,6 @@ use Jove\Types\Update;
 use Jove\Utils\Plugins\Plugin;
 use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
-use Throwable;
 use function Amp\call;
 
 class EventHandler implements ArrayAccess
@@ -142,11 +141,7 @@ class EventHandler implements ArrayAccess
                 }
             }
 
-            try {
-                yield gather($promises);
-            } catch (Throwable $e) {
-                $this->logger->critical($e);
-            }
+            yield gather($promises);
         });
     }
 
