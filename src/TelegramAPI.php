@@ -500,9 +500,10 @@ class TelegramAPI
                                 $update = new Update(
                                     json_decode(yield $request->getBody()->buffer(), true) ?? []
                                 );
-                                yield gather(array_map(
+
+                                gather(array_map(
                                     fn($eventHandler) => call(
-                                        fn() => $eventHandler->boot($update, $database)
+                                        fn() => yield $eventHandler->boot($update, $database)
                                     ), $this->eventHandlers
                                 ));
                                 return new Response(Status::OK, stringOrStream: 'HTTP Ok');
