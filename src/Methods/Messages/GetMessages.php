@@ -26,7 +26,7 @@ trait GetMessages
                     if ($message = new Message($data)) {
                         if (is_callable($filter)) {
                             if ($filter($message)) {
-                                return yield $emit($message);
+                                yield $emit($message);
                             }
                         } else {
                             yield $emit($message);
