@@ -6,7 +6,7 @@ return [
     'super_admin' => (int)env('SUPER_ADMIN'),
     'admins' => function () {
         $admins = array_filter(array_map(
-            fn($admin) => (int)trim($admin), explode(',', env('ADMINS'),
+            fn($admin) => (int)trim($admin), explode(',', env('ADMINS', ''),
         )));
 
         array_unshift($admins, (int)env('SUPER_ADMIN'));
