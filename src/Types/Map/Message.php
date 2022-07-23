@@ -439,40 +439,43 @@ class Message extends LazyJsonMapper
 
         call(function () {
             if (config('telegram.cache_messages')) {
-                yield $this->api->redis?->set(
-                    $key = 'messages:' . $this->chat->id . '.' . $this->id, json_encode($this->toArray())
-                );
+                yield $this->api->redis?->getMap($key = 'messages:' . $this->chat->id)
+                    ->setValue($this->id, (string)$this);
                 yield $this->api->redis?->expireAt($key, strtotime('+48 hours'));
             }
         });
     }
 
     /**
-     * Pin current message in a chat
-     *
-     * @param bool $disable_notification
-     * @return Promise
+     * @return ?LazyJsonMapper
      */
-    public function pin(bool $disable_notification = false): Promise
+    protected function bindDownloadable(): ?LazyJsonMapper
     {
-        return $this->api->pinChatMessage([
-            'chat_id' => $this->chat->id,
-            'message_id' => $this->id,
-            'disable_notification' => $disable_notification
-        ]);
+        if ($type = $this->getDownloadableType()) {
+            $downloadable = is_array($this->{$type})
+                ? end($this->{$type})
+                : $this->{$type};
+
+            $this->_setProperty('file_id', $downloadable['file_id']);
+        }
+
+        return null;
     }
 
     /**
-     * Unpin current message in a chat
+     * Detect downloadable object
      *
-     * @return Promise
+     * @return mixed|null
      */
-    public function unpin(): Promise
+    protected function getDownloadableType(): mixed
     {
-        return $this->api->unpinChatMessage([
-            'chat_id' => $this->chat->id,
-            'message_id' => $this->id,
-        ]);
+        if ($type = collect(static::$downloadable_types)->first(fn($item) => isset($this->{$item}))) {
+            $this->_setProperty('type', $type);
+
+            return $type;
+        }
+
+        return null;
     }
 
     /**
@@ -544,38 +547,6 @@ class Message extends LazyJsonMapper
     }
 
     /**
-     * Detect downloadable object
-     *
-     * @return mixed|null
-     */
-    protected function getDownloadableType(): mixed
-    {
-        if ($type = collect(static::$downloadable_types)->first(fn($item) => isset($this->{$item}))) {
-            $this->_setProperty('type', $type);
-
-            return $type;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return ?LazyJsonMapper
-     */
-    protected function bindDownloadable(): ?LazyJsonMapper
-    {
-        if ($type = $this->getDownloadableType()) {
-            $downloadable = is_array($this->{$type})
-                ? end($this->{$type})
-                : $this->{$type};
-
-            $this->_setProperty('file_id', $downloadable['file_id']);
-        }
-
-        return null;
-    }
-
-    /**
      * Edit current message
      *
      * @param string $text
@@ -630,6 +601,21 @@ class Message extends LazyJsonMapper
                 'from_chat_id' => $this->chat->id,
                 'message_id' => $this->message_id,
             ]);
+    }
+
+    /**
+     * Pin current message in a chat
+     *
+     * @param bool $disable_notification
+     * @return Promise
+     */
+    public function pin(bool $disable_notification = false): Promise
+    {
+        return $this->api->pinChatMessage([
+            'chat_id' => $this->chat->id,
+            'message_id' => $this->id,
+            'disable_notification' => $disable_notification
+        ]);
     }
 
     /**
@@ -921,6 +907,19 @@ class Message extends LazyJsonMapper
                 'reply_to_message_id' => $this->message_id,
                 'allow_sending_without_reply' => true
             ]);
+    }
+
+    /**
+     * Unpin current message in a chat
+     *
+     * @return Promise
+     */
+    public function unpin(): Promise
+    {
+        return $this->api->unpinChatMessage([
+            'chat_id' => $this->chat->id,
+            'message_id' => $this->id,
+        ]);
     }
 
     protected function getStringableValue(): ?string

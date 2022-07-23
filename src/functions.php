@@ -5,6 +5,7 @@ use Amp\Promise;
 use Jove\Utils\Button;
 use Jove\Utils\Collection;
 use Jove\Utils\Config;
+use Jove\Utils\Dotty;
 
 if (!function_exists('retry')) {
     /**
@@ -552,5 +553,12 @@ if (!function_exists('array_map_recursive')) {
         };
 
         return array_map($fn, $array);
+    }
+}
+
+if (!function_exists('dotty')) {
+    function dotty(array $items = [], bool $parse = false): Dotty
+    {
+        return new Dotty($items, $parse);
     }
 }

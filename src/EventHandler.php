@@ -3,6 +3,7 @@
 namespace Jove;
 
 use Amp\Promise;
+use Amp\Redis\Redis;
 use ArrayAccess;
 use Closure;
 use Jove\Types\Map\CallbackQuery;
@@ -26,6 +27,7 @@ class EventHandler implements ArrayAccess
     public $current;
     public ?DatabaseConnection $database = null;
     public LoggerInterface $logger;
+    public ?Redis $redis = null;
     private ?Update $update = null;
 
     /**
@@ -73,20 +75,16 @@ class EventHandler implements ArrayAccess
      * Bootstrap the event handler
      *
      * @param Update $update
-     * @param DatabaseConnection|bool|null $database
      * @return Promise
      */
-    public function boot(Update $update, DatabaseConnection|bool|null $database = null): Promise
+    public function boot(Update $update): Promise
     {
-        return call(function () use ($database, $update) {
+        return call(function () use ($update) {
             $this->update = $update;
-            if (!$database) {
-                unset($this->database);
-            } else {
-                $this->database = $database;
-            }
+            $this->database = $this->api->database;
             $this->api = $update->api;
             $this->logger = $this->api->logger;
+            $this->redis = $this->api->redis;
 
             $events = array_merge_recursive(static::$events, [
                 'message' => [

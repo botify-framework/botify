@@ -8,6 +8,7 @@ use const Jove\Utils\Plugins\Filter\IS_MESSAGE;
 $filters = [
     IS_MESSAGE,
 ];
+
 return new class($filters) extends Pluggable {
     public Message $message;
 

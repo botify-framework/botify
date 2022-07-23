@@ -7,7 +7,7 @@ use Jove\Types\Update;
 
 function is_message(TelegramAPI $api, Update $update): bool
 {
-    return isset($update['message']) || isset($update['edited_message']);
+    return isset($update['message']);
 }
 
 const IS_MESSAGE = __NAMESPACE__ . '\\is_message';

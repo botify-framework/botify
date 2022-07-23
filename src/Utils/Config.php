@@ -3,30 +3,32 @@
 namespace Jove\Utils;
 
 use ArrayAccess;
-use Closure;
 
 class Config implements ArrayAccess
 {
 
-    public static array $items = [];
+    public static Dotty $items;
 
     private static array $loadedDirs = [];
 
     public function __construct()
     {
+        static::$items = dotty();
         // Load default configs
         $this->loadFromDir(abs_path(__DIR__ . '/../../config'));
         // Override configs from base directory
         $this->loadFromDir(config_path());
+    }
 
-        // Bind all closures to Config class
-        static::$items = array_map_recursive(function ($item) {
-            if ($item instanceof Closure) {
-                $item = $item->bindTo($this);
+    private function mapIntoLazyItems(array $items): array
+    {
+        return array_map_recursive(function ($item) {
+            if (is_callable($item)) {
+                $item = $item();
             }
 
             return $item;
-        }, static::$items);
+        }, $items);
     }
 
     /**
@@ -45,9 +47,9 @@ class Config implements ArrayAccess
                         if (is_array($data = require_once $file)) {
                             $namespace = pathinfo($file, PATHINFO_FILENAME);
 
-                            static::$items[$namespace] = array_merge(
+                            static::$items[$namespace] = $this->mapIntoLazyItems(array_merge(
                                 static::$items[$namespace] ?? [], $data
-                            );
+                            ));
                         }
                     }
                 }
@@ -56,37 +58,15 @@ class Config implements ArrayAccess
     }
 
     /**
-     * @param $id
-     * @param array $with
-     * @return void
-     */
-    public function merge($id, array $with)
-    {
-        $namespace = $this->splitNamespace($id, $key);
-
-        $data = $this->load($namespace);
-
-        static::$items[$namespace] = data_set($data, $key, array_merge_recursive(data_get(
-            $data, $key, []
-        ), $with));
-    }
-
-    /**
-     * @param $id
      * @param $key
-     * @return string
+     * @param array $value
+     * @return Config
      */
-    private function splitNamespace($id, &$key = null): string
+    public function merge($key, array $value): static
     {
-        $splited = explode('.', trim($id, '.'), 2);
+        static::$items->mergeRecursive($key, $value);
 
-        if (count($splited) < 2) {
-            $splited[1] = null;
-        }
-
-        [$namespace, $key] = $splited;
-
-        return $namespace;
+        return $this;
     }
 
     /**
@@ -110,78 +90,83 @@ class Config implements ArrayAccess
      */
     public function all(): array
     {
-        return static::$items;
+        return static::$items->all();
     }
 
     /**
-     * @param $id
+     * @param $key
      * @param $value
      * @return void
      */
-    public function prepend($id, $value)
+    public function prepend($key, $value)
     {
-        $array = $this->get($id);
+        $array = (array)$this->get($key);
 
         array_unshift($array, $value);
 
-        $this->set($id, $array);
+        $this->set($key, $array);
     }
 
     /**
-     * @param $id
-     * @param $default
+     * @param $key
+     * @param null $default
      * @return array|mixed
      */
-    public function get($id, $default = null): mixed
+    public function get($key, $default = null): mixed
     {
-        if (is_array($id)) {
-            return $this->getMany($id);
-        }
-
-        $namespace = $this->splitNamespace($id, $key);
-
-        return value(data_get($this->load($namespace), $key, $default));
+        return value(static::$items[$key] ?? $default);
     }
 
-    public function getMany($ids): array
+    public function getMany($keys): array
     {
         $config = [];
 
-        foreach ($ids as $id => $default) {
-            if (is_numeric($id)) {
-                [$id, $default] = [$default, null];
+        foreach ($keys as $key => $default) {
+            if (is_numeric($key)) {
+                [$key, $default] = [$default, null];
             }
-            $config[] = $this->get($id, $default);
+
+            $config[] = $this->get($key, $default);
         }
 
         return $config;
     }
 
     /**
-     * @param $id
-     * @param $value
-     * @return void
+     * @param $keys
+     * @param null $value
+     * @return Config
      */
-    public function set($id, $value = null): void
+    public function set($keys, $value = null): Config
     {
-        $ids = is_array($id) ? $id : [$id => $value];
+        $keys = is_array($keys) ? $keys : [$keys => $value];
 
-        foreach ($ids as $id => $value)
-            data_set(static::$items, $id, $value, true);
+        foreach ($keys as $key => $value)
+            static::$items[$key] = $value;
+
+        return $this;
     }
 
     /**
-     * @param $id
+     * @param $key
      * @param $value
-     * @return void
+     * @return Config
      */
-    public function push($id, $value)
+    public function push($key, $value)
     {
-        $array = $this->get($id);
+        static::$items->push($key, $value);
 
-        $array[] = $value;
+        return $this;
+    }
 
-        $this->set($id, $array);
+    /**
+     * @param $key
+     * @param $default
+     * @return array|mixed|null
+     */
+    public function pull($key, $default = null)
+    {
+        return static::$items->pull($key, $default);
     }
 
     public function offsetExists(mixed $offset): bool

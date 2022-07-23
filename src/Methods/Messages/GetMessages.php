@@ -19,18 +19,18 @@ trait GetMessages
     protected function getHistory(int $chat_id, callable $filter = null): Producer
     {
         return new Producer(function ($emit) use ($chat_id, $filter) {
-            $keys = yield $this->redis?->getKeys('messages:' . $chat_id . '.*');
+            $messages = yield $this->redis?->getMap('messages:' . $chat_id)->getAll();
 
-            foreach ($keys as $key) {
-                if ($data = json_decode(yield $this->redis?->get($key), true)) {
-                    if ($message = new Message($data)) {
-                        if (is_callable($filter)) {
-                            if ($filter($message)) {
-                                yield $emit($message);
-                            }
-                        } else {
+            foreach ($messages as $message) {
+                if ($message = json_decode($message, true)) {
+                    $message = new Message($message);
+
+                    if (is_callable($filter)) {
+                        if ($filter($message)) {
                             yield $emit($message);
                         }
+                    } else {
+                        yield $emit($message);
                     }
                 }
             }

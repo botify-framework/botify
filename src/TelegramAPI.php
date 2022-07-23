@@ -27,7 +27,6 @@ use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
 use Medoo\DatabaseConnection;
 use Monolog\Logger;
-use Throwable;
 use function Amp\call;
 use function Medoo\connect;
 use const SIGINT;
@@ -38,6 +37,7 @@ class TelegramAPI
     use Methods;
 
     private static $client;
+    private static array $databases = [];
     private static ?EventHandler $eventHandler = null;
     private static array $meable_attributes = [
         'user_id', 'chat_id',
@@ -46,17 +46,15 @@ class TelegramAPI
      * @var array|Utils\Config|mixed|void
      */
     private static $token;
+    public ?DatabaseConnection $database;
+    public Utils\Logger\Logger $logger;
+    public ?Redis $redis;
     private array $default_attributes = [];
-    private static array $databases = [];
-
     /**
      * @var EventHandler[] $eventHandlers
      */
     private array $eventHandlers = [];
     private string $id;
-    public Utils\Logger\Logger $logger;
-    public ?Redis $redis;
-
     /**
      * Map all methods responses
      *
@@ -135,37 +133,18 @@ class TelegramAPI
         ]
     ];
 
-    private function getDatabase($driver = null): Promise
-    {
-        return call(function () use ($driver) {
-            $driver ??= config('database.default');
-
-            return static::$databases[$driver] ??= yield call(function () use ($driver) {
-                $connections = config('database.connections');
-
-                if (isset($connections[$driver]) && $options = $connections[$driver]) {
-                    try {
-                        return yield connect(array_shift($options), $options);
-                    } catch (Throwable $e) {
-                        $this->logger->error($e);
-                        $this->logger->notice('You must provide a database connection');
-                    }
-                }
-
-                return false;
-            });
-        });
-    }
-
     public function __construct(array $config = [])
     {
-        config(['telegram' => array_merge(
-            config('telegram'), $config
-        )]);
+        config([
+            'telegram' => array_merge(
+                config('telegram'), $config
+            )
+        ]);
         self::$token = config('telegram.token');
         $this->id = explode(':', self::$token, 2)[0];
-        $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->redis = $this->getRedis();
+        $this->database = $this->getDatabase();
+        $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
     }
 
     private function getRedis(): ?Redis
@@ -183,6 +162,26 @@ class TelegramAPI
         }
 
         return null;
+    }
+
+    private function getDatabase($driver = null): DatabaseConnection
+    {
+        $driver ??= config('database.default');
+
+        return static::$databases[$driver] ??= value(function () use ($driver) {
+            $connections = config('database.connections');
+
+            if (isset($connections[$driver]) && $options = $connections[$driver]) {
+                return connect(array_shift($options), $options);
+            }
+
+            return null;
+        });
+    }
+
+    public static function factory(array $config = []): TelegramAPI
+    {
+        return new static($config);
     }
 
     /**
@@ -428,40 +427,45 @@ class TelegramAPI
                 array_unshift($this->eventHandlers, static::$eventHandler);
             }
 
-            $forceRunInCli = function () {
-                if (!in_array(PHP_SAPI, ['cli', 'php-dbg'])) {
-                    throw new Exception('You must use this type in cli');
+            $forceRunIn = function ($mode) {
+                $isCli = env('APP_RUNNING_IN_CONSOLE') || in_array(PHP_SAPI, ['cli', 'php-dbg']);
+
+                switch ($mode) {
+                    case 'cli':
+                        if (!$isCli) {
+                            throw new Exception('You must use this type in cli');
+                        }
+                        break;
+                    case 'browser':
+                        if ($isCli) {
+                            throw new Exception('You must use this type in cli');
+                        }
                 }
             };
 
-            $database = yield $this->getDatabase();
-
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
+                    $forceRunIn('browser');
                     $this->finish();
                     $update = new Update(
                         json_decode(file_get_contents('php://input'), true) ?? []
                     );
                     yield gather(array_map(
-                        fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                        fn($eventHandler) => $eventHandler->boot($update), $this->eventHandlers
                     ));
-                    $database instanceof DatabaseConnection && yield $database->close();
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
-                    $forceRunInCli();
-
-                    $database = yield $this->getDatabase();
-
+                    $forceRunIn('cli');
                     $offset = -1;
                     yield $this->deleteWebhook();
 
-                    Loop::repeat(config('telegram.loop_interval'), function () use ($database, &$offset) {
+                    Loop::repeat(config('telegram.loop_interval'), function () use (&$offset) {
                         $updates = yield $this->getUpdates($offset);
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
                                 yield gather(array_map(
-                                    fn($eventHandler) => $eventHandler->boot($update, $database), $this->eventHandlers
+                                    fn($eventHandler) => $eventHandler->boot($update), $this->eventHandlers
                                 ));
 
                                 $offset = $update->update_id + 1;
@@ -470,16 +474,14 @@ class TelegramAPI
 
                     });
 
-                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database) {
-                        $database instanceof DatabaseConnection && yield $database->close();
+                    Loop::onSignal(SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
                         exit();
                     });
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
-                    $forceRunInCli();
+                    $forceRunIn('cli');
 
-                    $database = yield $this->getDatabase();
                     $host = config('telegram.socket_server.host');
                     $port = config('telegram.socket_server.port');
 
@@ -496,14 +498,14 @@ class TelegramAPI
 
                     foreach (['GET', 'POST'] as $method)
                         $router->addRoute($method, $uri, Server\Middleware\stack(
-                            new CallableRequestHandler(function (Server\Request $request) use ($database) {
+                            new CallableRequestHandler(function (Server\Request $request) {
                                 $update = new Update(
                                     json_decode(yield $request->getBody()->buffer(), true) ?? []
                                 );
 
                                 gather(array_map(
                                     fn($eventHandler) => call(
-                                        fn() => yield $eventHandler->boot($update, $database)
+                                        fn() => yield $eventHandler->boot($update)
                                     ), $this->eventHandlers
                                 ));
                                 return new Response(Status::OK, stringOrStream: 'HTTP Ok');
@@ -515,8 +517,7 @@ class TelegramAPI
 
                     yield $server->start();
 
-                    Loop::onSignal(SIGINT, function (string $watcherId) use ($database, $server) {
-                        $database instanceof DatabaseConnection && yield $database->close();
+                    Loop::onSignal(SIGINT, function (string $watcherId) use ($server) {
                         Loop::cancel($watcherId);
                         yield $server->stop();
                     });
@@ -561,7 +562,9 @@ class TelegramAPI
      */
     public function on($event, ?callable $listener = null)
     {
-        static::$eventHandler ??= new EventHandler();
+        static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
+            $eventHandler->setAPI($this);
+        });
 
         if (is_callable($event)) {
             [$event, $listener] = ['any', $event];
