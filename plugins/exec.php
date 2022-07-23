@@ -4,6 +4,7 @@
 use Jove\TelegramAPI;
 use Jove\Types\Map\Message;
 use Jove\Types\Update;
+use Jove\Utils\FileSystem;
 use Jove\Utils\Plugins\Pluggable;
 
 $filters = [
@@ -68,7 +69,7 @@ return new class($filters) extends Pluggable {
             file_put_contents($file = new FileSystem(storage_path(sprintf(
                 'result.%s', is_json($buffers) ? 'json' : 'txt'
             ))), $buffers);
-            yield $this->replyDocument($file);
+            yield $message->replyDocument($file);
             yield $file->delete();
         } else {
             yield $message->reply($result);
