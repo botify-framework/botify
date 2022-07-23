@@ -44,9 +44,10 @@ return new class($filters) extends Pluggable {
                 'In Line : ' . $e->getLine() . "\n" .
                 'At File : ' . basename($e->getFile());
         }
+        $buffers = trim(implode("\n", $buffers));
 
         $result .= !empty($buffers) ? "<b>Result:</b>\n" . htmlspecialchars(
-                implode("\n", $buffers)
+                $buffers
             ) . "\n" : null;
 
         $result .= !empty($errors) ? "<b>Errors:</b>\n" . htmlspecialchars(
@@ -63,9 +64,14 @@ return new class($filters) extends Pluggable {
         mb_regex_encoding('UTF-8');
         mb_internal_encoding('UTF-8');
 
-        $responses = str_split($result, 4000);
-        foreach ($responses as $response) {
-            yield $message->reply($response);
+        if (mb_strlen($result, 'utf8') > 4096) {
+            file_put_contents($file = new FileSystem(storage_path(sprintf(
+                'result.%s', is_json($buffers) ? 'json' : 'txt'
+            ))), $buffers);
+            yield $this->replyDocument($file);
+            yield $file->delete();
+        } else {
+            yield $message->reply($result);
         }
     }
 };
