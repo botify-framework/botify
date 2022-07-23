@@ -16,13 +16,14 @@ trait GetMessages
      * @param ?callable $filter
      * @return Producer
      */
-    protected function getHistory(int $chat_id, callable $filter = null): Producer
+    protected function getHistory(int $chat_id, callable $filter = null, int $limit = 100): Producer
     {
-        return new Producer(function ($emit) use ($chat_id, $filter) {
+        return new Producer(function ($emit) use ($chat_id, $filter, $limit) {
             $messages = yield $this->redis?->getMap('messages:' . $chat_id)->getAll();
 
             foreach ($messages as $message) {
                 if ($message = json_decode($message, true)) {
+                    $limit--;
                     $message = new Message($message);
 
                     if (is_callable($filter)) {
@@ -32,6 +33,9 @@ trait GetMessages
                     } else {
                         yield $emit($message);
                     }
+
+                    if ($limit <= 0)
+                        return;
                 }
             }
         });
