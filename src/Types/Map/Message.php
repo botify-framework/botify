@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\HasCommand;
 use Jove\Traits\Notifiable;
 use Jove\Traits\Stringable;
 use Jove\Utils\LazyJsonMapper;
@@ -58,6 +59,7 @@ use function Amp\call;
  * @method bool getGroupChatCreated()
  * @method bool getSupergroupChatCreated()
  * @method bool getChannelChatCreated()
+ * @method bool getNatches()
  * @method MessageAutoDeleteTimerChanged getMessageAutoDeleteTimerChanged()
  * @method Int getMigrateToChatId()
  * @method Int getMigrateFromChatId()
@@ -122,6 +124,7 @@ use function Amp\call;
  * @method bool isGroupChatCreated()
  * @method bool isSupergroupChatCreated()
  * @method bool isChannelChatCreated()
+ * @method bool isMatches()
  * @method bool isMessageAutoDeleteTimerChanged()
  * @method bool isMigrateToChatId()
  * @method bool isMigrateFromChatId()
@@ -186,6 +189,7 @@ use function Amp\call;
  * @method $this setGroupChatCreated(bool $value)
  * @method $this setSupergroupChatCreated(bool $value)
  * @method $this setChannelChatCreated(bool $value)
+ * @method $this setMatches(array $value)
  * @method $this setMessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged $value)
  * @method $this setMigrateToChatId(int $value)
  * @method $this setMigrateFromChatId(int $value)
@@ -250,6 +254,7 @@ use function Amp\call;
  * @method $this unsetGroupChatCreated()
  * @method $this unsetSupergroupChatCreated()
  * @method $this unsetChannelChatCreated()
+ * @method $this unsetMatches()
  * @method $this unsetMessageAutoDeleteTimerChanged()
  * @method $this unsetMigrateToChatId()
  * @method $this unsetMigrateFromChatId()
@@ -314,6 +319,7 @@ use function Amp\call;
  * @property bool $group_chat_created
  * @property bool $supergroup_chat_created
  * @property bool $channel_chat_created
+ * @property array $matches
  * @property MessageAutoDeleteTimerChanged $message_auto_delete_timer_changed
  * @property Int $migrate_to_chat_id
  * @property Int $migrate_from_chat_id
@@ -332,7 +338,7 @@ use function Amp\call;
  */
 class Message extends LazyJsonMapper
 {
-    use Notifiable, Stringable;
+    use HasCommand, Notifiable, Stringable;
 
     const JSON_PROPERTY_MAP = [
         'id' => 'int',
@@ -398,6 +404,7 @@ class Message extends LazyJsonMapper
         'video_chat_participants_invited' => 'VideoChatParticipantsInvited',
         'web_app_data' => 'WebAppData',
         'reply_markup' => 'InlineKeyboardMarkup',
+        'matches' => 'string[]',
     ];
 
     private static array $downloadable_types = [
