@@ -21,8 +21,8 @@ trait GetMessages
         return new Producer(function ($emit) use ($chat_id, $filter, $limit) {
             $messages = yield $this->redis?->getMap('messages:' . $chat_id)->getAll();
 
-            for ($i = count($messages); $i > 0; $i--) {
-                if ($message = json_decode($messages[$i], true)) {
+            foreach (array_reverse($messages) as $message) {
+                if ($message = json_decode($message, true)) {
                     $limit--;
                     $message = new Message($message);
 
