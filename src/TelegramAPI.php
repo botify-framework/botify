@@ -145,6 +145,9 @@ class TelegramAPI
         $this->redis = $this->getRedis();
         $this->database = $this->getDatabase();
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
+        static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
+            $eventHandler->setAPI($this);
+        });
     }
 
     private function getRedis(): ?Redis
@@ -562,10 +565,6 @@ class TelegramAPI
      */
     public function on($event, ?callable $listener = null)
     {
-        static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
-            $eventHandler->setAPI($this);
-        });
-
         if (is_callable($event)) {
             [$event, $listener] = ['any', $event];
         }
