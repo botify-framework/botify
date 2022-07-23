@@ -10,19 +10,31 @@ use function Amp\call;
 class Plugin
 {
     private static array $plugins = [];
+    private string $directory;
 
     public function __construct($directory, public TelegramAPI $api, public Update $update)
     {
-        $this->loadPlugins($directory);
+        $this->setDirectory($directory);
+        $this->loadPlugins();
     }
 
     /**
-     * @param $dir
+     * Remove cache and reload plugins
+     *
      * @return void
      */
-    private function loadPlugins($dir)
+    public function reloadPlugins()
     {
-        $contents = glob($dir . '/*');
+        static::$plugins = [];
+        $this->loadPlugins();
+    }
+
+    /**
+     * @return void
+     */
+    private function loadPlugins($dir = '')
+    {
+        $contents = glob($dir ?: $this->directory . '/*');
 
         foreach ($contents as $content) {
             if (is_dir($content)) {
@@ -75,6 +87,14 @@ class Plugin
         return new static($directory, $api, $update);
     }
 
+    /**
+     * @param string $directory
+     */
+    public function setDirectory(string $directory): void
+    {
+        $this->directory = $directory;
+    }
+
     public function wait(): Promise
     {
         return gather(array_filter(array_map(function (Pluggable $plugin) {
@@ -87,7 +107,9 @@ class Plugin
                 }
 
                 if (array_every(yield $plugin->applyFilters())) {
-                    yield $plugin->call($this->api, $this->update);
+                    if ($promise = $plugin->call($this->update)) {
+                        return yield $promise;
+                    }
                 }
 
                 $plugin->reset();

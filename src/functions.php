@@ -562,3 +562,42 @@ if (!function_exists('dotty')) {
         return new Dotty($items, $parse);
     }
 }
+
+if (!function_exists('str_snake')) {
+    /**
+     * Convert string to snake_case
+     *
+     * @param string $string
+     * @return string
+     */
+    function str_snake(string $string): string
+    {
+        if (!ctype_lower($string)) {
+            return strtolower(preg_replace(
+                '/(.)(?=[A-Z])/u', '$1_', preg_replace(
+                    '/\s+/u', '', ucwords($string)
+                )
+            ));
+        }
+
+        return $string;
+    }
+}
+
+if (!function_exists('array_sole')) {
+    /**
+     * @param array $array
+     * @param callable $fn
+     * @return mixed
+     */
+    function array_sole(array $array, callable $fn): mixed
+    {
+        foreach ($array as $index => $item) {
+            if ($value = $fn($item, $index)) {
+                return $value;
+            }
+        }
+
+        return false;
+    }
+}

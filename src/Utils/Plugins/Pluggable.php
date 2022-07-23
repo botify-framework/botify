@@ -6,6 +6,10 @@ use Amp\Promise;
 use Closure;
 use Jove\TelegramAPI;
 use Jove\Types\Update;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
+use ReflectionUnionType;
 use function Amp\coroutine;
 
 abstract class Pluggable
@@ -93,12 +97,68 @@ abstract class Pluggable
 
     final public function call(...$args)
     {
-        return $this->getCallback()(... $args);
+        $callback = $this->getCallback();
+
+        $reflector = new class($callback, $args[0]) {
+            private ReflectionFunctionAbstract $reflection;
+            private Update $update;
+
+            public function __construct(callable $callback, Update $update)
+            {
+                $this->reflection = is_array($callback)
+                    ? new ReflectionMethod(... $callback)
+                    : new ReflectionFunction($callback);
+                $this->update = $update;
+            }
+
+            public function getArguments(array &$arguments = []): bool
+            {
+                $parameters = $this->reflection->getParameters();
+
+                foreach ($parameters as $index => $parameter) {
+                    $types = $parameter->getType() instanceof ReflectionUnionType
+                        ? $parameter->getType()->getTypes()
+                        : [$parameter->getType()];
+
+                    if ($value = array_sole($types, function ($type) {
+                        $name = $type->getName();
+
+                        $isEqual = function () use ($name) {
+                            foreach ($this->update::JSON_PROPERTY_MAP as $index => $item) {
+                                if (str_ends_with($name, $item) && isset($this->update[$index])) {
+                                    return $this->update[$index];
+                                }
+                            }
+
+                            return false;
+                        };
+
+                        if ($name === get_class($this->update)) {
+                            return $this->update;
+                        } elseif ($name === TelegramAPI::class) {
+                            return $this->update->api;
+                        } elseif ($value = $isEqual()) {
+                            return $value;
+                        }
+                    })) {
+                        $arguments[$index] = $value;
+                    } else {
+                        unset($parameters[$index]);
+                    }
+                }
+
+                return $this->reflection->getNumberOfParameters() === count($parameters);
+            }
+        };
+
+        if ($reflector->getArguments($args)) {
+            return coroutine($callback)(... $args);
+        }
     }
 
     final public function getCallback(): callable
     {
-        return coroutine($this->callback ?? [$this, 'handle']);
+        return $this->callback ?? [$this, 'handle'];
     }
 
     public function reset()
