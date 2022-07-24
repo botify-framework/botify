@@ -9,7 +9,7 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
 {
     private static TelegramAPI $api;
 
-    public function setAPI(TelegramAPI $api)
+    public function setApi(TelegramAPI $api)
     {
         static::$api ??= $api;
     }

@@ -22,9 +22,7 @@ trait GetDownloadableLink
                 return [
                     $file->file_path,
                     sprintf(
-                        '%s/file/bot%s/%s',
-                        rtrim(config('telegram.base_uri')),
-                        getenv('BOT_TOKEN'), $file->file_path
+                        '%s/file/bot%s/%s', rtrim(config('telegram.base_uri')), config('telegram.token'), $file->file_path
                     )
                 ];
             }

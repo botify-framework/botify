@@ -2,7 +2,8 @@
 
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
-    'token' => env('BOT_TOKEN', ''),
+    'token' => $token = env('BOT_TOKEN', ''),
+    'user_id' => (int)env('BOT_USER_ID', explode('/', $token, 2)[0] ?? null),
     'secret_token' => env('SECRET_TOKEN'),
     'super_admin' => (int)env('SUPER_ADMIN'),
     'admins' => function () {

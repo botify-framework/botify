@@ -742,7 +742,7 @@ class Message extends LazyJsonMapper
     {
         return $this->getAPI()->sendMediaGroup(array_merge($args, [
             'chat_id' => $this->chat->id,
-            'media' => json_encode($media),
+            'media' => $media,
             'reply_to_message_id' => $this->message_id,
             'allow_sending_without_reply' => true
         ]));

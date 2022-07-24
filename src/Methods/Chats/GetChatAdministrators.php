@@ -19,7 +19,7 @@ trait GetChatAdministrators
     protected function getChatAdministrators(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->post('getChatAdministrators', $args);
+            $response = yield $this->client->post('getChatAdministrators', $args);
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

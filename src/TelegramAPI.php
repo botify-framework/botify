@@ -3,9 +3,6 @@
 namespace Jove;
 
 use Amp\ByteStream\ResourceOutputStream;
-use Amp\Http\Client\Body\FormBody;
-use Amp\Http\Client\HttpClientBuilder;
-use Amp\Http\Client\Request;
 use Amp\Http\Server;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
@@ -19,12 +16,10 @@ use Amp\Redis\Redis;
 use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
 use Exception;
-use Jove\Methods\Methods;
+use Jove\Methods\MethodsFactory;
 use Jove\Middlewares\AuthorizeWebhooks;
-use Jove\Types\Map;
+use Jove\Request\Client;
 use Jove\Types\Update;
-use Jove\Utils\Button;
-use Jove\Utils\FallbackResponse;
 use Medoo\DatabaseConnection;
 use Monolog\Logger;
 use function Amp\call;
@@ -34,104 +29,14 @@ use const STDOUT;
 
 class TelegramAPI
 {
-    use Methods;
-
-    private static $client;
+    public Client $client;
+    private MethodsFactory $methodFactory;
     private static array $databases = [];
     private static ?EventHandler $eventHandler = null;
-    private static array $meable_attributes = [
-        'user_id', 'chat_id',
-    ];
-    /**
-     * @var array|Utils\Config|mixed|void
-     */
-    private static $token;
     public ?DatabaseConnection $database;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
-    private array $default_attributes = [];
-    /**
-     * @var EventHandler[] $eventHandlers
-     */
     private array $eventHandlers = [];
-    public int $id;
-    /**
-     * Map all methods responses
-     *
-     * @var array|string[][]
-     */
-    private array $responses_map = [
-        Map\WebhookInfo::class => [
-            'getWebhookInfo'
-        ],
-        Map\User::class => [
-            'getMe'
-        ],
-        Map\Message::class => [
-            'sendMessage',
-            'forwardMessage',
-            'sendPhoto',
-            'sendAudio',
-            'sendDocument',
-            'sendVideo',
-            'sendAnimation',
-            'sendVoice',
-            'sendVideoNote',
-            'sendLocation',
-            'editMessageLiveLocation',
-            'stopMessageLiveLocation',
-            'sendVenue',
-            'sendContact',
-            'sendPoll',
-            'sendDice',
-            'editMessageText',
-            'editMessageCaption',
-            'editMessageMedia',
-            'editMessageReplyMarkup',
-            'sendSticker',
-            'sendInvoice',
-            'sendGame',
-            'setGameScore',
-        ],
-        Map\MessageId::class => [
-            'copyMessage'
-        ],
-        Map\UserProfilePhotos::class => [
-            'getUserProfilePhotos',
-        ],
-        Map\File::class => [
-            'getFile',
-            'uploadStickerFile',
-            'createNewStickerSet',
-            'addStickerToSet',
-        ],
-        Map\ChatInviteLink::class => [
-            'createChatInviteLink',
-            'editChatInviteLink',
-            'revokeChatInviteLink',
-        ],
-        Map\Chat::class => [
-            'getChat',
-        ],
-        Map\ChatMember::class => [
-            'getChatMember',
-        ],
-        Map\MenuButtonCommands::class => [
-            'getChatMenuButton',
-        ],
-        Map\MenuButton::class => [
-            'getChatMenuButton',
-        ],
-        Map\Poll::class => [
-            'stopPoll',
-        ],
-        Map\StickerSet::class => [
-            'getStickerSet',
-        ],
-        Map\SentWebAppMessage::class => [
-            'answerWebAppQuery',
-        ]
-    ];
 
     public function __construct(array $config = [])
     {
@@ -140,11 +45,11 @@ class TelegramAPI
                 config('telegram'), $config
             )
         ]);
-        self::$token = config('telegram.token');
-        $this->id = (int)explode(':', self::$token, 2)[0];
         $this->redis = $this->getRedis();
         $this->database = $this->getDatabase();
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
+        $this->client = new Client();
+        $this->methodFactory = new MethodsFactory($this->client);
         static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
             $eventHandler->setAPI($this);
         });
@@ -197,223 +102,7 @@ class TelegramAPI
      */
     public function __call(string $name, array $arguments = [])
     {
-        static $mapped = [];
-
-        if (empty($mapped))
-            foreach ($this->responses_map as $response => $methods)
-                foreach ($methods as $method)
-                    $mapped[strtolower($method)] = $response;
-
-        $arguments = isset($arguments[0]) && is_array($arguments[0])
-            ? value(function () use ($arguments) {
-                $arguments = array_merge(array_shift($arguments), $arguments);
-
-                return array_some($arguments, fn($v, $k) => is_string($k))
-                    ? $arguments
-                    : [$arguments];
-            })
-            : $arguments;
-
-        if (method_exists($this, $name)) {
-            return $this->{$name}(... $arguments);
-        }
-
-        $arguments = [$arguments];
-
-        /**
-         * Prepend method name to arguments
-         */
-        array_unshift($arguments, $name);
-
-        $cast = $mapped[strtolower($name)] ?? false;
-
-        return call(function () use ($arguments, $cast) {
-            $response = yield $this->post(... $arguments);
-
-            if ($response['ok']) {
-                if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
-                    return $response['result'];
-                }
-
-                return new $cast($response['result']);
-            }
-
-            return new FallbackResponse($response);
-        });
-    }
-
-    /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function post($uri, array $attributes = [], bool $stream = false): Promise
-    {
-        $this->bindAttributes($attributes);
-
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
-    }
-
-    /**
-     * Bind attributes before passing to request
-     *
-     * @param $attributes
-     * @return void
-     */
-    public function bindAttributes(&$attributes)
-    {
-        if (isset($attributes['text'])) {
-            $text = &$attributes['text'];
-
-            if (is_array($text)) {
-                $text = print_r($text, true);
-            } elseif (is_object($text)) {
-                if (method_exists($text, '__toString')) {
-                    $text = (string)$text;
-                } else {
-                    $text = var_export($text, true);
-                }
-            }
-        }
-
-        if (isset($attributes['reply_markup'])) {
-            $replyMarkup = &$attributes['reply_markup'];
-
-            if (is_array($replyMarkup)) {
-                $replyMarkup = Button::make($replyMarkup);
-            }
-        }
-
-        foreach (static::$meable_attributes as $attr)
-            if (isset($attributes[$attr]) && is_string($attribute = &$attributes[$attr]) && $attribute === 'me')
-                $attribute = $this->id;
-
-
-    }
-
-    /**
-     * @param $method
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    protected function fetch($method, $uri, array $attributes, bool $stream = false): Promise
-    {
-        $attributes = array_merge_recursive(
-            $this->getDefaultAttributes(), $attributes
-        );
-
-        return call(function () use ($method, $uri, $attributes, $stream) {
-            $client = static::$client ??= HttpClientBuilder::buildDefault();
-            $promise = yield $client->request(
-                $this->generateRequest($method, $uri, $attributes)
-            );
-
-            $body = $promise->getBody();
-
-            if ($stream === true)
-                return $body;
-
-            return is_json($response = yield $body->buffer()) ? json_decode(
-                $response, true
-            ) : $response;
-        });
-    }
-
-    /**
-     * @return array
-     */
-    public function getDefaultAttributes(): array
-    {
-        return $this->default_attributes;
-    }
-
-    /**
-     * @param array $attributes
-     * @param bool $override
-     * @return $this
-     */
-    public function setDefaultAttributes(array $attributes, bool $override = false): self
-    {
-        $this->default_attributes = array_merge(
-            $override ? [] : $this->getDefaultAttributes(),
-            $attributes
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param $method
-     * @param $uri
-     * @param array $data
-     * @return Request
-     */
-    private function generateRequest($method, $uri, array $data = []): Request
-    {
-        $method = strtoupper($method);
-        $queries = $method === 'GET' ? $data : [];
-
-        return tap(new Request($this->generateUri($uri, $queries), $method), function (Request $request) use ($queries, $data) {
-            if (empty($queries) && !empty($data)) {
-                $request->setBody(
-                    $this->generateBody($data)
-                );
-            }
-            $request->setInactivityTimeout(config('telegram.http.inactivity_timeout') * 1000);
-            $request->setTransferTimeout(config('telegram.http.transfer_timeout') * 1000);
-            $request->setBodySizeLimit(config('telegram.http.body_size_limit') * 1000);
-        });
-    }
-
-    /**
-     * @param $uri
-     * @param array $queries
-     * @return string
-     */
-    private function generateUri($uri, array $queries = []): string
-    {
-        $uri = ltrim($uri, '/');
-
-        $url = filter_var($uri, FILTER_VALIDATE_URL) ?: sprintf(
-            '%s/bot%s/%s', trim(config('telegram.base_uri')), static::$token, $uri
-        );
-
-        if (!empty($queries))
-            $url .= '?' . http_build_query($queries);
-
-        return $url;
-    }
-
-    /**
-     * @param array $fields
-     * @return FormBody
-     */
-    private function generateBody(array $fields): FormBody
-    {
-        $body = new FormBody();
-        $fields = array_filter($fields);
-
-        foreach ($fields as $fieldName => $content)
-            if (is_string($content) && file_exists($content) && filesize($content) > 0)
-                $body->addFile($fieldName, $content);
-            else
-                $body->addField($fieldName, $content);
-
-        return $body;
-    }
-
-    /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function get($uri, array $attributes = [], bool $stream = false): Promise
-    {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+        return call_user_func_array([$this->methodFactory, $name], $arguments);
     }
 
     /**
@@ -453,7 +142,7 @@ class TelegramAPI
                     $update = new Update(json_decode(file_get_contents('php://input'), true) ?? []);
                     yield gather(array_map(
                         fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
-                            $update->setAPI($this);
+                            $update->setApi($this);
                         })), $this->eventHandlers
                     ));
                     break;
@@ -469,7 +158,7 @@ class TelegramAPI
                             foreach ($updates as $update) {
                                 yield gather(array_map(
                                     fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
-                                        $update->setAPI($this);
+                                        $update->setApi($this);
                                     })), $this->eventHandlers
                                 ));
 
@@ -486,11 +175,11 @@ class TelegramAPI
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
                     $options = getopt('d::', [
-                        'drop_pending_updates'
+                        'drop_pending_updates::'
                     ]);
 
                     yield $this->resetWebhook([
-                        'drop_pending_updates' => (bool)$options['d'] ?? $options['drop_pending_updates'] ?? false
+                        'drop_pending_updates' => (bool)($options['d'] ?? $options['drop_pending_updates'] ?? false)
                     ]);
 
                     $forceRunIn('cli');
@@ -519,7 +208,7 @@ class TelegramAPI
                                 gather(array_map(
                                     fn($eventHandler) => call(
                                         fn() => yield $eventHandler->boot(tap($update, function ($update) {
-                                            $update->setAPI($this);
+                                            $update->setApi($this);
                                         }))
                                     ), $this->eventHandlers
                                 ));

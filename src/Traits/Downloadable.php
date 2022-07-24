@@ -23,7 +23,7 @@ trait Downloadable
                     }
 
                     if ($file = yield File\openFile($path, 'c+')) {
-                        $body = yield $this->getAPI()->get($link, stream: true);
+                        $body = yield $this->getAPI()->client->get($link, stream: true);
 
                         while (null !== $chunk = yield $body->read(1024)) {
                             $file->write($chunk);

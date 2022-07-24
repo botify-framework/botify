@@ -19,7 +19,7 @@ trait GetGameHighScores
     protected function getGameHighScores(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->post('getGameHighScores', $args);
+            $response = yield $this->client->post('getGameHighScores', $args);
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

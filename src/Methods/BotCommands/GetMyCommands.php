@@ -17,7 +17,7 @@ trait GetMyCommands
     protected function getMyCommands(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->post('getMyCommands', $args);
+            $response = yield $this->client->post('getMyCommands', $args);
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

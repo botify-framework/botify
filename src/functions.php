@@ -549,7 +549,7 @@ if (!function_exists('array_map_recursive')) {
     function array_map_recursive(callable $callback, $array): array
     {
         $fn = function ($item) use (&$fn, &$callback) {
-            return is_array($item) ? array_map($fn, $item) : call_user_func($callback, $item);
+            return is_array($item) ? array_map($fn, $item) : $callback($item);
         };
 
         return array_map($fn, $array);

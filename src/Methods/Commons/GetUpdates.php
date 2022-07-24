@@ -30,7 +30,7 @@ trait GetUpdates
             $timeout,
             $allowed_updates
         ) {
-            $response = yield $this->post('getUpdates', compact(
+            $response = yield $this->client->post('getUpdates', compact(
                 'offset', 'limit', 'timeout', 'allowed_updates'
             ));
 
