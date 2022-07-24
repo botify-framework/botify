@@ -24,18 +24,14 @@ trait ResetWebhook
             $webhookInfo = yield $this->getWebhookInfo();
 
             if ($webhookInfo->isSuccess()) {
-                $deleted = yield $this->deleteWebhook();
 
-                if ($deleted === true) {
-                    return yield $this->setWebhook(array_merge([
-                        'url' => $webhookInfo->url,
-                        'ip_address' => $webhookInfo->ip_address,
-                        'max_connections' => $webhookInfo->max_connections,
-                        'allowed_updates' => json_encode($webhookInfo->allowed_updates ?? []),
-                        'secret_token' => config('telegram.secret_token')
-                    ], $args));
-                }
-                return $deleted;
+                return yield $this->setWebhook(array_merge([
+                    'url' => $webhookInfo->url,
+                    'ip_address' => $webhookInfo->ip_address,
+                    'max_connections' => $webhookInfo->max_connections,
+                    'allowed_updates' => json_encode($webhookInfo->allowed_updates ?? []),
+                    'secret_token' => config('telegram.secret_token')
+                ], $args));
             }
             return $webhookInfo;
         });
