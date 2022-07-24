@@ -151,7 +151,7 @@ class Chat extends LazyJsonMapper
      */
     public function getMember($user_id): Promise
     {
-        return $this->api->getChatMember(
+        return $this->getAPI()->getChatMember(
             chat_id: $this->id,
             user_id: $user_id
         );
@@ -164,7 +164,7 @@ class Chat extends LazyJsonMapper
      */
     public function leave(): Promise
     {
-        return $this->api->leaveChat(
+        return $this->getAPI()->leaveChat(
             chat_id: $this->id
         );
     }
@@ -177,7 +177,7 @@ class Chat extends LazyJsonMapper
      */
     public function delete($ids): Promise
     {
-        return gather(array_map(fn($id) => $this->api->deleteMessage(
+        return gather(array_map(fn($id) => $this->getAPI()->deleteMessage(
             chat_id: $this->id,
             message_id: $id
         ), (array)$ids));

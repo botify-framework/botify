@@ -16,6 +16,7 @@ use function Amp\call;
  * @method Int getIsSuperAdmin()
  * @method Int getId()
  * @method bool getIsBot()
+ * @method bool getIsSelf()
  * @method string getFirstName()
  * @method string getLastName()
  * @method string getUsername()
@@ -28,6 +29,7 @@ use function Amp\call;
  * @method bool isIsSuperAdmin()
  * @method bool isId()
  * @method bool isIsBot()
+ * @method bool isIsSelf()
  * @method bool isFirstName()
  * @method bool isLastName()
  * @method bool isUsername()
@@ -40,6 +42,7 @@ use function Amp\call;
  * @method $this setIsSuperAdmin(int $value)
  * @method $this setId(int $value)
  * @method $this setIsBot(bool $value)
+ * @method $this setIsSelf(bool $value)
  * @method $this setFirstName(string $value)
  * @method $this setLastName(string $value)
  * @method $this setUsername(string $value)
@@ -52,6 +55,7 @@ use function Amp\call;
  * @method $this unsetIsSuperAdmin()
  * @method $this unsetId()
  * @method $this unsetIsBot()
+ * @method $this unsetIsSelf()
  * @method $this unsetFirstName()
  * @method $this unsetLastName()
  * @method $this unsetUsername()
@@ -64,6 +68,7 @@ use function Amp\call;
  * @property bool $is_super_admin
  * @property Int $id
  * @property bool $is_bot
+ * @property bool $is_self
  * @property string $first_name
  * @property string $last_name
  * @property string $username
@@ -88,6 +93,7 @@ class User extends LazyJsonMapper
         'supports_inline_queries' => 'bool',
         'is_super_admin' => 'bool',
         'is_admin' => 'bool',
+        'is_self' => 'bool',
     ];
 
     public function _init()
@@ -100,6 +106,10 @@ class User extends LazyJsonMapper
 
         $this->_setProperty(
             'is_super_admin', $this->id === (int)config('telegram.super_admin')
+        );
+
+        $this->_setProperty(
+            'is_self', $this->id === $this->getAPI()->id
         );
     }
 
@@ -114,7 +124,7 @@ class User extends LazyJsonMapper
     {
         if ($limit <= 100) {
             return call(function ($limit, &$offset) {
-                $profiles = yield $this->api->getUserProfilePhotos(
+                $profiles = yield $this->getAPI()->getUserProfilePhotos(
                     user_id: $this->id,
                     offset: $offset,
                     limit: $limit,
@@ -162,7 +172,7 @@ class User extends LazyJsonMapper
     private function getChunk($offset, $limit): Promise
     {
         return call(function () use ($limit, $offset) {
-            $profiles = yield $this->api->getUserProfilePhotos(
+            $profiles = yield $this->getAPI()->getUserProfilePhotos(
                 user_id: $this->id,
                 offset: $offset,
                 limit: $limit,

@@ -82,7 +82,7 @@ class EventHandler implements ArrayAccess
         return call(function () use ($update) {
             $this->update = $update;
             $this->database = $this->api->database;
-            $this->api = $update->api;
+            $this->api = $update->getAPI();
             $this->logger = $this->api->logger;
             $this->redis = $this->api->redis;
 

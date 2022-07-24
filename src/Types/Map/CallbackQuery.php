@@ -74,7 +74,7 @@ class CallbackQuery extends LazyJsonMapper
      */
     public function answer($text, bool $showAlert = true, ...$args): Promise
     {
-        return $this->api->answerCallbackQuery(
+        return $this->getAPI()->answerCallbackQuery(
             $args,
             callback_query_id: $this->id,
             text: $text,

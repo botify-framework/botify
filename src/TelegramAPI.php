@@ -54,7 +54,7 @@ class TelegramAPI
      * @var EventHandler[] $eventHandlers
      */
     private array $eventHandlers = [];
-    private string $id;
+    public int $id;
     /**
      * Map all methods responses
      *
@@ -141,7 +141,7 @@ class TelegramAPI
             )
         ]);
         self::$token = config('telegram.token');
-        $this->id = explode(':', self::$token, 2)[0];
+        $this->id = (int)explode(':', self::$token, 2)[0];
         $this->redis = $this->getRedis();
         $this->database = $this->getDatabase();
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));

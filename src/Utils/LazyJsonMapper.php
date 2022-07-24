@@ -7,7 +7,7 @@ use Jove\TelegramAPI;
 
 class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAccess
 {
-    public TelegramAPI $api;
+    private static TelegramAPI $api;
 
     /**
      * Initialize properties
@@ -15,8 +15,16 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     public function _init()
     {
         parent::_init();
+    }
 
-        $this->api = new TelegramAPI();
+    public function setAPI(TelegramAPI $api)
+    {
+        static::$api = $api;
+    }
+
+    public function getAPI(): TelegramAPI
+    {
+        return static::$api;
     }
 
     /**
