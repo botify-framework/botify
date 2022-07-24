@@ -23,14 +23,15 @@ trait GetMessages
 
             foreach (array_reverse($messages) as $message) {
                 if ($message = json_decode($message, true)) {
-                    $limit--;
                     $message = new Message($message);
 
                     if (is_callable($filter)) {
                         if ($filter($message)) {
+                            $limit--;
                             yield $emit($message);
                         }
                     } else {
+                        $limit--;
                         yield $emit($message);
                     }
 
