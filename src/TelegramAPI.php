@@ -450,11 +450,11 @@ class TelegramAPI
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
                     $forceRunIn('browser');
                     $this->finish();
-                    $update = new Update(
-                        json_decode(file_get_contents('php://input'), true) ?? []
-                    );
+                    $update = new Update(json_decode(file_get_contents('php://input'), true) ?? []);
                     yield gather(array_map(
-                        fn($eventHandler) => $eventHandler->boot($update), $this->eventHandlers
+                        fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
+                            $update->setAPI($this);
+                        })), $this->eventHandlers
                     ));
                     break;
                 case EventHandler::UPDATE_TYPE_POLLING:
@@ -468,7 +468,9 @@ class TelegramAPI
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
                                 yield gather(array_map(
-                                    fn($eventHandler) => $eventHandler->boot($update), $this->eventHandlers
+                                    fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
+                                        $update->setAPI($this);
+                                    })), $this->eventHandlers
                                 ));
 
                                 $offset = $update->update_id + 1;
@@ -508,7 +510,9 @@ class TelegramAPI
 
                                 gather(array_map(
                                     fn($eventHandler) => call(
-                                        fn() => yield $eventHandler->boot($update)
+                                        fn() => yield $eventHandler->boot(tap($update, function ($update) {
+                                            $update->setAPI($this);
+                                        }))
                                     ), $this->eventHandlers
                                 ));
                                 return new Response(Status::OK, stringOrStream: 'HTTP Ok');
