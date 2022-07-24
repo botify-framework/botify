@@ -65,7 +65,7 @@ trait GetMessages
     protected function getMessage($chat_id, $message_id): Promise
     {
         return call(function () use ($chat_id, $message_id) {
-            if ($message = yield $this->redis?->getMap('messages:' . $chat_id, $message_id)) {
+            if ($message = yield $this->redis?->getMap('messages:' . $chat_id)->getValue($message_id)) {
                 return new Message(json_decode($message, true));
             }
 
