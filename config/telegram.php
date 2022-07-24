@@ -3,6 +3,7 @@
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
     'token' => env('BOT_TOKEN', ''),
+    'secret_token' => env('SECRET_TOKEN'),
     'super_admin' => (int)env('SUPER_ADMIN'),
     'admins' => function () {
         $admins = array_filter(array_map(

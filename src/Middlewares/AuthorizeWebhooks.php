@@ -8,6 +8,9 @@ use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Promise;
 use function Amp\call;
+use function config;
+use function json_encode;
+use function strtolower;
 
 class AuthorizeWebhooks implements Middleware
 {
@@ -31,14 +34,14 @@ class AuthorizeWebhooks implements Middleware
         return call(function () use ($request, $requestHandler) {
             $next = fn() => $requestHandler->handleRequest($request, $requestHandler);
 
-            if ('production' === \strtolower(\config('app.environment'))) {
-                if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === \config('telegram.secure_token')) {
+            if ('production' === strtolower(config('app.environment'))) {
+                if ($request->getHeader('X-Telegram-Bot-Api-Secret-Token') === config('telegram.secret_token')) {
                     return $next();
                 }
 
                 return new Response(403, [
                     'Content-Type' => 'application/json;charset=utf-8'
-                ], \json_encode([
+                ], json_encode([
                     'success' => false,
                     'message' => 'You are not allowed.',
                 ]));
