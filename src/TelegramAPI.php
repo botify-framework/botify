@@ -485,6 +485,14 @@ class TelegramAPI
                     });
                     break;
                 case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
+                    $options = getopt('d::', [
+                        'drop_pending_updates'
+                    ]);
+
+                    yield $this->resetWebhook([
+                        'drop_pending_updates' => (bool)$options['d'] ?? $options['drop_pending_updates'] ?? false
+                    ]);
+
                     $forceRunIn('cli');
 
                     $host = config('telegram.socket_server.host');
