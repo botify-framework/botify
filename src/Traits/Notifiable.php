@@ -15,7 +15,7 @@ trait Notifiable
      */
     public function notify($text, ...$args): Promise
     {
-        return $this->api->sendMessage(... $args + [
+        return $this->getAPI()->sendMessage(... $args + [
                 'chat_id' => $this->getNotifiableId(),
                 'text' => $text,
             ]);

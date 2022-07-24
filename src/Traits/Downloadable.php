@@ -17,13 +17,13 @@ trait Downloadable
     {
         return call(function () use ($dist) {
             if ($fileId = $this->getDownloadableId()) {
-                if ([$path, $link] = yield $this->api->getDownloadableLink($fileId)) {
+                if ([$path, $link] = yield $this->getAPI()->getDownloadableLink($fileId)) {
                     if (!yield File\isDirectory($dir = dirname($path = $dist ?? storage_path($path)))) {
                         yield File\createDirectoryRecursively($dir, 0755);
                     }
 
                     if ($file = yield File\openFile($path, 'c+')) {
-                        $body = yield $this->api->get($link, stream: true);
+                        $body = yield $this->getAPI()->get($link, stream: true);
 
                         while (null !== $chunk = yield $body->read(1024)) {
                             $file->write($chunk);

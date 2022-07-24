@@ -9,7 +9,7 @@ trait HasHistory
 
     public function readHistory(callable $filter = null, int $limit = 100): Producer
     {
-        return $this->api->getHistory(
+        return $this->getAPI()->getHistory(
             $this->id, $filter, $limit
         );
     }
