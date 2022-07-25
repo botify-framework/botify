@@ -25,6 +25,7 @@ return [
         'host' => env('SERVER_ADDRESS', '0.0.0.0'),
         'port' => env('SERVER_PORT', 8000)
     ],
-    'cache_messages' => true,
-    'plugins_dir' => base_path('plugins')
+    'cache_messages' => env('CACHE_MESSAGES', true),
+    'plugins_dir' => base_path('plugins'),
+    'typing_mode' => env('TYPING_MODE', false),
 ];

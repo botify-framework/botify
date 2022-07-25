@@ -3,6 +3,7 @@
 namespace Jove\Types\Map;
 
 use Amp\Promise;
+use Jove\Traits\Actionable;
 use Jove\Traits\HasHistory;
 use Jove\Traits\Notifiable;
 use Jove\Utils\LazyJsonMapper;
@@ -118,7 +119,7 @@ use Jove\Utils\LazyJsonMapper;
 class Chat extends LazyJsonMapper
 {
 
-    use HasHistory, Notifiable;
+    use Actionable, HasHistory, Notifiable;
 
     const JSON_PROPERTY_MAP = [
         'id' => 'int',

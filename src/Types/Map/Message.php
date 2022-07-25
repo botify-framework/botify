@@ -445,6 +445,12 @@ class Message extends LazyJsonMapper
         $this->bindDownloadable();
 
         call(function () {
+            if (config('telegram.typing_mode')) {
+                if (isset($this->from['is_self']) && $this->from['is_self']) {
+                    $this->chat->action();
+                }
+            }
+
             if (config('telegram.cache_messages')) {
                 yield $this->getAPI()->redis?->getMap($key = 'messages:' . $this->chat->id)
                     ->setValue($this->id, (string)$this);
