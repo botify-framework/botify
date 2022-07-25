@@ -45,17 +45,17 @@ class TelegramAPI
                 config('telegram'), $config
             )
         ]);
-        $this->redis = $this->getRedis();
-        $this->database = $this->getDatabase();
+        $this->enableRedis();
+        $this->enableDatabase();
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
-        $this->methodFactory = new MethodsFactory($this->client);
+        $this->methodFactory = new MethodsFactory($this);
         static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
             $eventHandler->setAPI($this);
         });
     }
 
-    private function getRedis(): ?Redis
+    private function enableRedis(): void
     {
         $config = config('redis');
 
@@ -66,25 +66,39 @@ class TelegramAPI
                     'database' => $config['database'] ?? 0,
                 ]));
 
-            return new Redis(new RemoteExecutor($uri));
+            $this->redis = new Redis(new RemoteExecutor($uri));
         }
 
-        return null;
     }
 
-    private function getDatabase($driver = null): DatabaseConnection
+    public function getRedis(): ?Redis
+    {
+        return $this->redis;
+    }
+
+    private function enableDatabase($driver = null): void
     {
         $driver ??= config('database.default');
 
-        return static::$databases[$driver] ??= value(function () use ($driver) {
+        static::$databases[$driver] ??= value(function () use ($driver) {
             $connections = config('database.connections');
 
             if (isset($connections[$driver]) && $options = $connections[$driver]) {
-                return connect(array_shift($options), $options);
+                return $this->database = connect(array_shift($options), $options);
             }
 
             return null;
         });
+    }
+
+    public function getDatabase(): ?DatabaseConnection
+    {
+        return $this->database;
+    }
+
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 
     public static function factory(array $config = []): TelegramAPI

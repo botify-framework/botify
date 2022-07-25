@@ -3,12 +3,15 @@
 namespace Jove\Methods;
 
 use Amp\Promise;
+use Amp\Redis\Redis;
 use Exception;
 use Jove\Request\Client;
+use Jove\TelegramAPI;
 use Jove\Types\Map;
 use Jove\Utils;
 use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
+use Medoo\DatabaseConnection;
 use function Amp\call;
 use function config;
 use function value;
@@ -25,6 +28,8 @@ final class MethodsFactory
      */
     private string $baseUri;
     private Client $client;
+    private ?DatabaseConnection $database;
+    private ?Redis $redis;
     private array $responses_map = [
         Map\WebhookInfo::class => [
             'getWebhookInfo'
@@ -98,9 +103,11 @@ final class MethodsFactory
         ]
     ];
 
-    public function __construct(Client $client)
+    public function __construct(TelegramAPI $api)
     {
-        $this->client = $client;
+        $this->client = $api->getClient();
+        $this->redis = $api->getRedis();
+        $this->database = $api->getDatabase();
     }
 
     /**
