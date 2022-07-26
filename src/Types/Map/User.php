@@ -88,6 +88,7 @@ class User extends LazyJsonMapper
         'first_name' => 'string',
         'last_name' => 'string',
         'username' => 'string',
+        'bio' => 'string',
         'language_code' => 'string',
         'can_join_groups' => 'bool',
         'can_read_all_group_messages' => 'bool',
