@@ -137,6 +137,8 @@ final class MethodsFactory
             })
             : $arguments;
 
+        $this->bindAttributes($arguments);
+
         if (method_exists($this, $name)) {
             return $this->{$name}(... $arguments);
         }
@@ -151,8 +153,6 @@ final class MethodsFactory
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
-            $this->bindAttributes($arguments);
-
             $response = yield $this->client->post(... $arguments);
 
             if ($response['ok']) {
