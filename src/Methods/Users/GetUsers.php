@@ -16,9 +16,11 @@ trait GetUsers
     protected function getUser($id): Promise
     {
         return call(function () use ($id) {
-            if (!is_numeric($id)) {
+            $id = strtolower(trim($id, '@'));
+
+            if (!is_numeric($id) && $id !== 'me') {
                 $id = yield $this->redis?->getMap('users')
-                    ->getValue(strtolower(trim($id, '@')));
+                    ->getValue($id);
             }
 
             $response = yield $this->getChat([
