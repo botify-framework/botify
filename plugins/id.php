@@ -9,9 +9,11 @@ return Plugin::apply(function (Message $message) {
         $from = $message['from'];
 
         $photos = yield $from->getProfilePhotos(limit: 10);
-        $caption = sprintln('First name: ' . $from['first_name']);
+        $caption = sprintln('User Information');
+        $caption .= sprintln('First name: ' . $from['first_name']);
         $caption .= isset($from['last_name']) ? sprintln('Last name: ' . $from['last_name']) : '';
         $caption .= sprintln('ID: ' . $from['id']);
+        $caption .= isset($from['bio']) ? sprintln('Biography: ' . $from['bio']) : '';
 
         if (in_array($message['chat']['type'], ['supergroup', 'group'])) {
             $chat = $message['chat'];
