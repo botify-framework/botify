@@ -113,6 +113,8 @@ class User extends LazyJsonMapper
         $this->_setProperty(
             'is_self', $this->id === (int)config('telegram.user_id')
         );
+
+        $this->getAPI()->getRedis()?->getMap('users')->setValue(strtolower($this->username), $this->id);
     }
 
     /**

@@ -33,7 +33,7 @@ class TelegramAPI
     private MethodsFactory $methodFactory;
     private static array $databases = [];
     private static ?EventHandler $eventHandler = null;
-    public ?DatabaseConnection $database;
+    private ?DatabaseConnection $database;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
     private array $eventHandlers = [];
@@ -76,19 +76,19 @@ class TelegramAPI
         return $this->redis;
     }
 
-    private function enableDatabase($driver = null): void
+    public function enableDatabase($driver = null, $options = []): ?DatabaseConnection
     {
         $driver ??= config('database.default');
+        $connections = config('database.connections');
 
-        static::$databases[$driver] ??= value(function () use ($driver) {
-            $connections = config('database.connections');
+        if (isset($connections[$driver]['driver']) && $_driver = $connections[$driver]['driver']) {
+            unset($connections[$driver]['driver']);
+            $options = !empty($options) ? $options : $connections[$driver];
+            $id = md5(serialize($options));
+            return static::$databases[$id] ??= $this->database = connect($_driver, $options);
+        }
 
-            if (isset($connections[$driver]) && $options = $connections[$driver]) {
-                return $this->database = connect(array_shift($options), $options);
-            }
-
-            return null;
-        });
+        return null;
     }
 
     public function getDatabase(): ?DatabaseConnection

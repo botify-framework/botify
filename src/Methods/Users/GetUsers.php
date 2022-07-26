@@ -16,9 +16,14 @@ trait GetUsers
     protected function getUser($id): Promise
     {
         return call(function () use ($id) {
-            $response = yield $this->getChat(
-                chat_id: $id,
-            );
+            if (!is_numeric($id)) {
+                $id = yield $this->redis?->getMap('users')
+                    ->getValue(strtolower(trim($id, '@')));
+            }
+
+            $response = yield $this->getChat([
+                'chat_id' => $id,
+            ]);
 
             if ($response->isSuccess() && $response->type === 'private') {
                 return new User($response->toArray());
