@@ -83,12 +83,12 @@ class User extends LazyJsonMapper
     use Actionable, HasHistory, Notifiable;
 
     const JSON_PROPERTY_MAP = [
+        Chat::class,
         'id' => 'int',
         'is_bot' => 'bool',
         'first_name' => 'string',
         'last_name' => 'string',
         'username' => 'string',
-        'bio' => 'string',
         'language_code' => 'string',
         'can_join_groups' => 'bool',
         'can_read_all_group_messages' => 'bool',

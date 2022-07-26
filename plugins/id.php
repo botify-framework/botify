@@ -13,12 +13,12 @@ return Plugin::apply(function (Message $message) {
         $caption .= sprintln('First name: ' . $user['first_name']);
         $caption .= isset($user['last_name']) ? sprintln('Last name: ' . $user['last_name']) : '';
         $caption .= sprintln('ID: ' . $user['id']);
-        $caption .= isset($user['username']) ? sprintln('Username: @' . $user['id']) : '';
+        $caption .= isset($user['username']) ? sprintln('Username: @' . $user['username']) : '';
         $caption .= isset($user['bio']) ? sprintln('Biography: ' . $user['bio']) : '';
 
         if (in_array($message['chat']['type'], ['supergroup', 'group'])) {
             $chat = $message['chat'];
-            $caption .= sprintln('Group Information');
+            $caption .= sprintln("\n", 'Group Information');
             $caption .= sprintln('Title: ' . $chat['title']);
             $caption .= sprintln('ID: ' . $chat['id']);
         }
