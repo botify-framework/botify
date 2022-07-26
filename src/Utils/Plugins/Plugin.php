@@ -102,14 +102,8 @@ class Plugin
                 $plugin->setApi($this->api);
                 $plugin->setUpdate($this->update);
 
-                if (method_exists($plugin, 'boot')) {
-                    yield call([$plugin, 'boot']);
-                }
-
                 if (array_every(yield $plugin->applyFilters())) {
-                    if ($promise = $plugin->call($this->update)) {
-                        return yield $promise;
-                    }
+                    yield $plugin->call($this->update);
                 }
 
                 $plugin->reset();

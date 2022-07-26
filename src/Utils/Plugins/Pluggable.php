@@ -7,9 +7,9 @@ use Closure;
 use Jove\TelegramAPI;
 use Jove\Types\Update;
 use ReflectionFunction;
-use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionUnionType;
+use function Amp\call;
 use function Amp\coroutine;
 
 abstract class Pluggable
@@ -46,11 +46,6 @@ abstract class Pluggable
     public function setApi(TelegramAPI $api): void
     {
         $this->api = $api;
-    }
-
-    public function __get($name)
-    {
-        return $this->getUpdate()->{$name};
     }
 
     /**
@@ -95,65 +90,67 @@ abstract class Pluggable
         $this->filters = array_merge($this->filters, $filters);
     }
 
-    final public function call(...$args)
+    final public function call(...$args): Promise
     {
-        $callback = $this->getCallback();
+        return call(function () use ($args) {
+            $reflector = new class($args[0]) {
 
-        $reflector = new class($callback, $args[0]) {
-            private ReflectionFunctionAbstract $reflection;
-            private Update $update;
-
-            public function __construct(callable $callback, Update $update)
-            {
-                $this->reflection = is_array($callback)
-                    ? new ReflectionMethod(... $callback)
-                    : new ReflectionFunction($callback);
-                $this->update = $update;
-            }
-
-            public function getArguments(array &$arguments = []): bool
-            {
-                $parameters = $this->reflection->getParameters();
-
-                foreach ($parameters as $index => $parameter) {
-                    $types = $parameter->getType() instanceof ReflectionUnionType
-                        ? $parameter->getType()->getTypes()
-                        : [$parameter->getType()];
-
-                    if ($value = array_sole($types, function ($type) {
-                        $name = $type->getName();
-
-                        $isEqual = function () use ($name) {
-                            foreach ($this->update::JSON_PROPERTY_MAP as $index => $item) {
-                                if (str_ends_with($name, $item) && isset($this->update[$index])) {
-                                    return $this->update[$index];
-                                }
-                            }
-
-                            return false;
-                        };
-
-                        if ($name === get_class($this->update)) {
-                            return $this->update;
-                        } elseif ($name === TelegramAPI::class) {
-                            return $this->update->api;
-                        } elseif ($value = $isEqual()) {
-                            return $value;
-                        }
-                    })) {
-                        $arguments[$index] = $value;
-                    } else {
-                        unset($parameters[$index]);
-                    }
+                public function __construct(private Update $update)
+                {
                 }
 
-                return $this->reflection->getNumberOfParameters() === count($parameters);
-            }
-        };
+                public function pass(callable $callback, array $arguments = [])
+                {
+                    $reflection = is_array($callback)
+                        ? new ReflectionMethod(... $callback)
+                        : new ReflectionFunction($callback);
 
-        if ($reflector->getArguments($args)) {
-            return coroutine($callback)(... $args);
-        }
+                    $parameters = $reflection->getParameters();
+
+                    foreach ($parameters as $index => $parameter) {
+                        $types = $parameter->getType() instanceof ReflectionUnionType
+                            ? $parameter->getType()->getTypes()
+                            : [$parameter->getType()];
+
+                        if ($value = array_sole($types, function ($type) {
+                            $name = $type->getName();
+
+                            $isEqual = function () use ($name) {
+                                foreach ($this->update::JSON_PROPERTY_MAP as $index => $item) {
+                                    if (str_ends_with($name, $item) && isset($this->update[$index])) {
+                                        return $this->update[$index];
+                                    }
+                                }
+
+                                return false;
+                            };
+
+                            if ($name === get_class($this->update)) {
+                                return $this->update;
+                            } elseif ($name === TelegramAPI::class) {
+                                return $this->update->api;
+                            } elseif ($value = $isEqual()) {
+                                return $value;
+                            }
+                        })) {
+                            $arguments[$index] = $value;
+                        } else {
+                            unset($parameters[$index]);
+                        }
+                    }
+
+                    if ($reflection->getNumberOfParameters() === count($parameters)) {
+                        return coroutine($callback)(... $arguments);
+                    }
+                }
+            };
+
+            if (method_exists($this, 'boot')) {
+                yield $reflector->pass([$this, 'boot']);
+            }
+
+            yield $reflector->pass($this->getCallback());
+        });
     }
 
     final public function getCallback(): callable
