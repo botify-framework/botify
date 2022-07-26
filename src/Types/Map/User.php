@@ -129,7 +129,7 @@ class User extends LazyJsonMapper
             ]);
 
             if ($profiles->isSuccess()) {
-                return collect($profiles);
+                return $profiles;
             }
 
             return collect([]);
