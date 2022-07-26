@@ -115,6 +115,28 @@ class User extends LazyJsonMapper
     }
 
     /**
+     * @param int $offset
+     * @param int $limit
+     * @return Promise
+     */
+    public function getProfilePhotos(int $offset = 0, int $limit = 10): Promise
+    {
+        return call(function () use ($limit, $offset) {
+            $profiles = yield $this->getAPI()->getUserProfilePhotos([
+                'user_id' => $this->id,
+                'offset' => $offset,
+                'limit' => $limit,
+            ]);
+
+            if ($profiles->isSuccess()) {
+                return collect($profiles);
+            }
+
+            return collect([]);
+        });
+    }
+
+    /**
      * Downloading current user profile photos
      *
      * @param int $offset
@@ -125,11 +147,11 @@ class User extends LazyJsonMapper
     {
         if ($limit <= 100) {
             return call(function ($limit, &$offset) {
-                $profiles = yield $this->getAPI()->getUserProfilePhotos(
-                    user_id: $this->id,
-                    offset: $offset,
-                    limit: $limit,
-                );
+                $profiles = yield $this->getAPI()->getUserProfilePhotos([
+                    'user_id' => $this->id,
+                    'offset' => $offset,
+                    'limit' => $limit,
+                ]);
 
                 if ($profiles->isSuccess()) {
                     return collect(yield gather(array_map(
@@ -173,11 +195,11 @@ class User extends LazyJsonMapper
     private function getChunk($offset, $limit): Promise
     {
         return call(function () use ($limit, $offset) {
-            $profiles = yield $this->getAPI()->getUserProfilePhotos(
-                user_id: $this->id,
-                offset: $offset,
-                limit: $limit,
-            );
+            $profiles = yield $this->getAPI()->getUserProfilePhotos([
+                'user_id' => $this->id,
+                'offset' => $offset,
+                'limit' => $limit,
+            ]);
 
             if ($profiles->isSuccess()) {
                 return [$profiles->total_count, collect(yield gather(array_map(
