@@ -29,21 +29,16 @@ use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
 
-/**
- * class TelegramAPI
- *
- * @mixin MethodsFactory
- */
 class TelegramAPI
 {
-    public Client $client;
-    private MethodsFactory $methodFactory;
     private static array $databases = [];
     private static ?EventHandler $eventHandler = null;
-    private ?DatabaseConnection $database = null;
+    public Client $client;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
+    private ?DatabaseConnection $database = null;
     private array $eventHandlers = [];
+    private MethodsFactory $methodFactory;
 
     public function __construct(array $config = [])
     {
@@ -78,11 +73,6 @@ class TelegramAPI
 
     }
 
-    public function getRedis(): ?Redis
-    {
-        return $this->redis;
-    }
-
     public function enableDatabase($driver = null, $options = []): ?DatabaseConnection
     {
         $driver ??= config('database.default');
@@ -96,16 +86,6 @@ class TelegramAPI
         }
 
         return null;
-    }
-
-    public function getDatabase(): ?DatabaseConnection
-    {
-        return $this->database;
-    }
-
-    public function getClient(): Client
-    {
-        return $this->client;
     }
 
     public static function factory(array $config = []): TelegramAPI
@@ -124,6 +104,26 @@ class TelegramAPI
     public function __call(string $name, array $arguments = [])
     {
         return call_user_func_array([$this->methodFactory, $name], $arguments);
+    }
+
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
+
+    public function getDatabase(): ?DatabaseConnection
+    {
+        return $this->database;
+    }
+
+    public function getLogger(): Utils\Logger\Logger
+    {
+        return $this->logger;
+    }
+
+    public function getRedis(): ?Redis
+    {
+        return $this->redis;
     }
 
     /**

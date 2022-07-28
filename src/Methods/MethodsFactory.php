@@ -9,6 +9,7 @@ use Botify\TelegramAPI;
 use Botify\Types\Map;
 use Botify\Utils\Button;
 use Botify\Utils\FallbackResponse;
+use Botify\Utils\Logger\Logger;
 use Exception;
 use Medoo\DatabaseConnection;
 use function Amp\call;
@@ -23,6 +24,7 @@ final class MethodsFactory
     private Client $client;
     private ?DatabaseConnection $database;
     private ?Redis $redis;
+    private Logger $logger;
     private array $responses_map = [
         Map\WebhookInfo::class => [
             'getWebhookInfo'
@@ -101,6 +103,7 @@ final class MethodsFactory
         $this->client = $api->getClient();
         $this->redis = $api->getRedis();
         $this->database = $api->getDatabase();
+        $this->logger = $api->getLogger();
     }
 
     /**
