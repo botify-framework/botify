@@ -5,17 +5,72 @@ namespace Botify\Utils\Plugins;
 use Amp\Promise;
 use Botify\TelegramAPI;
 use Botify\Types\Update;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionUnionType;
 use function Amp\call;
+use function Amp\coroutine;
 
 class Plugin
 {
     private static array $plugins = [];
     private string $directory;
+    private $reflector;
 
     public function __construct($directory, public TelegramAPI $api, public Update $update)
     {
         $this->setDirectory($directory);
         $this->loadPlugins();
+        $this->reflector = new class($this->update) {
+
+            public function __construct(private Update $update)
+            {
+            }
+
+            public function bindCallback(callable $callback, array $arguments = [])
+            {
+                $reflection = is_array($callback)
+                    ? new ReflectionMethod(... $callback)
+                    : new ReflectionFunction($callback);
+                $parameters = $reflection->getParameters();
+
+                foreach ($parameters as $index => $parameter) {
+                    $types = $parameter->getType() instanceof ReflectionUnionType
+                        ? $parameter->getType()->getTypes()
+                        : [$parameter->getType()];
+
+                    if ($value = array_sole($types, function ($type) {
+                        $name = $type->getName();
+
+                        $isEqual = function () use ($name) {
+                            foreach ($this->update::JSON_PROPERTY_MAP as $index => $item) {
+                                if (str_ends_with($name, $item) && isset($this->update[$index])) {
+                                    return $this->update[$index];
+                                }
+                            }
+
+                            return false;
+                        };
+
+                        if ($name === get_class($this->update)) {
+                            return $this->update;
+                        } elseif ($name === TelegramAPI::class) {
+                            return $this->update->getAPI();
+                        } elseif ($value = $isEqual()) {
+                            return $value;
+                        }
+                    })) {
+                        $arguments[$index] = $value;
+                    } else {
+                        unset($parameters[$index]);
+                    }
+                }
+
+                if ($reflection->getNumberOfParameters() === count($parameters)) {
+                    return coroutine($callback)(... $arguments);
+                }
+            }
+        };
     }
 
     /**
@@ -99,12 +154,19 @@ class Plugin
     {
         return gather(array_filter(array_map(function (Pluggable $plugin) {
             return call(function () use ($plugin) {
-                $plugin->setApi($this->api);
                 $plugin->setUpdate($this->update);
 
-                if (array_every(yield $plugin->applyFilters())) {
-                    yield $plugin->call($this->update);
+                if (method_exists($plugin, 'boot')) {
+                    yield $this->reflector->bindCallback([$plugin, 'boot']);
                 }
+
+                foreach ($plugin->getFilters() as $filter) {
+                    if (!boolval(yield $this->reflector->bindCallback($filter))) {
+                        return;
+                    }
+                }
+
+                yield $this->reflector->bindCallback($plugin->getCallback());
 
                 $plugin->reset();
             });
