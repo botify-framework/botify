@@ -83,6 +83,7 @@ class Logger extends AbstractLogger
     {
         is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('botify.log'))))
         || mkdir($logsDir, recursive: true);
+        file_exists($logFile) || touch($logFile);
         return $logFile;
     }
 
