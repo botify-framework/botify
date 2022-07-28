@@ -118,13 +118,16 @@ class Logger extends AbstractLogger
         if (str_contains($message, '{')) {
             foreach ($context as $key => $value) {
                 if ($value instanceof Throwable) {
-                    $replace['{' . $key . '}'] = $this->exceptionToArray($value);
+                    $replace['{' . $key . '}'] = json_encode($this->exceptionToArray($value));
+                    unset($context[$key]);
                 } else {
                     if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
                         $replace['{' . $key . '}'] = $value;
+                        unset($context[$key]);
                     } else {
                         if (is_array($value)) {
                             $replace['{' . $key . '}'] = json_encode($value, 448);
+                            unset($context[$key]);
                         }
                     }
                 }
@@ -138,7 +141,7 @@ class Logger extends AbstractLogger
             date('Y/m/d H:i:s'),
             $level,
             $message,
-            $context ? sprintln($context) : null
+            $context ? sprintln(var_export($context)) : null
         );
     }
 }
