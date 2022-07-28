@@ -48,7 +48,6 @@ class TelegramAPI
             )
         ]);
         $this->enableRedis();
-        $this->enableDatabase();
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);

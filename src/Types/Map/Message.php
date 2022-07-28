@@ -453,9 +453,11 @@ class Message extends LazyJsonMapper
             }
 
             if (config('telegram.cache_messages')) {
-                yield $this->getAPI()->redis?->getMap($key = 'messages:' . $this->chat->id)
-                    ->setValue($this->id, (string)$this);
-                yield $this->getAPI()->redis?->expireAt($key, strtotime('+48 hours'));
+                if (isset($this->chat['id'])) {
+                    yield $this->getAPI()->redis?->getMap($key = 'messages:' . $this->chat->id)
+                        ->setValue($this->id, (string)$this);
+                    yield $this->getAPI()->redis?->expireAt($key, strtotime('+48 hours'));
+                }
             }
         });
     }
