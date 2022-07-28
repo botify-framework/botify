@@ -8,13 +8,9 @@ use Exception;
 use Jove\Request\Client;
 use Jove\TelegramAPI;
 use Jove\Types\Map;
-use Jove\Utils;
 use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
 use Medoo\DatabaseConnection;
-use function Amp\call;
-use function config;
-use function value;
 
 final class MethodsFactory
 {
@@ -23,10 +19,6 @@ final class MethodsFactory
     private static array $meable_attributes = [
         'user_id', 'chat_id',
     ];
-    /**
-     * @var array|Utils\Config|mixed|void
-     */
-    private string $baseUri;
     private Client $client;
     private ?DatabaseConnection $database;
     private ?Redis $redis;
