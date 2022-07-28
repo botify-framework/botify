@@ -1,15 +1,15 @@
 <?php
 
-namespace Jove\Methods;
+namespace Botify\Methods;
 
 use Amp\Promise;
 use Amp\Redis\Redis;
+use Botify\Request\Client;
+use Botify\TelegramAPI;
+use Botify\Types\Map;
+use Botify\Utils\Button;
+use Botify\Utils\FallbackResponse;
 use Exception;
-use Jove\Request\Client;
-use Jove\TelegramAPI;
-use Jove\Types\Map;
-use Jove\Utils\Button;
-use Jove\Utils\FallbackResponse;
 use Medoo\DatabaseConnection;
 use function Amp\call;
 

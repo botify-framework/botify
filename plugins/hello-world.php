@@ -1,8 +1,8 @@
 <?php
 
 
-use Jove\Types\Map\Message;
-use Jove\Utils\Plugins\Pluggable;
+use Botify\Types\Map\Message;
+use Botify\Utils\Plugins\Pluggable;
 
 return new class() extends Pluggable {
     public Message $message;

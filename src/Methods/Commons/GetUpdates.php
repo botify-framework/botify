@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Methods\Commons;
+namespace Botify\Methods\Commons;
 
 use Amp\Promise;
-use Jove\Types\Update;
-use Jove\Utils\FallbackResponse;
+use Botify\Types\Update;
+use Botify\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetUpdates

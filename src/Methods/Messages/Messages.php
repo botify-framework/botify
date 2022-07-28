@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Messages;
+namespace Botify\Methods\Messages;
 
 trait Messages
 {

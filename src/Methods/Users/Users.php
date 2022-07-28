@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Users;
+namespace Botify\Methods\Users;
 
 trait Users
 {

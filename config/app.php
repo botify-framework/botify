@@ -1,14 +1,14 @@
 <?php
 
 
-use Jove\Utils\Logger\Logger;
+use Botify\Utils\Logger\Logger;
 
 return [
     'environment' => env('APP_ENV', 'development'),
     'logger_level' => (int)env('LOGGER_LEVEL', 0),
     // Bitwise support (Logger::ECHO_TYPE | Logger::FILE_TYPE)
     'logger_type' => (int)env('LOGGER_TYPE', Logger::ECHO_TYPE | Logger::FILE_TYPE),
-    'logger_file' => storage_path('logs/apb.log'),
+    'logger_file' => storage_path('logs/botify.log'),
     'logger_max_size' => (int)env('LOGGER_MAX_SIZE', 1024),
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 ];

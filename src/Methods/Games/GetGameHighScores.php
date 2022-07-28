@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Methods\Games;
+namespace Botify\Methods\Games;
 
 use Amp\Promise;
-use Jove\Types\Map\GameHighScore;
-use Jove\Utils\FallbackResponse;
+use Botify\Types\Map\GameHighScore;
+use Botify\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetGameHighScores

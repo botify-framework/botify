@@ -1,16 +1,16 @@
 <?php
 
-namespace Jove;
+namespace Botify;
 
 use Amp\Promise;
 use Amp\Redis\Redis;
 use ArrayAccess;
+use Botify\Types\Map\CallbackQuery;
+use Botify\Types\Map\InlineQuery;
+use Botify\Types\Map\Message;
+use Botify\Types\Update;
+use Botify\Utils\Plugins\Plugin;
 use Closure;
-use Jove\Types\Map\CallbackQuery;
-use Jove\Types\Map\InlineQuery;
-use Jove\Types\Map\Message;
-use Jove\Types\Update;
-use Jove\Utils\Plugins\Plugin;
 use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
 use Throwable;

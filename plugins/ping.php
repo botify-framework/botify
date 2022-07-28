@@ -1,8 +1,8 @@
 <?php
 
 
-use Jove\Types\Map\Message;
-use Jove\Utils\Plugins\Plugin;
+use Botify\Types\Map\Message;
+use Botify\Utils\Plugins\Plugin;
 
 return Plugin::apply(function (Message $message) {
     if ($message->command(['ping', 'botify', 'botty'])) {

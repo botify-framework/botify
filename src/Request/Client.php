@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Request;
+namespace Botify\Request;
 
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClient;

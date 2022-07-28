@@ -1,9 +1,9 @@
 <?php
 
-namespace Jove\Types\Map;
+namespace Botify\Types\Map;
 
-use Jove\Traits\Downloadable;
-use Jove\Utils\LazyJsonMapper;
+use Botify\Traits\Downloadable;
+use Botify\Utils\LazyJsonMapper;
 
 /**
  * VideoNote

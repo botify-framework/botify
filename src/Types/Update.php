@@ -1,8 +1,8 @@
 <?php
 
-namespace Jove\Types;
+namespace Botify\Types;
 
-use Jove\Utils\LazyJsonMapper;
+use Botify\Utils\LazyJsonMapper;
 
 /**
  * Update

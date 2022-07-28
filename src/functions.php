@@ -2,10 +2,10 @@
 
 use Amp\Delayed;
 use Amp\Promise;
-use Jove\Utils\Button;
-use Jove\Utils\Collection;
-use Jove\Utils\Config;
-use Jove\Utils\Dotty;
+use Botify\Utils\Button;
+use Botify\Utils\Collection;
+use Botify\Utils\Config;
+use Botify\Utils\Dotty;
 
 if (!function_exists('retry')) {
     /**

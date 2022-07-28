@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Traits;
+namespace Botify\Traits;
 
 use Amp\File;
 use Amp\Promise;
-use Jove\Utils\FileSystem;
+use Botify\Utils\FileSystem;
 use function Amp\call;
 
 trait Downloadable

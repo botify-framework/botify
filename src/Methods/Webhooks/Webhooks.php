@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Webhooks;
+namespace Botify\Methods\Webhooks;
 
 trait Webhooks
 {

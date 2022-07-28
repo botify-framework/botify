@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Methods\BotCommands;
+namespace Botify\Methods\BotCommands;
 
 use Amp\Promise;
-use Jove\Types\Map\BotCommand;
-use Jove\Utils\FallbackResponse;
+use Botify\Types\Map\BotCommand;
+use Botify\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetMyCommands

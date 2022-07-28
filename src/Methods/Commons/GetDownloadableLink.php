@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Commons;
+namespace Botify\Methods\Commons;
 
 use Amp\Promise;
 use function Amp\call;

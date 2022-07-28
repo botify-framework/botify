@@ -1,9 +1,11 @@
 <?php
 
-namespace Jove;
+namespace Botify;
 
 use Amp\ByteStream\ResourceOutputStream;
 use Amp\Http\Server;
+use Amp\Http\Server\Request;
+use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
@@ -15,11 +17,11 @@ use Amp\Redis\Config;
 use Amp\Redis\Redis;
 use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
+use Botify\Methods\MethodsFactory;
+use Botify\Middlewares\AuthorizeWebhooks;
+use Botify\Request\Client;
+use Botify\Types\Update;
 use Exception;
-use Jove\Methods\MethodsFactory;
-use Jove\Middlewares\AuthorizeWebhooks;
-use Jove\Request\Client;
-use Jove\Types\Update;
 use Medoo\DatabaseConnection;
 use Monolog\Logger;
 use function Amp\call;
@@ -27,6 +29,11 @@ use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
 
+/**
+ * class TelegramAPI
+ *
+ * @mixin MethodsFactory
+ */
 class TelegramAPI
 {
     public Client $client;
@@ -152,6 +159,19 @@ class TelegramAPI
             switch ($updateType) {
                 case EventHandler::UPDATE_TYPE_WEBHOOK:
                     $forceRunIn('browser');
+                    if ('production' === strtolower(config('app.environment')) && $secureToken = config('telegram.secret_token')) {
+                        $headers = getallheaders();
+
+                        if (isset($headers['X-Telegram-Bot-Api-Secret-Token']) && $secureToken !== $headers['X-Telegram-Bot-Api-Secret-Token']) {
+                            header('Content-Type: application/json;charset=utf-8');
+                            http_response_code(403);
+                            die(json_encode([
+                                'success' => false,
+                                'message' => 'You are not allowed.',
+                            ]));
+                        }
+                    }
+
                     $this->finish();
                     $update = new Update(json_decode(file_get_contents('php://input'), true) ?? []);
                     yield gather(array_map(
@@ -212,26 +232,51 @@ class TelegramAPI
                     $logger->pushHandler($logHandler);
                     $router = new Server\Router();
 
+                    $middleware = new class implements Server\Middleware {
+                        public function handleRequest(Request $request, RequestHandler $requestHandler): Promise
+                        {
+                            /**
+                             * In the latest version of telegram the "secret_token" field was added when setting the webhook.
+                             * This middleware can help you to authorize your with secret_token.
+                             */
+                            return call(function () use ($request, $requestHandler) {
+                                $next = fn() => $requestHandler->handleRequest($request, $requestHandler);
+
+                                if ('production' === strtolower(config('app.environment')) && $secureToken = config('telegram.secret_token')) {
+                                    return $request->getHeader('X-Telegram-Bot-Api-Secret-Token') === $secureToken ? $next() : new Response(403, [
+                                        'Content-Type' => 'application/json;charset=utf-8'
+                                    ], json_encode([
+                                        'success' => false,
+                                        'message' => 'You are not allowed.',
+                                    ]));
+
+                                }
+
+                                return $next();
+                            });
+                        }
+                    };
+                    $handler = Server\Middleware\stack(
+                        new CallableRequestHandler(function (Server\Request $request) {
+                            $update = new Update(
+                                json_decode(yield $request->getBody()->buffer(), true) ?? []
+                            );
+                            gather(array_map(
+                                fn($eventHandler) => call(
+                                    fn() => yield $eventHandler->boot(tap($update, function ($update) {
+                                        $update->setApi($this);
+                                    }))
+                                ), $this->eventHandlers
+                            ));
+                            return new Response(Status::OK, stringOrStream: 'HTTP Ok');
+                        }),
+                        $middleware
+                    );
+
                     foreach (['GET', 'POST'] as $method)
-                        $router->addRoute($method, $uri, Server\Middleware\stack(
-                            new CallableRequestHandler(function (Server\Request $request) {
-                                $update = new Update(
-                                    json_decode(yield $request->getBody()->buffer(), true) ?? []
-                                );
+                        $router->addRoute($method, $uri, $handler);
 
-                                gather(array_map(
-                                    fn($eventHandler) => call(
-                                        fn() => yield $eventHandler->boot(tap($update, function ($update) {
-                                            $update->setApi($this);
-                                        }))
-                                    ), $this->eventHandlers
-                                ));
-                                return new Response(Status::OK, stringOrStream: 'HTTP Ok');
-                            }),
-                            new AuthorizeWebhooks()
-                        ));
-
-                    $server = new Server\Server($servers, $router, $logger);
+                    $server = new Server\HttpServer($servers, $router, $logger);
 
                     yield $server->start();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Utils;
+namespace Botify\Utils;
 
 use ArrayAccess;
 use ArrayIterator;

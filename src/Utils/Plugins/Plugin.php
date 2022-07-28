@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Utils\Plugins;
+namespace Botify\Utils\Plugins;
 
 use Amp\Promise;
-use Jove\TelegramAPI;
-use Jove\Types\Update;
+use Botify\TelegramAPI;
+use Botify\Types\Update;
 use function Amp\call;
 
 class Plugin

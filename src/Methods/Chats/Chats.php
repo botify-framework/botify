@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Chats;
+namespace Botify\Methods\Chats;
 
 trait Chats
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Jove\Methods\Webhooks;
+namespace Botify\Methods\Webhooks;
 
 use Amp\Promise;
-use Jove\Types\Map\WebhookInfo;
+use Botify\Types\Map\WebhookInfo;
 use function Amp\call;
 
 trait ResetWebhook

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\BotCommands;
+namespace Botify\Methods\BotCommands;
 
 trait BotCommands
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Methods\Chats;
+namespace Botify\Methods\Chats;
 
 use Amp\Promise;
-use Jove\Types\Map\ChatMember;
-use Jove\Utils\FallbackResponse;
+use Botify\Types\Map\ChatMember;
+use Botify\Utils\FallbackResponse;
 use function Amp\call;
 
 trait GetChatAdministrators

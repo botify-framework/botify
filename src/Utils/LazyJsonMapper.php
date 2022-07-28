@@ -1,9 +1,9 @@
 <?php
 
-namespace Jove\Utils;
+namespace Botify\Utils;
 
 use ArrayAccess;
-use Jove\TelegramAPI;
+use Botify\TelegramAPI;
 
 class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAccess
 {

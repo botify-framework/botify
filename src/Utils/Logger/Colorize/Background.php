@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Utils\Logger\Colorize;
+namespace Botify\Utils\Logger\Colorize;
 
 class Background
 {

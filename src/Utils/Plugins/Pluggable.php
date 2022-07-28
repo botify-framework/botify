@@ -1,11 +1,11 @@
 <?php
 
-namespace Jove\Utils\Plugins;
+namespace Botify\Utils\Plugins;
 
 use Amp\Promise;
+use Botify\TelegramAPI;
+use Botify\Types\Update;
 use Closure;
-use Jove\TelegramAPI;
-use Jove\Types\Update;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionUnionType;

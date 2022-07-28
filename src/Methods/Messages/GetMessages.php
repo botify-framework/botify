@@ -1,11 +1,11 @@
 <?php
 
-namespace Jove\Methods\Messages;
+namespace Botify\Methods\Messages;
 
 use Amp\Producer;
 use Amp\Promise;
-use Jove\Types\Map\Message;
-use Jove\Utils\Collection;
+use Botify\Types\Map\Message;
+use Botify\Utils\Collection;
 use function Amp\call;
 
 trait GetMessages

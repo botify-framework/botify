@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Types\Map;
+namespace Botify\Types\Map;
 
 use Amp\Promise;
-use Jove\Traits\Stringable;
-use Jove\Utils\LazyJsonMapper;
+use Botify\Traits\Stringable;
+use Botify\Utils\LazyJsonMapper;
 
 /**
  * CallbackQuery

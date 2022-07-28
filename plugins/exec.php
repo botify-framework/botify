@@ -1,11 +1,11 @@
 <?php
 
 
-use Jove\TelegramAPI;
-use Jove\Types\Map\Message;
-use Jove\Types\Update;
-use Jove\Utils\FileSystem;
-use Jove\Utils\Plugins\Pluggable;
+use Botify\TelegramAPI;
+use Botify\Types\Map\Message;
+use Botify\Types\Update;
+use Botify\Utils\FileSystem;
+use Botify\Utils\Plugins\Pluggable;
 
 $filters = [
     function (TelegramAPI $api, Update $update) {

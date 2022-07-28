@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Utils\Logger;
+namespace Botify\Utils\Logger;
 
+use Botify\Utils\Logger\Colorize\Colorize;
 use ErrorException;
 use Exception;
-use Jove\Utils\Logger\Colorize\Colorize;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
@@ -81,7 +81,7 @@ class Logger extends AbstractLogger
 
     private function getLoggerFile()
     {
-        is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('apb.log'))))
+        is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('botify.log'))))
         || mkdir($logsDir, recursive: true);
         return $logFile;
     }
@@ -105,7 +105,7 @@ class Logger extends AbstractLogger
         }
 
         if ($this->type & static::FILE_TYPE) {
-            is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('apb.log'))))
+            is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('botify.log'))))
             || mkdir($logsDir, recursive: true);
             file_put_contents($logFile, sprintln($log), FILE_APPEND);
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Methods\Games;
+namespace Botify\Methods\Games;
 
 trait Games
 {

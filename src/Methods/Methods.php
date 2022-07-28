@@ -1,14 +1,14 @@
 <?php
 
-namespace Jove\Methods;
+namespace Botify\Methods;
 
-use Jove\Methods\BotCommands\BotCommands;
-use Jove\Methods\Chats\Chats;
-use Jove\Methods\Commons\Commons;
-use Jove\Methods\Games\Games;
-use Jove\Methods\Messages\Messages;
-use Jove\Methods\Users\Users;
-use Jove\Methods\Webhooks\Webhooks;
+use Botify\Methods\BotCommands\BotCommands;
+use Botify\Methods\Chats\Chats;
+use Botify\Methods\Commons\Commons;
+use Botify\Methods\Games\Games;
+use Botify\Methods\Messages\Messages;
+use Botify\Methods\Users\Users;
+use Botify\Methods\Webhooks\Webhooks;
 
 trait Methods
 {

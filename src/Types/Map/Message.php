@@ -1,13 +1,13 @@
 <?php
 
-namespace Jove\Types\Map;
+namespace Botify\Types\Map;
 
 use Amp\Producer;
 use Amp\Promise;
-use Jove\Traits\HasCommand;
-use Jove\Traits\Notifiable;
-use Jove\Traits\Stringable;
-use Jove\Utils\LazyJsonMapper;
+use Botify\Traits\HasCommand;
+use Botify\Traits\Notifiable;
+use Botify\Traits\Stringable;
+use Botify\Utils\LazyJsonMapper;
 use function Amp\call;
 
 /**

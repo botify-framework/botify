@@ -1,12 +1,12 @@
 <?php
 
-namespace Jove\Types\Map;
+namespace Botify\Types\Map;
 
 use Amp\Promise;
-use Jove\Traits\Actionable;
-use Jove\Traits\HasHistory;
-use Jove\Traits\Notifiable;
-use Jove\Utils\LazyJsonMapper;
+use Botify\Traits\Actionable;
+use Botify\Traits\HasHistory;
+use Botify\Traits\Notifiable;
+use Botify\Utils\LazyJsonMapper;
 
 /**
  * Chat

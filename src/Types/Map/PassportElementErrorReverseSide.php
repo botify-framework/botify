@@ -1,8 +1,8 @@
 <?php
 
-namespace Jove\Types\Map;
+namespace Botify\Types\Map;
 
-use Jove\Utils\LazyJsonMapper;
+use Botify\Utils\LazyJsonMapper;
 
 /**
  * PassportElementErrorReverseSide

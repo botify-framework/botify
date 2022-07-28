@@ -1,10 +1,10 @@
 <?php
 
-namespace Jove\Methods\Messages;
+namespace Botify\Methods\Messages;
 
 use Amp\Promise;
-use Jove\Types\Map\Message;
-use Jove\Utils\FallbackResponse;
+use Botify\Types\Map\Message;
+use Botify\Utils\FallbackResponse;
 use function Amp\call;
 
 trait SendMediaGroup

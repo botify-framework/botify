@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Utils;
+namespace Botify\Utils;
 
 class Button
 {

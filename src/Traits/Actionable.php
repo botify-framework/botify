@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Traits;
+namespace Botify\Traits;
 
 use Amp\Promise;
 

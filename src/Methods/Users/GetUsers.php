@@ -1,9 +1,9 @@
 <?php
 
-namespace Jove\Methods\Users;
+namespace Botify\Methods\Users;
 
 use Amp\Promise;
-use Jove\Types\Map\User;
+use Botify\Types\Map\User;
 use function Amp\call;
 
 trait GetUsers

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jove\Utils;
+namespace Botify\Utils;
 
 use Amp\File;
 use Amp\Promise;
