@@ -11,6 +11,7 @@ use Jove\Types\Map;
 use Jove\Utils\Button;
 use Jove\Utils\FallbackResponse;
 use Medoo\DatabaseConnection;
+use function Amp\call;
 
 final class MethodsFactory
 {
