@@ -151,7 +151,7 @@ if (!function_exists('env')) {
                 'null', '(null)' => null,
                 default => $value
             };
-        }) : $default;
+        }) : value($default);
     }
 }
 

@@ -3,6 +3,7 @@
 namespace Botify\Utils;
 
 use ArrayAccess;
+use Closure;
 
 class Config implements ArrayAccess
 {
@@ -23,7 +24,7 @@ class Config implements ArrayAccess
     private function mapIntoLazyItems(array $items): array
     {
         return array_map_recursive(function ($item) {
-            if (is_callable($item)) {
+            if ($item instanceof Closure) {
                 $item = $item();
             }
 

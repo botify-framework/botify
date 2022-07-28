@@ -40,7 +40,7 @@ class TelegramAPI
     private MethodsFactory $methodFactory;
     private static array $databases = [];
     private static ?EventHandler $eventHandler = null;
-    private ?DatabaseConnection $database;
+    private ?DatabaseConnection $database = null;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
     private array $eventHandlers = [];
