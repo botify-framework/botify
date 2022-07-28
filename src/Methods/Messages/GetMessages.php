@@ -43,9 +43,7 @@ trait GetMessages
                     }
                 }
             } catch (RedisException $exception) {
-                $this->logger->warning('You must configure or enable redis {exception}', [
-                    'exception' => $exception
-                ]);
+                $this->logger->warning('You must configure or enable redis');
             }
         });
     }
@@ -80,9 +78,7 @@ trait GetMessages
 
                 return new Message([]);
             } catch (RedisException $exception) {
-                $this->logger->warning('You must configure or enable redis {exception}', [
-                    'exception' => $exception
-                ]);
+                $this->logger->warning('You must configure or enable redis');
             }
         });
     }
