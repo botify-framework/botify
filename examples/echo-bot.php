@@ -1,6 +1,6 @@
 <?php
 
-use Botify\EventHandler;
+use Botify\Events\EventHandler;
 use Botify\TelegramAPI;
 use Botify\Types\Map\Message;
 

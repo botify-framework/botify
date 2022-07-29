@@ -4,14 +4,16 @@ namespace Botify\Utils\Plugins;
 
 use Botify\TelegramAPI;
 use Botify\Types\Update;
+use Botify\Utils\DataBag;
 use Closure;
 
 abstract class Pluggable
 {
     public Update $update;
     private TelegramAPI $api;
+    private DataBag $bag;
     private $callback;
-    private array $filters = [];
+    private array $filters;
 
     final public function __construct(array $filters = [], ?callable $fn = null)
     {
@@ -26,12 +28,22 @@ abstract class Pluggable
         return [$this->update->getAPI(), $name](... $arguments);
     }
 
+    final public function __get($name)
+    {
+        return $this->bag[$name];
+    }
+
     /**
      * @param Update $update
      */
     public function setUpdate(Update $update): void
     {
         $this->update = $update;
+    }
+
+    public function setBag(DataBag $bag)
+    {
+        $this->bag = $bag;
     }
 
     /**

@@ -17,28 +17,23 @@ use Amp\Redis\Config;
 use Amp\Redis\Redis;
 use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
+use Botify\Events\Handler;
 use Botify\Methods\MethodsFactory;
-use Botify\Middlewares\AuthorizeWebhooks;
 use Botify\Request\Client;
 use Botify\Types\Update;
 use Exception;
-use Medoo\DatabaseConnection;
 use Monolog\Logger;
 use function Amp\call;
-use function Medoo\connect;
 use const SIGINT;
 use const STDOUT;
 
 class TelegramAPI
 {
-    private static array $databases = [];
-    private static ?EventHandler $eventHandler = null;
     public Client $client;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
-    private ?DatabaseConnection $database = null;
-    private array $eventHandlers = [];
     private MethodsFactory $methodFactory;
+    private array $initiators = [];
 
     public function __construct(array $config = [])
     {
@@ -51,9 +46,6 @@ class TelegramAPI
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);
-        static::$eventHandler ??= tap(new EventHandler(), function ($eventHandler) {
-            $eventHandler->setAPI($this);
-        });
     }
 
     private function enableRedis(): void
@@ -70,21 +62,6 @@ class TelegramAPI
             $this->redis = new Redis(new RemoteExecutor($uri));
         }
 
-    }
-
-    public function enableDatabase($driver = null, $options = []): ?DatabaseConnection
-    {
-        $driver ??= config('database.default');
-        $connections = config('database.connections');
-
-        if (isset($connections[$driver]['driver']) && $_driver = $connections[$driver]['driver']) {
-            unset($connections[$driver]['driver']);
-            $options = !empty($options) ? $options : $connections[$driver];
-            $id = md5(serialize($options));
-            return static::$databases[$id] ??= $this->database = connect($_driver, $options);
-        }
-
-        return null;
     }
 
     public static function factory(array $config = []): TelegramAPI
@@ -110,11 +87,6 @@ class TelegramAPI
         return $this->client;
     }
 
-    public function getDatabase(): ?DatabaseConnection
-    {
-        return $this->database;
-    }
-
     public function getLogger(): Utils\Logger\Logger
     {
         return $this->logger;
@@ -132,13 +104,9 @@ class TelegramAPI
      * @param string $uri
      * @throws Exception
      */
-    public function hear(int $updateType = EventHandler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
+    public function hear(int $updateType = Handler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
         Loop::run(function () use ($updateType, $uri) {
-            if (!is_null(static::$eventHandler)) {
-                array_unshift($this->eventHandlers, static::$eventHandler);
-            }
-
             $forceRunIn = function ($mode) {
                 $isCli = env('APP_RUNNING_IN_CONSOLE') || in_array(PHP_SAPI, ['cli', 'php-dbg']);
 
@@ -156,7 +124,7 @@ class TelegramAPI
             };
 
             switch ($updateType) {
-                case EventHandler::UPDATE_TYPE_WEBHOOK:
+                case Handler::UPDATE_TYPE_WEBHOOK:
                     $forceRunIn('browser');
                     if ('production' === strtolower(config('app.environment')) && $secureToken = config('telegram.secret_token')) {
                         $headers = getallheaders();
@@ -173,13 +141,11 @@ class TelegramAPI
 
                     $this->finish();
                     $update = new Update(json_decode(file_get_contents('php://input'), true) ?? []);
-                    yield gather(array_map(
-                        fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
-                            $update->setApi($this);
-                        })), $this->eventHandlers
-                    ));
+                    yield Handler::dispatch(tap($update, function ($update) {
+                        $update->setAPI($this);
+                    }));
                     break;
-                case EventHandler::UPDATE_TYPE_POLLING:
+                case Handler::UPDATE_TYPE_POLLING:
                     $forceRunIn('cli');
                     $offset = -1;
                     yield $this->deleteWebhook();
@@ -189,11 +155,9 @@ class TelegramAPI
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
-                                yield gather(array_map(
-                                    fn($eventHandler) => $eventHandler->boot(tap($update, function ($update) {
-                                        $update->setApi($this);
-                                    })), $this->eventHandlers
-                                ));
+                                yield Handler::dispatch(tap($update, function ($update) {
+                                    $update->setAPI($this);
+                                }));
 
                                 $offset = $update->update_id + 1;
                             }
@@ -206,7 +170,7 @@ class TelegramAPI
                         exit();
                     });
                     break;
-                case EventHandler::UPDATE_TYPE_SOCKET_SERVER:
+                case Handler::UPDATE_TYPE_SOCKET_SERVER:
                     $options = getopt('d::', [
                         'drop_pending_updates::'
                     ]);
@@ -260,13 +224,9 @@ class TelegramAPI
                             $update = new Update(
                                 json_decode(yield $request->getBody()->buffer(), true) ?? []
                             );
-                            gather(array_map(
-                                fn($eventHandler) => call(
-                                    fn() => yield $eventHandler->boot(tap($update, function ($update) {
-                                        $update->setApi($this);
-                                    }))
-                                ), $this->eventHandlers
-                            ));
+                            Handler::dispatch(tap($update, function ($update) {
+                                $update->setAPI($this);
+                            }));
                             return new Response(Status::OK, stringOrStream: 'HTTP Ok');
                         }),
                         $middleware
@@ -318,39 +278,31 @@ class TelegramAPI
     /**
      * A decorator for defining events
      *
-     * @param $event
-     * @param ?callable $listener
      * @return void
      */
-    public function on($event, ?callable $listener = null)
+    public function on()
     {
-        if (is_callable($event)) {
-            [$event, $listener] = ['any', $event];
-        }
-
-        static::$eventHandler->on($event, $listener);
+        Handler::addHandler(... func_get_args());
     }
 
     /**
      * Set the event handler for avoiding updates
      *
      * @param $eventHandler
-     * @return Promise
-     * @throws Exception
+     * @return void
      */
-    public function setEventHandler($eventHandler): Promise
+    public function setEventHandler($eventHandler)
     {
-        return call(function () use ($eventHandler) {
-            $eventHandler = new $eventHandler();
-            $eventHandler->setApi($this);
-            if ($eventHandler instanceof EventHandler) {
-                $this->eventHandlers[] = $eventHandler;
-                yield call([$eventHandler, 'onStart']);
-            } else {
-                throw new Exception(sprintf(
-                    'The eventHandler must be instance of %s', EventHandler::class,
-                ));
-            }
-        });
+        Handler::addHandler($eventHandler);
+    }
+
+    public function onBefore(...$initiators)
+    {
+        $this->initiators += $initiators;
+    }
+
+    public function getInitiators(): array
+    {
+        return $this->initiators;
     }
 }

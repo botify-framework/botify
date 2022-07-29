@@ -102,7 +102,6 @@ final class MethodsFactory
     {
         $this->client = $api->getClient();
         $this->redis = $api->getRedis();
-        $this->database = $api->getDatabase();
         $this->logger = $api->getLogger();
     }
 

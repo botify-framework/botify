@@ -3,75 +3,20 @@
 namespace Botify\Utils\Plugins;
 
 use Amp\Promise;
-use Botify\TelegramAPI;
 use Botify\Types\Update;
+use Botify\Utils\DataBag;
 use Closure;
-use ReflectionFunction;
-use ReflectionMethod;
-use ReflectionUnionType;
 use function Amp\call;
-use function Amp\coroutine;
 
 class Plugin
 {
     private static array $plugins = [];
     private string $directory;
-    private $reflector;
 
-    public function __construct($directory, public TelegramAPI $api, public Update $update)
+    public function __construct($directory, public Update $update, public $reflector, public DataBag $bag)
     {
         $this->setDirectory($directory);
         $this->loadPlugins();
-        $this->reflector = new class($this->update) {
-
-            public function __construct(private Update $update)
-            {
-            }
-
-            public function bindCallback(callable $callback, array $arguments = [])
-            {
-                $reflection = is_array($callback)
-                    ? new ReflectionMethod(... $callback)
-                    : new ReflectionFunction($callback);
-                $parameters = $reflection->getParameters();
-
-                foreach ($parameters as $index => $parameter) {
-                    $types = $parameter->getType() instanceof ReflectionUnionType
-                        ? $parameter->getType()->getTypes()
-                        : [$parameter->getType()];
-
-                    if ($value = array_sole($types, function ($type) {
-                        $name = $type->getName();
-
-                        $isEqual = function () use ($name) {
-                            foreach ($this->update::JSON_PROPERTY_MAP as $index => $item) {
-                                if (str_ends_with($name, $item) && isset($this->update[$index])) {
-                                    return $this->update[$index];
-                                }
-                            }
-
-                            return false;
-                        };
-
-                        if ($name === get_class($this->update)) {
-                            return $this->update;
-                        } elseif ($name === TelegramAPI::class) {
-                            return $this->update->getAPI();
-                        } elseif ($value = $isEqual()) {
-                            return $value;
-                        }
-                    })) {
-                        $arguments[$index] = $value;
-                    } else {
-                        unset($parameters[$index]);
-                    }
-                }
-
-                if ($reflection->getNumberOfParameters() === count($parameters)) {
-                    return coroutine($callback)(... $arguments);
-                }
-            }
-        };
     }
 
     /**
@@ -134,13 +79,14 @@ class Plugin
 
     /**
      * @param string $directory
-     * @param TelegramAPI $api
      * @param Update $update
+     * @param $reflector
+     * @param DataBag $bag
      * @return Plugin
      */
-    public static function factory(string $directory, TelegramAPI $api, Update $update): Plugin
+    public static function factory(string $directory, Update $update, $reflector, DataBag $bag): Plugin
     {
-        return new static($directory, $api, $update);
+        return new static($directory, $update, $reflector, $bag);
     }
 
     /**
@@ -156,6 +102,7 @@ class Plugin
         return gather(array_filter(array_map(function (Pluggable $plugin) {
             return call(function () use ($plugin) {
                 $plugin->setUpdate($this->update);
+                $plugin->setBag($this->bag);
 
                 if (method_exists($plugin, 'boot')) {
                     yield $this->reflector->bindCallback([$plugin, 'boot']);
