@@ -5,6 +5,7 @@ namespace Botify\Utils\Plugins;
 use Amp\Promise;
 use Botify\TelegramAPI;
 use Botify\Types\Update;
+use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionUnionType;
@@ -161,6 +162,10 @@ class Plugin
                 }
 
                 foreach ($plugin->getFilters() as $filter) {
+                    if ($filter instanceof Closure) {
+                        $filter = $filter->bindTo($plugin);
+                    }
+
                     if (!boolval(yield $this->reflector->bindCallback($filter))) {
                         return;
                     }
