@@ -184,7 +184,8 @@ class TelegramAPI
                     ]);
 
                     yield $this->resetWebhook([
-                        'drop_pending_updates' => (bool)($options['d'] ?? $options['drop_pending_updates'] ?? false)
+                        'drop_pending_updates' => (bool)($options['d'] ?? $options['drop_pending_updates'] ?? false),
+                        'allowed_updates' => config('telegram.allowed_updates', [])
                     ]);
 
                     $forceRunIn('cli');
