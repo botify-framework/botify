@@ -3,12 +3,15 @@
 namespace Botify\Utils\Plugins;
 
 use Botify\TelegramAPI;
+use Botify\Traits\HasBag;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
 use Closure;
 
 abstract class Pluggable
 {
+    use HasBag;
+
     public Update $update;
     private TelegramAPI $api;
     private DataBag $bag;
@@ -26,11 +29,6 @@ abstract class Pluggable
     final public function __call($name, array $arguments = [])
     {
         return [$this->update->getAPI(), $name](... $arguments);
-    }
-
-    final public function __get($name)
-    {
-        return $this->bag[$name];
     }
 
     /**
@@ -75,5 +73,10 @@ abstract class Pluggable
     public function reset()
     {
         unset($this->api, $this->update);
+    }
+
+    public function getBag(): array
+    {
+        return [$this->update, $this->bag];
     }
 }

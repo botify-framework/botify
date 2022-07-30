@@ -4,6 +4,11 @@ namespace Botify\Utils;
 
 use ArrayAccess;
 use Closure;
+use function Botify\abs_path;
+use function Botify\array_map_recursive;
+use function Botify\config_path;
+use function Botify\dotty;
+use function Botify\value;
 
 class Config implements ArrayAccess
 {

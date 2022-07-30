@@ -4,6 +4,7 @@ namespace Botify\Utils;
 
 use Amp\File;
 use Amp\Promise;
+use function Botify\abs_path;
 
 
 class FileSystem

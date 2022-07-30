@@ -8,6 +8,8 @@ use Amp\Redis\RedisException;
 use Botify\Types\Map\Message;
 use Botify\Utils\Collection;
 use function Amp\call;
+use function Botify\collect;
+use function Botify\gather;
 
 trait GetMessages
 {

@@ -2,6 +2,8 @@
 
 namespace Botify\Utils;
 
+use function Botify\array_some;
+
 class Button
 {
     /**

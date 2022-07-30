@@ -7,6 +7,7 @@ use Botify\Traits\Actionable;
 use Botify\Traits\HasHistory;
 use Botify\Traits\Notifiable;
 use Botify\Utils\LazyJsonMapper;
+use function Botify\gather;
 
 /**
  * Chat

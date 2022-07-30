@@ -2,6 +2,8 @@
 
 
 use Botify\Utils\Logger\Logger;
+use function Botify\env;
+use function Botify\storage_path;
 
 return [
     'environment' => env('APP_ENV', 'development'),

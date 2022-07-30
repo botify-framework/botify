@@ -9,6 +9,10 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 use Throwable;
+use function Botify\base_path;
+use function Botify\config;
+use function Botify\env;
+use function Botify\sprintln;
 
 class Logger extends AbstractLogger
 {
@@ -40,6 +44,9 @@ class Logger extends AbstractLogger
 
     protected int $type = self::DEFAULT_TYPE;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(int $level = 0, $type = self::DEFAULT_TYPE)
     {
         $minLevel = !is_null($level) ? $level : match ((int)env('SHELL_VERBOSITY')) {

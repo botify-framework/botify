@@ -5,6 +5,8 @@ namespace Botify\Methods\Chats;
 use Amp\Promise;
 use Botify\Types\Map\ChatMember;
 use function Amp\call;
+use function Botify\collect;
+use function Botify\gather;
 
 trait GetChatsMember
 {

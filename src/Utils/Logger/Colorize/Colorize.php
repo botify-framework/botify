@@ -2,6 +2,10 @@
 
 namespace Botify\Utils\Logger\Colorize;
 
+use function Botify\concat;
+use function Botify\env;
+use function Botify\sprintln;
+
 class Colorize
 {
     const RESET = "\e[0m";

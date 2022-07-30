@@ -2,6 +2,9 @@
 
 namespace Botify\Traits;
 
+use function Botify\array_some;
+use function Botify\value;
+
 trait Stringable
 {
     /**

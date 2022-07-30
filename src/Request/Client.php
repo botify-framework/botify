@@ -8,6 +8,10 @@ use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
 use Amp\Promise;
 use function Amp\call;
+use function Botify\array_map_recursive;
+use function Botify\config;
+use function Botify\is_json;
+use function Botify\tap;
 
 final class Client
 {

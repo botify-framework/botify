@@ -4,6 +4,7 @@ namespace Botify\Utils;
 
 use ArrayAccess;
 use Botify\TelegramAPI;
+use function Botify\collect;
 
 class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAccess
 {

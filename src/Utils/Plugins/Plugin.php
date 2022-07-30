@@ -7,6 +7,8 @@ use Botify\Types\Update;
 use Botify\Utils\DataBag;
 use Closure;
 use function Amp\call;
+use function Botify\concat;
+use function Botify\gather;
 
 class Plugin
 {
@@ -44,7 +46,7 @@ class Plugin
                 if (true !== $plugin = require_once $content) {
                     $name = pathinfo(strtolower(basename($content)), PATHINFO_FILENAME);
                     if (is_callable($plugin) || is_object($plugin)) {
-                        if ($matches = preg_grep("/^{$name}#?/", array_keys(static::$plugins))) {
+                        if ($matches = preg_grep("/^$name#?/", array_keys(static::$plugins))) {
                             [$name, $counter] = explode('#', concat(end($matches), '#'));
                             $counter++;
                             $name = implode('#', [$name, $counter]);

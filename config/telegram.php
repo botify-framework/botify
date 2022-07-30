@@ -1,8 +1,13 @@
 <?php
 
+use function Botify\base_path;
+use function Botify\env;
+
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
-    'token' => $token = env('BOT_TOKEN', function () {
+    'token' => $token = env(/**
+     * @throws Exception
+     */ 'BOT_TOKEN', function () {
         throw new Exception('You must provide a token');
     }),
     'user_id' => (int)env('BOT_USER_ID', explode('/', $token, 2)[0] ?? null),

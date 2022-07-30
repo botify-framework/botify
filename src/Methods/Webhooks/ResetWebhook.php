@@ -5,6 +5,7 @@ namespace Botify\Methods\Webhooks;
 use Amp\Promise;
 use Botify\Types\Map\WebhookInfo;
 use function Amp\call;
+use function Botify\config;
 
 trait ResetWebhook
 {

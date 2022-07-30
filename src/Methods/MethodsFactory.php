@@ -11,8 +11,10 @@ use Botify\Utils\Button;
 use Botify\Utils\FallbackResponse;
 use Botify\Utils\Logger\Logger;
 use Exception;
-use Medoo\DatabaseConnection;
 use function Amp\call;
+use function Botify\array_some;
+use function Botify\config;
+use function Botify\value;
 
 final class MethodsFactory
 {
@@ -22,7 +24,6 @@ final class MethodsFactory
         'user_id', 'chat_id',
     ];
     private Client $client;
-    private ?DatabaseConnection $database;
     private ?Redis $redis;
     private Logger $logger;
     private array $responses_map = [

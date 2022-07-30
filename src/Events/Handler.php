@@ -14,6 +14,7 @@ use ReflectionMethod;
 use ReflectionUnionType;
 use function Amp\call;
 use function Amp\coroutine;
+use function Botify\{array_sole, config, gather};
 
 class Handler
 {
@@ -123,7 +124,7 @@ class Handler
                         $promises[] = call($handler->bindTo($privateHandler), $privateHandler->current);
                     }
                 } elseif ($handler instanceof EventHandler) {
-                    $promises[] = $handler->register($update)->fire();
+                    $promises[] = $handler->register($update, $bag)->fire();
                 }
             }
 

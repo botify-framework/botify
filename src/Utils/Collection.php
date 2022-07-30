@@ -7,6 +7,7 @@ use ArrayIterator;
 use Closure;
 use Countable;
 use IteratorAggregate;
+use function Botify\is_collection;
 
 class Collection implements IteratorAggregate, Countable, ArrayAccess
 {

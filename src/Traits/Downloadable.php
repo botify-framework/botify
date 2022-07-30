@@ -6,6 +6,7 @@ use Amp\File;
 use Amp\Promise;
 use Botify\Utils\FileSystem;
 use function Amp\call;
+use function Botify\storage_path;
 
 trait Downloadable
 {

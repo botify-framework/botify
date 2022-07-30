@@ -5,6 +5,8 @@ namespace Botify\Methods\Users;
 use Amp\Promise;
 use Botify\Types\Map\User;
 use function Amp\call;
+use function Botify\collect;
+use function Botify\gather;
 
 trait GetUsers
 {

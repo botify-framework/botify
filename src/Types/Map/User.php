@@ -9,6 +9,9 @@ use Botify\Traits\HasHistory;
 use Botify\Traits\Notifiable;
 use Botify\Utils\LazyJsonMapper;
 use function Amp\call;
+use function Botify\collect;
+use function Botify\config;
+use function Botify\gather;
 
 /**
  * User

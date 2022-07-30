@@ -6,18 +6,20 @@ use Amp\Promise;
 use Amp\Redis\Redis;
 use ArrayAccess;
 use Botify\TelegramAPI;
+use Botify\Traits\HasBag;
 use Botify\Types\Map\CallbackQuery;
 use Botify\Types\Map\InlineQuery;
 use Botify\Types\Map\Message;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
-use Medoo\DatabaseConnection;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use function Amp\call;
+use function Botify\gather;
 
 class EventHandler implements ArrayAccess
 {
+    use HasBag;
     public ?TelegramAPI $api = null;
     public $current;
     public LoggerInterface $logger;
@@ -41,11 +43,6 @@ class EventHandler implements ArrayAccess
         return $this->api->{$name}(... $arguments) ?? trigger_error(sprintf(
                 'Trying to call undefined method [%s]', $name
             ), E_USER_ERROR);
-    }
-
-    public function __get($name)
-    {
-        return $this->bag->{$name} ?? $this->current->{$name};
     }
 
     /**
@@ -85,30 +82,6 @@ class EventHandler implements ArrayAccess
                 $this->logger->critical($e);
             }
         });
-    }
-
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->bag->{$offset}) || isset($this->current->{$offset});
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        return $this->bag->{$offset} ?? $this->current->{$offset};
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if (is_null($offset)) {
-            $this->bag[] = $value;
-        } else {
-            $this->bag[$offset] = $value;
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->current[$offset], $this->bag[$offset]);
     }
 
     /**
@@ -168,5 +141,10 @@ class EventHandler implements ArrayAccess
         $this->logger = $this->api->getLogger();
         $this->bag = $bag;
         return $this;
+    }
+
+    public function getBag(): array
+    {
+        return [$this->current, $this->bag];
     }
 }

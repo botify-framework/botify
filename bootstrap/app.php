@@ -1,5 +1,7 @@
 <?php
 
+use function Botify\config;
+
 defined('__BASE_DIR__') || define('__BASE_DIR__', $_ENV['__BASE_DIR__'] ?? __DIR__ . '/../');
 
 define('START_TIME', microtime(true));

@@ -2,6 +2,7 @@
 
 use Botify\Types\Map\Message;
 use Botify\Utils\Plugins\Plugin;
+use function Botify\sprintln;
 
 return Plugin::apply(function (Message $message) {
     if ($message->command(['id', 'info', 'me'])) {

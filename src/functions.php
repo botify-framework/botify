@@ -1,13 +1,17 @@
 <?php
+namespace Botify;
 
 use Amp\Delayed;
 use Amp\Promise;
+use ArrayAccess;
 use Botify\Utils\Button;
 use Botify\Utils\Collection;
 use Botify\Utils\Config;
 use Botify\Utils\Dotty;
+use Closure;
+use Exception;
 
-if (!function_exists('retry')) {
+if (!function_exists('Botify\\retry')) {
     /**
      * @param $times
      * @param callable $callback
@@ -31,7 +35,7 @@ if (!function_exists('retry')) {
     }
 }
 
-if (!function_exists('tap')) {
+if (!function_exists('Botify\\tap')) {
     /**
      * @param $value
      * @param $callback
@@ -45,7 +49,7 @@ if (!function_exists('tap')) {
     }
 }
 
-if (!function_exists('gather')) {
+if (!function_exists('Botify\\gather')) {
 
     function gather($promises): Promise
     {
@@ -53,18 +57,18 @@ if (!function_exists('gather')) {
     }
 }
 
-if (!function_exists('ausleep')) {
+if (!function_exists('Botify\\ausleep')) {
     /**
      * @param $microseconds
      * @return Delayed
      */
-    function ausleep($microseconds)
+    function ausleep($microseconds): Delayed
     {
         return new Delayed($microseconds);
     }
 }
 
-if (!function_exists('asleep')) {
+if (!function_exists('Botify\\asleep')) {
     /**
      * @param $time
      * @return Promise
@@ -75,7 +79,7 @@ if (!function_exists('asleep')) {
     }
 }
 
-if (!function_exists('collect')) {
+if (!function_exists('Botify\\collect')) {
     /**
      * @param array $items
      * @param bool $recursive
@@ -94,7 +98,7 @@ if (!function_exists('collect')) {
     }
 }
 
-if (!function_exists('is_collection')) {
+if (!function_exists('Botify\\is_collection')) {
     /**
      * Check the $value is a collection
      *
@@ -107,7 +111,7 @@ if (!function_exists('is_collection')) {
     }
 }
 
-if (!function_exists('base_path')) {
+if (!function_exists('Botify\\base_path')) {
     /**
      * Resolve base path
      *
@@ -120,7 +124,7 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('storage_path')) {
+if (!function_exists('Botify\\storage_path')) {
     /**
      * Resolve storage path
      *
@@ -133,14 +137,14 @@ if (!function_exists('storage_path')) {
     }
 }
 
-if (!function_exists('config_path')) {
+if (!function_exists('Botify\\config_path')) {
     function config_path($path = ''): string
     {
         return base_path('/config/' . trim($path, '/'));
     }
 }
 
-if (!function_exists('env')) {
+if (!function_exists('Botify\\env')) {
     function env($key, $default = null)
     {
         return ($value = getenv($key)) ? value(function () use ($value) {
@@ -155,14 +159,14 @@ if (!function_exists('env')) {
     }
 }
 
-if (!function_exists('value')) {
+if (!function_exists('Botify\\value')) {
     function value($value, ...$args)
     {
         return $value instanceof Closure ? $value(... $args) : $value;
     }
 }
 
-if (!function_exists('array_exists')) {
+if (!function_exists('Botify\\array_exists')) {
 
     function array_exists($array, $key): bool
     {
@@ -174,7 +178,7 @@ if (!function_exists('array_exists')) {
     }
 }
 
-if (!function_exists('array_accessible')) {
+if (!function_exists('Botify\\array_accessible')) {
 
     function array_accessible($value): bool
     {
@@ -182,7 +186,7 @@ if (!function_exists('array_accessible')) {
     }
 }
 
-if (!function_exists('array_collapse')) {
+if (!function_exists('Botify\\array_collapse')) {
 
     function array_collapse(iterable $array): array
     {
@@ -200,7 +204,7 @@ if (!function_exists('array_collapse')) {
     }
 }
 
-if (!function_exists('data_get')) {
+if (!function_exists('Botify\\data_get')) {
 
     function data_get($target, $key, $default = null)
     {
@@ -244,7 +248,7 @@ if (!function_exists('data_get')) {
     }
 }
 
-if (!function_exists('array_set')) {
+if (!function_exists('Botify\\array_set')) {
 
     function array_set(array &$array, ?string $key, $value): array
     {
@@ -274,7 +278,7 @@ if (!function_exists('array_set')) {
     }
 }
 
-if (!function_exists('data_set')) {
+if (!function_exists('Botify\\data_set')) {
     function data_set(&$target, $key, $value, bool $overwrite = true)
     {
         $segments = is_array($key) ? $key : explode('.', $key);
@@ -327,7 +331,7 @@ if (!function_exists('data_set')) {
     }
 }
 
-if (!function_exists('config')) {
+if (!function_exists('Botify\\config')) {
 
     function config($id = null, $default = null)
     {
@@ -346,7 +350,7 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('repeat')) {
+if (!function_exists('Botify\\repeat')) {
     /**
      * Repeat a code n times
      * @param int $times
@@ -355,7 +359,7 @@ if (!function_exists('repeat')) {
      * @param ...$args
      * @return array
      */
-    function repeat(int $times, callable $callback, array $iterable = [], ...$args)
+    function repeat(int $times, callable $callback, array $iterable = [], ...$args): array
     {
         $returns = [];
 
@@ -368,7 +372,7 @@ if (!function_exists('repeat')) {
     }
 }
 
-if (!function_exists('arepeat')) {
+if (!function_exists('Botify\\arepeat')) {
     /**
      * Asynchronous version of repeat
      *
@@ -384,7 +388,7 @@ if (!function_exists('arepeat')) {
     }
 }
 
-if (!function_exists('abs_path')) {
+if (!function_exists('Botify\\abs_path')) {
     /**
      * Get absolute path of a path
      * Unlike the realpath function, the output will not be false if it does not exist
@@ -411,28 +415,28 @@ if (!function_exists('abs_path')) {
     }
 }
 
-if (!function_exists('sprintln')) {
-    function sprintln(...$vars)
+if (!function_exists('Botify\\sprintln')) {
+    function sprintln(...$vars): string
     {
         return implode(PHP_EOL, $vars) . PHP_EOL;
     }
 }
 
-if (!function_exists('println')) {
+if (!function_exists('Botify\\println')) {
     function println(...$vars)
     {
         echo sprintln(... $vars);
     }
 }
 
-if (!function_exists('is_json')) {
+if (!function_exists('Botify\\is_json')) {
     function is_json($value): bool
     {
         return is_string($value) && is_array(json_decode($value, true));
     }
 }
 
-if (!function_exists('array_some')) {
+if (!function_exists('Botify\\array_some')) {
     function array_some(array $array, ?callable $fn = null): bool
     {
         foreach ($array as $index => $item) {
@@ -445,7 +449,7 @@ if (!function_exists('array_some')) {
     }
 }
 
-if (!function_exists('array_every')) {
+if (!function_exists('Botify\\array_every')) {
     function array_every(array $array, ?callable $fn = null): bool
     {
         foreach ($array as $index => $item) {
@@ -458,7 +462,7 @@ if (!function_exists('array_every')) {
     }
 }
 
-if (!function_exists('button')) {
+if (!function_exists('Botify\\button')) {
     /**
      * @param $id
      * @param mixed ...$args
@@ -483,7 +487,7 @@ if (!function_exists('button')) {
     }
 }
 
-if (!function_exists('array_first')) {
+if (!function_exists('Botify\\array_first')) {
     /**
      * Getting first element of array
      * @param array $array
@@ -498,7 +502,7 @@ if (!function_exists('array_first')) {
     }
 }
 
-if (!function_exists('array_last')) {
+if (!function_exists('Botify\\array_last')) {
     /**
      * Getting last element of array
      * @param array $array
@@ -513,14 +517,14 @@ if (!function_exists('array_last')) {
     }
 }
 
-if (!function_exists('concat')) {
+if (!function_exists('Botify\\concat')) {
     function concat(...$vars): string
     {
         return implode($vars);
     }
 }
 
-if (!function_exists('str_splice')) {
+if (!function_exists('Botify\\str_splice')) {
     function str_splice($haystack, ?int $offset, ?int $length, ?string $replacement = ''): string
     {
         $search = substr($haystack, $offset, $length);
@@ -529,18 +533,18 @@ if (!function_exists('str_splice')) {
     }
 }
 
-if (!function_exists('mb_str_splice')) {
+if (!function_exists('Botify\\mb_str_splice')) {
     function mb_str_splice($haystack, ?int $offset, ?int $length, ?string $replacement = '', ?string $encoding = null): string
     {
-        $search = mb_substr($haystack, $offset, $length);
+        $search = mb_substr($haystack, $offset, $length, $encoding);
 
         return implode($replacement, explode($search, $haystack, 2));
     }
 }
 
-if (!function_exists('array_map_recursive')) {
+if (!function_exists('Botify\\array_map_recursive')) {
     /**
-     * Recursive map into a array
+     * Recursive map into an array
      *
      * @param callable $callback
      * @param $array
@@ -556,14 +560,14 @@ if (!function_exists('array_map_recursive')) {
     }
 }
 
-if (!function_exists('dotty')) {
+if (!function_exists('Botify\\dotty')) {
     function dotty(array $items = [], bool $parse = false): Dotty
     {
         return new Dotty($items, $parse);
     }
 }
 
-if (!function_exists('str_snake')) {
+if (!function_exists('Botify\\str_snake')) {
     /**
      * Convert string to snake_case
      *
@@ -584,7 +588,7 @@ if (!function_exists('str_snake')) {
     }
 }
 
-if (!function_exists('array_sole')) {
+if (!function_exists('Botify\\array_sole')) {
     /**
      * @param array $array
      * @param callable $fn

@@ -6,6 +6,7 @@ use Amp\Promise;
 use Botify\Types\Update;
 use Botify\Utils\FallbackResponse;
 use function Amp\call;
+use function Botify\collect;
 
 trait GetUpdates
 {
