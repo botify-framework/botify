@@ -1,19 +1,15 @@
 <?php
 
 
-use Botify\TelegramAPI;
 use Botify\Types\Map\Message;
-use Botify\Types\Update;
 use Botify\Utils\FileSystem;
 use Botify\Utils\Plugins\Pluggable;
 use function Botify\is_json;
 use function Botify\storage_path;
 
 $filters = [
-    function (TelegramAPI $api, Update $update) {
-        if ($message = $update['message'] ?? $update['edited_message'] ?? false) {
-            return $message['from']['is_admin'] && $message->command(['run', 'exec', 'eval'], ['.', '#', '/', '$', '']);
-        }
+    function (Message $message) {
+        return $message['from']['is_admin'] && $message->command(['run', 'exec', 'eval'], ['.', '#', '/', '$', '']);
     },
 ];
 
