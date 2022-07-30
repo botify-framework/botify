@@ -12,8 +12,8 @@ abstract class Pluggable
 {
     use HasBag;
 
-    public Update $update;
-    private TelegramAPI $api;
+    public ?Update $update;
+    private ?TelegramAPI $api;
     private DataBag $bag;
     private $callback;
     private array $filters;
@@ -72,7 +72,8 @@ abstract class Pluggable
 
     public function reset()
     {
-        unset($this->api, $this->update);
+        $this->api = null;
+        $this->update = null;
     }
 
     public function getBag(): array
