@@ -8,8 +8,13 @@ use ArrayAccess;
 use Botify\TelegramAPI;
 use Botify\Traits\HasBag;
 use Botify\Types\Map\CallbackQuery;
+use Botify\Types\Map\ChatJoinRequest;
+use Botify\Types\Map\ChatMemberUpdated;
+use Botify\Types\Map\ChosenInlineResult;
 use Botify\Types\Map\InlineQuery;
 use Botify\Types\Map\Message;
+use Botify\Types\Map\PreCheckoutQuery;
+use Botify\Types\Map\ShippingQuery;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
 use Psr\Log\LoggerInterface;
@@ -54,25 +59,35 @@ class EventHandler implements ArrayAccess
     {
         return call(function () {
             $events = [
-                'message' => [$this, 'onUpdateNewMessage'],
-                'edited_message' => [$this, 'onUpdateNewMessage'],
-                'channel_post' => [$this, 'onUpdateNewChannelMessage'],
-                'edited_channel_post' => [$this, 'onUpdateNewChannelMessage'],
-                'callback_query' => [$this, 'onUpdateCallbackQuery'],
-                'inline_query' => [$this, 'onUpdateInlineQuery']
+                'message' => [[$this, 'onUpdateNewMessage']],
+                'edited_message' => [[$this, 'onUpdateNewMessage'], [$this, 'onUpdateEditedMessage']],
+                'channel_post' => [[$this, 'onUpdateNewChannelMessage']],
+                'edited_channel_post' => [[$this, 'onUpdateNewChannelMessage'], [$this, 'onUpdateEditedChannelMessage']],
+                'callback_query' => [[$this, 'onUpdateCallbackQuery']],
+                'inline_query' => [[$this, 'onUpdateInlineQuery']],
+                'chosen_inline_result' => [[$this, 'onUpdateChosenInlineResult']],
+                'shipping_query' => [[$this, 'onUpdateShippingQuery']],
+                'pre_checkout_query' => [[$this, 'onUpdatePreCheckoutQuery']],
+                'poll' => [[$this, 'onUpdatePoll']],
+                'poll_answer' => [[$this, 'onUpdatePollAnswer']],
+                'my_chat_member' => [[$this, 'onUpdateMyChatMember']],
+                'chat_member' => [[$this, 'onUpdateChatMember']],
+                'chat_join_request' => [[$this, 'onUpdateChatJoinRequest']],
             ];
 
             yield call([$this, 'onStart']);
 
             $promises = [call([$this, 'onAny'], $this->update)];
 
-            foreach ($events as $event => $listener) {
-                if (isset($this->update[$event])) {
-                    $current = $this->update[$event];
-                    $self = clone $listener[0];
-                    $self->current = $current;
-                    $listener[0] = $self;
-                    $promises[] = call($listener, $current);
+            foreach ($events as $event => $listeners) {
+                foreach ($listeners as $listener) {
+                    if (isset($this->update[$event])) {
+                        $current = $this->update[$event];
+                        $self = clone $listener[0];
+                        $self->current = $current;
+                        $listener[0] = $self;
+                        $promises[] = call($listener, $current);
+                    }
                 }
             }
 
@@ -106,6 +121,43 @@ class EventHandler implements ArrayAccess
     }
 
     /**
+     * @param ChatMemberUpdated $chatMemberUpdated
+     */
+    public function onUpdateMyChatMember(ChatMemberUpdated $chatMemberUpdated)
+    {
+    }
+
+    /**
+     * @param ChatJoinRequest $chatJoinRequest
+     * @return void
+     */
+    public function onUpdateChatJoinRequest(ChatJoinRequest $chatJoinRequest)
+    {
+
+    }
+
+    /**
+     * @param ChatMemberUpdated $chatMemberUpdated
+     */
+    public function onUpdateChatMember(ChatMemberUpdated $chatMemberUpdated)
+    {
+    }
+
+    /**
+     * @param PreCheckoutQuery $preCheckoutQuery
+     */
+    public function onUpdatePreCheckoutQuery(PreCheckoutQuery $preCheckoutQuery)
+    {
+    }
+
+    /**
+     * @param ShippingQuery $shippingQuery
+     */
+    public function onUpdateShippingQuery(ShippingQuery $shippingQuery)
+    {
+    }
+
+    /**
      * @param InlineQuery $inlineQuery
      */
     public function onUpdateInlineQuery(InlineQuery $inlineQuery)
@@ -122,7 +174,28 @@ class EventHandler implements ArrayAccess
     /**
      * @param Message $message
      */
+    public function onUpdateEditedChannelMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
     public function onUpdateNewMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function onUpdateEditedMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param ChosenInlineResult $chosenInlineResult
+     */
+    public function onUpdateChosenInlineResult(ChosenInlineResult $chosenInlineResult)
     {
     }
 
