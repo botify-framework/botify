@@ -156,13 +156,14 @@ class TelegramAPI
                     $forceRunIn('cli');
                     $offset = -1;
                     yield $this->deleteWebhook();
+                    $allowedUpdates = config('telegram.allowed_updates', []);
 
-                    Loop::repeat(config('telegram.loop_interval'), function () use (&$offset) {
-                        $updates = yield $this->getUpdates($offset);
+                    Loop::repeat(config('telegram.loop_interval'), function () use ($allowedUpdates, &$offset) {
+                        $updates = yield $this->getUpdates($offset, allowed_updates: $allowedUpdates);
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
-                                yield Handler::dispatch(tap($update, function ($update) {
+                                Handler::dispatch(tap($update, function ($update) {
                                     $update->setAPI($this);
                                 }));
 
