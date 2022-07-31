@@ -12,6 +12,7 @@ use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionUnionType;
+use Throwable;
 use function Amp\call;
 use function Amp\coroutine;
 use function Botify\{array_sole, config, gather};
@@ -105,7 +106,11 @@ class Handler
                 }
             }
 
-            yield gather($promises);
+            try {
+                yield gather($promises);
+            } catch (Throwable $e) {
+                return $update->getAPI()->getLogger()->critical($e);
+            }
 
             $privateHandler = new class extends EventHandler {
             };
@@ -128,7 +133,11 @@ class Handler
                 }
             }
 
-            return gather($promises);
+            try {
+                return gather($promises);
+            } catch (Throwable $e) {
+                $update->getAPI()->getLogger()->critical($e);
+            }
         });
     }
 }
