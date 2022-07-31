@@ -15,10 +15,10 @@ use Amp\Loop;
 use Amp\Promise;
 use Amp\Redis\Config;
 use Amp\Redis\Redis;
-use Amp\Redis\RedisException;
 use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
 use Botify\Events\Handler;
+use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
 use Botify\Types\Update;
@@ -28,6 +28,10 @@ use function Amp\call;
 use const SIGINT;
 use const STDOUT;
 
+/**
+ * @mixin Methods\Methods
+ * @mixin MethodsDoc
+ */
 class TelegramAPI
 {
     public Client $client;
@@ -44,10 +48,7 @@ class TelegramAPI
             )
         ]);
         $this->enableRedis();
-        try {
-            $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
-        } catch (Exception $e) {
-        }
+        $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);
     }
@@ -57,15 +58,11 @@ class TelegramAPI
         $config = config('redis');
 
         if (isset($config['host']) && isset($config['port'])) {
-            try {
-                $uri = Config::fromUri('redis://' . $config['host'] . ':' . $config['port'] . '?' . http_build_query([
-                        'password' => $config['password'] ?? '',
-                        'timeout' => $config['timeout'] ?? '',
-                        'database' => $config['database'] ?? 0,
-                    ]));
-            } catch (RedisException $e) {
-            }
-
+            $uri = Config::fromUri('redis://' . $config['host'] . ':' . $config['port'] . '?' . http_build_query([
+                    'password' => $config['password'] ?? '',
+                    'timeout' => $config['timeout'] ?? '',
+                    'database' => $config['database'] ?? 0,
+                ]));
             $this->redis = new Redis(new RemoteExecutor($uri));
         }
 
