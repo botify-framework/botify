@@ -137,7 +137,7 @@ class Handler
             }
 
             try {
-                return gather($promises);
+                yield gather($promises);
             } catch (Throwable $e) {
                 $update->getAPI()->getLogger()->critical($e);
             }
