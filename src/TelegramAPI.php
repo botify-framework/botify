@@ -22,6 +22,7 @@ use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
 use Botify\Types\Update;
+use Botify\Utils\Plugins\Plugin;
 use Exception;
 use Monolog\Logger;
 use function Amp\call;
@@ -37,8 +38,9 @@ class TelegramAPI
     public Client $client;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
-    private MethodsFactory $methodFactory;
     private array $initiators = [];
+    private MethodsFactory $methodFactory;
+    private Plugin $plugin;
 
     public function __construct(array $config = [])
     {
@@ -51,6 +53,7 @@ class TelegramAPI
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);
+        $this->plugin = Plugin::factory(config('telegram.plugins_dir'));
     }
 
     private function enableRedis(): void
@@ -91,9 +94,19 @@ class TelegramAPI
         return $this->client;
     }
 
+    public function getInitiators(): array
+    {
+        return $this->initiators;
+    }
+
     public function getLogger(): Utils\Logger\Logger
     {
         return $this->logger;
+    }
+
+    public function getPlugin(): Plugin
+    {
+        return $this->plugin;
     }
 
     public function getRedis(): ?Redis
@@ -291,6 +304,11 @@ class TelegramAPI
         Handler::addHandler(... func_get_args());
     }
 
+    public function onBefore(...$initiators)
+    {
+        $this->initiators += $initiators;
+    }
+
     /**
      * Set the event handler for avoiding updates
      *
@@ -300,15 +318,5 @@ class TelegramAPI
     public function setEventHandler($eventHandler)
     {
         Handler::addHandler($eventHandler);
-    }
-
-    public function onBefore(...$initiators)
-    {
-        $this->initiators += $initiators;
-    }
-
-    public function getInitiators(): array
-    {
-        return $this->initiators;
     }
 }

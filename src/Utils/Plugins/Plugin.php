@@ -13,47 +13,39 @@ use function Botify\gather;
 class Plugin
 {
     private static array $plugins = [];
-    private string $directory;
+    public DataBag $bag;
+    public $reflector;
+    public Update $update;
 
-    public function __construct($directory, public Update $update, public $reflector, public DataBag $bag)
+    public function __construct($directory)
     {
-        $this->setDirectory($directory);
-        $this->loadPlugins();
-    }
-
-    /**
-     * Remove cache and reload plugins
-     *
-     * @return void
-     */
-    public function reloadPlugins()
-    {
-        static::$plugins = [];
-        $this->loadPlugins();
+        $this->loadPlugins($directory);
     }
 
     /**
      * @return void
      */
-    private function loadPlugins($dir = '')
+    private function loadPlugins(string $dir)
     {
-        $contents = glob($dir ?: $this->directory . '/*');
+        if (!empty($dir)) {
+            $contents = glob($dir . '/*');
 
-        foreach ($contents as $content) {
-            if (is_dir($content)) {
-                $this->loadPlugins($content);
-            } else {
-                if (true !== $plugin = require_once $content) {
-                    $name = pathinfo(strtolower(basename($content)), PATHINFO_FILENAME);
-                    if (is_callable($plugin) || is_object($plugin)) {
-                        if ($matches = preg_grep("/^$name#?/", array_keys(static::$plugins))) {
-                            [$name, $counter] = explode('#', concat(end($matches), '#'));
-                            $counter++;
-                            $name = implode('#', [$name, $counter]);
-                        }
+            foreach ($contents as $content) {
+                if (is_dir($content)) {
+                    $this->loadPlugins($content);
+                } else {
+                    if (true !== $plugin = require_once $content) {
+                        $name = pathinfo(strtolower(basename($content)), PATHINFO_FILENAME);
+                        if (is_callable($plugin) || is_object($plugin)) {
+                            if ($matches = preg_grep("/^$name#?/", array_keys(static::$plugins))) {
+                                [$name, $counter] = explode('#', concat(end($matches), '#'));
+                                $counter++;
+                                $name = implode('#', [$name, $counter]);
+                            }
 
-                        if ($plugin instanceof Pluggable) {
-                            static::$plugins[$name] = $plugin;
+                            if ($plugin instanceof Pluggable) {
+                                static::$plugins[$name] = $plugin;
+                            }
                         }
                     }
                 }
@@ -81,22 +73,22 @@ class Plugin
 
     /**
      * @param string $directory
-     * @param Update $update
-     * @param $reflector
-     * @param DataBag $bag
      * @return Plugin
      */
-    public static function factory(string $directory, Update $update, $reflector, DataBag $bag): Plugin
+    public static function factory(string $directory): Plugin
     {
-        return new static($directory, $update, $reflector, $bag);
+        return new static($directory);
     }
 
     /**
-     * @param string $directory
+     * Remove cache and reload plugins
+     *
+     * @return void
      */
-    public function setDirectory(string $directory): void
+    public function reloadPlugins()
     {
-        $this->directory = $directory;
+        static::$plugins = [];
+        $this->loadPlugins();
     }
 
     public function wait(): Promise
@@ -125,5 +117,26 @@ class Plugin
                 $plugin->reset();
             });
         }, static::$plugins)));
+    }
+
+    public function withBag(DataBag $bag): Plugin
+    {
+        $plugin = clone $this;
+        $plugin->bag = $bag;
+        return $plugin;
+    }
+
+    public function withReflector($reflector): Plugin
+    {
+        $plugin = clone $this;
+        $plugin->reflector = $reflector;
+        return $plugin;
+    }
+
+    public function withUpdate(Update $update)
+    {
+        $plugin = clone $this;
+        $plugin->update = $update;
+        return $plugin;
     }
 }

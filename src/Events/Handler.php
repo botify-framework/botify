@@ -7,7 +7,6 @@ use Amp\Success;
 use Botify\TelegramAPI;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
-use Botify\Utils\Plugins\Plugin;
 use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -15,7 +14,7 @@ use ReflectionUnionType;
 use Throwable;
 use function Amp\call;
 use function Amp\coroutine;
-use function Botify\{array_sole, config, gather};
+use function Botify\{array_sole, gather};
 
 class Handler
 {
@@ -115,7 +114,11 @@ class Handler
             $privateHandler = new class extends EventHandler {
             };
             $privateHandler->register($update, $bag);
-            $plugins = Plugin::factory(config('telegram.plugins_dir'), $update, $reflector, $bag);
+            $plugins = $update->getAPI()
+                ->getPlugin()
+                ->withUpdate($update)
+                ->withBag($bag)
+                ->withReflector($reflector);
             $promises = [$plugins->wait()];
 
             foreach (static::$eventHandlers as $listener => $handler) {

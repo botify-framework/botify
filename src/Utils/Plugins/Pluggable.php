@@ -32,19 +32,6 @@ abstract class Pluggable
     }
 
     /**
-     * @param Update $update
-     */
-    public function setUpdate(Update $update): void
-    {
-        $this->update = $update;
-    }
-
-    public function setBag(DataBag $bag)
-    {
-        $this->bag = $bag;
-    }
-
-    /**
      * Add new filter
      *
      * @param callable $filter
@@ -57,6 +44,21 @@ abstract class Pluggable
         return $this;
     }
 
+    public function getBag(): array
+    {
+        return [$this->update, $this->bag];
+    }
+
+    public function setBag(DataBag $bag)
+    {
+        $this->bag = $bag;
+    }
+
+    final public function getCallback(): callable
+    {
+        return $this->callback ?? [$this, 'handle'];
+    }
+
     /**
      * @return array
      */
@@ -65,19 +67,17 @@ abstract class Pluggable
         return $this->filters;
     }
 
-    final public function getCallback(): callable
-    {
-        return $this->callback ?? [$this, 'handle'];
-    }
-
     public function reset()
     {
         $this->api = null;
         $this->update = null;
     }
 
-    public function getBag(): array
+    /**
+     * @param Update $update
+     */
+    public function setUpdate(Update $update): void
     {
-        return [$this->update, $this->bag];
+        $this->update = $update;
     }
 }
