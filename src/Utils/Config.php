@@ -26,17 +26,6 @@ class Config implements ArrayAccess
         $this->loadFromDir(config_path());
     }
 
-    private function mapIntoLazyItems(array $items): array
-    {
-        return array_map_recursive(function ($item) {
-            if ($item instanceof Closure) {
-                $item = $item();
-            }
-
-            return $item;
-        }, $items);
-    }
-
     /**
      * Load all configs contains in a directory
      *
@@ -63,27 +52,15 @@ class Config implements ArrayAccess
         }
     }
 
-    /**
-     * @param $key
-     * @param array $value
-     * @return Config
-     */
-    public function merge($key, array $value): static
+    private function mapIntoLazyItems(array $items): array
     {
-        static::$items->mergeRecursive($key, $value);
+        return array_map_recursive(function ($item) {
+            if ($item instanceof Closure) {
+                $item = $item();
+            }
 
-        return $this;
-    }
-
-    /**
-     * Load specified key data from config
-     *
-     * @param $key
-     * @return array
-     */
-    public function load($key): array
-    {
-        return static::$items[$key] ?? [];
+            return $item;
+        }, $items);
     }
 
     public static function make()
@@ -97,6 +74,66 @@ class Config implements ArrayAccess
     public function all(): array
     {
         return static::$items->all();
+    }
+
+    public function getMany($keys): array
+    {
+        $config = [];
+
+        foreach ($keys as $key => $default) {
+            if (is_numeric($key)) {
+                [$key, $default] = [$default, null];
+            }
+
+            $config[] = $this->get($key, $default);
+        }
+
+        return $config;
+    }
+
+    /**
+     * Load specified key data from config
+     *
+     * @param $key
+     * @return array
+     */
+    public function load($key): array
+    {
+        return static::$items[$key] ?? [];
+    }
+
+    /**
+     * @param $key
+     * @param array $value
+     * @return Config
+     */
+    public function merge($key, array $value): static
+    {
+        static::$items->mergeRecursive($key, $value);
+
+        return $this;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return isset(static::$items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->get($offset);
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (!is_null($offset)) {
+            $this->set($offset, $value);
+        }
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        unset(static::$items[$offset]);
     }
 
     /**
@@ -123,21 +160,6 @@ class Config implements ArrayAccess
         return value(static::$items[$key] ?? $default);
     }
 
-    public function getMany($keys): array
-    {
-        $config = [];
-
-        foreach ($keys as $key => $default) {
-            if (is_numeric($key)) {
-                [$key, $default] = [$default, null];
-            }
-
-            $config[] = $this->get($key, $default);
-        }
-
-        return $config;
-    }
-
     /**
      * @param $keys
      * @param null $value
@@ -155,18 +177,6 @@ class Config implements ArrayAccess
 
     /**
      * @param $key
-     * @param $value
-     * @return Config
-     */
-    public function push($key, $value)
-    {
-        static::$items->push($key, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param $key
      * @param $default
      * @return array|mixed|null
      */
@@ -175,25 +185,15 @@ class Config implements ArrayAccess
         return static::$items->pull($key, $default);
     }
 
-    public function offsetExists(mixed $offset): bool
+    /**
+     * @param $key
+     * @param $value
+     * @return Config
+     */
+    public function push($key, $value)
     {
-        return isset(static::$items[$offset]);
-    }
+        static::$items->push($key, $value);
 
-    public function offsetGet(mixed $offset): mixed
-    {
-        return $this->get($offset);
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if (!is_null($offset)) {
-            $this->set($offset, $value);
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset(static::$items[$offset]);
+        return $this;
     }
 }

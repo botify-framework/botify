@@ -286,6 +286,35 @@ class Dotty implements ArrayAccess, Countable, IteratorAggregate, JsonSerializab
         $this->delete($offset);
     }
 
+    public function delete($keys): Dotty
+    {
+        $keys = (array)$keys;
+
+        foreach ($keys as $key) {
+            if ($this->exists($this->items, $key)) {
+                unset($this->items[$key]);
+
+                continue;
+            }
+
+            $items = &$this->items;
+            $segments = explode('.', $key);
+            $lastSegment = array_pop($segments);
+
+            foreach ($segments as $segment) {
+                if (!isset($items[$segment]) || !is_array($items[$segment])) {
+                    continue 2;
+                }
+
+                $items = &$items[$segment];
+            }
+
+            unset($items[$lastSegment]);
+        }
+
+        return $this;
+    }
+
     public function pull($key = null, $default = null)
     {
         if ($key === null) {
@@ -313,35 +342,6 @@ class Dotty implements ArrayAccess, Countable, IteratorAggregate, JsonSerializab
 
         foreach ($keys as $key) {
             $this->set($key, []);
-        }
-
-        return $this;
-    }
-
-    public function delete($keys): Dotty
-    {
-        $keys = (array)$keys;
-
-        foreach ($keys as $key) {
-            if ($this->exists($this->items, $key)) {
-                unset($this->items[$key]);
-
-                continue;
-            }
-
-            $items = &$this->items;
-            $segments = explode('.', $key);
-            $lastSegment = array_pop($segments);
-
-            foreach ($segments as $segment) {
-                if (!isset($items[$segment]) || !is_array($items[$segment])) {
-                    continue 2;
-                }
-
-                $items = &$items[$segment];
-            }
-
-            unset($items[$lastSegment]);
         }
 
         return $this;

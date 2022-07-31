@@ -34,17 +34,6 @@ final class Client
     }
 
     /**
-     * @param $uri
-     * @param array $attributes
-     * @param bool $stream
-     * @return Promise
-     */
-    public function get($uri, array $attributes = [], bool $stream = false): Promise
-    {
-        return $this->fetch(__FUNCTION__, $this->generateUri($uri, $attributes), [], $stream);
-    }
-
-    /**
      * @param $method
      * @param $uri
      * @param array $attributes
@@ -142,6 +131,17 @@ final class Client
         }
 
         return $body;
+    }
+
+    /**
+     * @param $uri
+     * @param array $attributes
+     * @param bool $stream
+     * @return Promise
+     */
+    public function get($uri, array $attributes = [], bool $stream = false): Promise
+    {
+        return $this->fetch(__FUNCTION__, $this->generateUri($uri, $attributes), [], $stream);
     }
 
     /**

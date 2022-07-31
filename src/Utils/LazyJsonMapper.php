@@ -10,16 +10,6 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
 {
     private static TelegramAPI $api;
 
-    public function setApi(TelegramAPI $api)
-    {
-        static::$api ??= $api;
-    }
-
-    public function getAPI(): TelegramAPI
-    {
-        return static::$api;
-    }
-
     /**
      * Convert correct object to collection
      *
@@ -38,6 +28,11 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     public function toArray(): array
     {
         return $this->asArray();
+    }
+
+    public function getAPI(): TelegramAPI
+    {
+        return static::$api;
     }
 
     /**
@@ -83,5 +78,10 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     public function offsetUnset(mixed $offset): void
     {
         $this->_unsetProperty($offset);
+    }
+
+    public function setApi(TelegramAPI $api)
+    {
+        static::$api ??= $api;
     }
 }

@@ -121,28 +121,6 @@ class User extends LazyJsonMapper
     }
 
     /**
-     * @param int $offset
-     * @param int $limit
-     * @return Promise
-     */
-    public function getProfilePhotos(int $offset = 0, int $limit = 10): Promise
-    {
-        return call(function () use ($limit, $offset) {
-            $profiles = yield $this->getAPI()->getUserProfilePhotos([
-                'user_id' => $this->id,
-                'offset' => $offset,
-                'limit' => $limit,
-            ]);
-
-            if ($profiles->isSuccess()) {
-                return collect($profiles->photos);
-            }
-
-            return collect([]);
-        });
-    }
-
-    /**
      * Downloading current user profile photos
      *
      * @param int $offset
@@ -215,6 +193,28 @@ class User extends LazyJsonMapper
             }
 
             return false;
+        });
+    }
+
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @return Promise
+     */
+    public function getProfilePhotos(int $offset = 0, int $limit = 10): Promise
+    {
+        return call(function () use ($limit, $offset) {
+            $profiles = yield $this->getAPI()->getUserProfilePhotos([
+                'user_id' => $this->id,
+                'offset' => $offset,
+                'limit' => $limit,
+            ]);
+
+            if ($profiles->isSuccess()) {
+                return collect($profiles->photos);
+            }
+
+            return collect([]);
         });
     }
 

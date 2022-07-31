@@ -620,6 +620,22 @@ class Message extends LazyJsonMapper
             ]);
     }
 
+    public function getThread(): Producer
+    {
+        return new Producer(function ($emit) {
+            $message = $this;
+
+            while (true) {
+                yield $emit($message);
+                if (isset($message['reply_to_message'])) {
+                    $message = $message['reply_to_message'];
+                } else {
+                    break;
+                }
+            }
+        });
+    }
+
     /**
      * Pin current message in a chat
      *
@@ -947,21 +963,5 @@ class Message extends LazyJsonMapper
     private function getNotifiableId()
     {
         return $this->chat->id;
-    }
-
-    public function getThread(): Producer
-    {
-        return new Producer(function ($emit) {
-            $message = $this;
-
-            while (true) {
-                yield $emit($message);
-                if (isset($message['reply_to_message'])) {
-                    $message = $message['reply_to_message'];
-                } else {
-                    break;
-                }
-            }
-        });
     }
 }

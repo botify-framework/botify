@@ -74,26 +74,6 @@ class Logger extends AbstractLogger
         });
     }
 
-    public function exceptionToArray(Throwable $e): array
-    {
-        return [
-            'exception' => get_class($e),
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'code' => $e->getCode(),
-            'backtrace' => array_slice($e->getTrace(), 0, 3),
-        ];
-    }
-
-    private function getLoggerFile()
-    {
-        is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('botify.log'))))
-        || mkdir($logsDir, recursive: true);
-        file_exists($logFile) || touch($logFile);
-        return $logFile;
-    }
-
     public function log($level, $message, array $context = []): void
     {
         if ((static::$levels[$level] < $this->minLevel) || strtolower(config('app.environment')) === 'production') {
@@ -151,5 +131,25 @@ class Logger extends AbstractLogger
             $message,
             $context ? sprintln(var_export($context)) : null
         );
+    }
+
+    public function exceptionToArray(Throwable $e): array
+    {
+        return [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'code' => $e->getCode(),
+            'backtrace' => array_slice($e->getTrace(), 0, 3),
+        ];
+    }
+
+    private function getLoggerFile()
+    {
+        is_dir($logsDir = dirname($logFile = config('app.logger_file', base_path('botify.log'))))
+        || mkdir($logsDir, recursive: true);
+        file_exists($logFile) || touch($logFile);
+        return $logFile;
     }
 }

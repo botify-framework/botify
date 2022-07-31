@@ -24,8 +24,8 @@ final class MethodsFactory
         'user_id', 'chat_id',
     ];
     private Client $client;
-    private ?Redis $redis;
     private Logger $logger;
+    private ?Redis $redis;
     private array $responses_map = [
         Map\WebhookInfo::class => [
             'getWebhookInfo'

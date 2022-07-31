@@ -25,6 +25,7 @@ use function Botify\gather;
 class EventHandler implements ArrayAccess
 {
     use HasBag;
+
     public ?TelegramAPI $api = null;
     public $current;
     public LoggerInterface $logger;
@@ -99,6 +100,11 @@ class EventHandler implements ArrayAccess
         });
     }
 
+    public function getBag(): array
+    {
+        return [$this->current, $this->bag];
+    }
+
     /**
      * @param Update $update
      */
@@ -121,13 +127,6 @@ class EventHandler implements ArrayAccess
     }
 
     /**
-     * @param ChatMemberUpdated $chatMemberUpdated
-     */
-    public function onUpdateMyChatMember(ChatMemberUpdated $chatMemberUpdated)
-    {
-    }
-
-    /**
      * @param ChatJoinRequest $chatJoinRequest
      * @return void
      */
@@ -140,6 +139,55 @@ class EventHandler implements ArrayAccess
      * @param ChatMemberUpdated $chatMemberUpdated
      */
     public function onUpdateChatMember(ChatMemberUpdated $chatMemberUpdated)
+    {
+    }
+
+    /**
+     * @param ChosenInlineResult $chosenInlineResult
+     */
+    public function onUpdateChosenInlineResult(ChosenInlineResult $chosenInlineResult)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function onUpdateEditedChannelMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function onUpdateEditedMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param InlineQuery $inlineQuery
+     */
+    public function onUpdateInlineQuery(InlineQuery $inlineQuery)
+    {
+    }
+
+    /**
+     * @param ChatMemberUpdated $chatMemberUpdated
+     */
+    public function onUpdateMyChatMember(ChatMemberUpdated $chatMemberUpdated)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function onUpdateNewChannelMessage(Message $message)
+    {
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function onUpdateNewMessage(Message $message)
     {
     }
 
@@ -158,48 +206,6 @@ class EventHandler implements ArrayAccess
     }
 
     /**
-     * @param InlineQuery $inlineQuery
-     */
-    public function onUpdateInlineQuery(InlineQuery $inlineQuery)
-    {
-    }
-
-    /**
-     * @param Message $message
-     */
-    public function onUpdateNewChannelMessage(Message $message)
-    {
-    }
-
-    /**
-     * @param Message $message
-     */
-    public function onUpdateEditedChannelMessage(Message $message)
-    {
-    }
-
-    /**
-     * @param Message $message
-     */
-    public function onUpdateNewMessage(Message $message)
-    {
-    }
-
-    /**
-     * @param Message $message
-     */
-    public function onUpdateEditedMessage(Message $message)
-    {
-    }
-
-    /**
-     * @param ChosenInlineResult $chosenInlineResult
-     */
-    public function onUpdateChosenInlineResult(ChosenInlineResult $chosenInlineResult)
-    {
-    }
-
-    /**
      * Set TelegramAPI instance
      *
      * @param Update $update
@@ -214,10 +220,5 @@ class EventHandler implements ArrayAccess
         $this->logger = $this->api->getLogger();
         $this->bag = $bag;
         return $this;
-    }
-
-    public function getBag(): array
-    {
-        return [$this->current, $this->bag];
     }
 }

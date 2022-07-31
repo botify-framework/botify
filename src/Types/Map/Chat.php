@@ -146,6 +146,20 @@ class Chat extends LazyJsonMapper
     ];
 
     /**
+     * Delete messages from current chat
+     *
+     * @param $ids
+     * @return Promise
+     */
+    public function delete($ids): Promise
+    {
+        return gather(array_map(fn($id) => $this->getAPI()->deleteMessage(
+            chat_id: $this->id,
+            message_id: $id
+        ), (array)$ids));
+    }
+
+    /**
      * Getting specified user info in current chat
      *
      * @param $user_id
@@ -169,20 +183,6 @@ class Chat extends LazyJsonMapper
         return $this->getAPI()->leaveChat(
             chat_id: $this->id
         );
-    }
-
-    /**
-     * Delete messages from current chat
-     *
-     * @param $ids
-     * @return Promise
-     */
-    public function delete($ids): Promise
-    {
-        return gather(array_map(fn($id) => $this->getAPI()->deleteMessage(
-            chat_id: $this->id,
-            message_id: $id
-        ), (array)$ids));
     }
 
     private function getNotifiableId()
