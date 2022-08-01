@@ -106,7 +106,6 @@ final class Client
     private function generateBody(array $fields): FormBody
     {
         $body = new FormBody();
-        $fields = array_filter($fields);
         $files = [];
 
         $fields = array_map_recursive(function ($field) use (&$files) {
@@ -126,7 +125,7 @@ final class Client
         foreach ($fields as $fieldName => $content) {
             $body->addField(
                 $fieldName,
-                is_array($content) ? json_encode($content) : $content
+                is_array($content) ? json_encode($content) : ($content ?: '')
             );
         }
 
