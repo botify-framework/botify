@@ -39,7 +39,7 @@ return Plugin::apply(function (Message $message) {
                 return yield $message->replyMediaGroup($media, caption: $caption);
             }
 
-            yield $message->reply($caption);
+            return yield $message->reply($caption);
         }
     }
 });

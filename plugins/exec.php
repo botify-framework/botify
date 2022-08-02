@@ -68,9 +68,9 @@ return new class($filters) extends Pluggable {
                 'result.%s', is_json($buffers) ? 'json' : 'txt'
             ))), $buffers);
             yield $message->replyDocument($file);
-            yield $file->delete();
+            return yield $file->delete();
         } else {
-            yield $message->reply($result);
+            return yield $message->reply($result);
         }
     }
 };

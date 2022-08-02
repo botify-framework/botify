@@ -5,9 +5,13 @@ namespace Botify\Utils\Plugins;
 use Amp\Promise;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
+use Botify\Utils\Plugins\Exceptions\ContinuePropagation;
+use Botify\Utils\Plugins\Exceptions\StopPropagation;
 use Closure;
 use function Amp\call;
+use function Botify\array_some;
 use function Botify\concat;
+use function Botify\config;
 use function Botify\gather;
 
 class Plugin
@@ -36,20 +40,22 @@ class Plugin
                 } else {
                     if (true !== $plugin = require_once $content) {
                         $name = pathinfo(strtolower(basename($content)), PATHINFO_FILENAME);
-                        if (is_callable($plugin) || is_object($plugin)) {
-                            if ($matches = preg_grep("/^$name#?/", array_keys(static::$plugins))) {
+                        if ($plugin instanceof Pluggable) {
+                            $priority = $plugin->getPriority();
+
+                            if ($matches = preg_grep("/^$name#?/", array_keys(static::$plugins[$priority] ?? []))) {
                                 [$name, $counter] = explode('#', concat(end($matches), '#'));
                                 $counter++;
                                 $name = implode('#', [$name, $counter]);
                             }
 
-                            if ($plugin instanceof Pluggable) {
-                                static::$plugins[$name] = $plugin;
-                            }
+                            static::$plugins[$priority][$name] = $plugin;
                         }
                     }
                 }
             }
+
+            ksort(static::$plugins);
         }
     }
 
@@ -88,35 +94,51 @@ class Plugin
     public function reloadPlugins()
     {
         static::$plugins = [];
-        $this->loadPlugins();
+        $this->loadPlugins(config('telegram.plugins_dir', ''));
     }
 
     public function wait(): Promise
     {
-        return gather(array_filter(array_map(function (Pluggable $plugin) {
-            return call(function () use ($plugin) {
-                $plugin->setUpdate($this->update);
-                $plugin->setBag($this->bag);
+        return call(function () {
+            foreach (static::$plugins as $priority => $plugins) {
+                try {
+                    $responses = yield gather(array_filter(array_map(function (Pluggable $plugin) {
+                        return call(function () use ($plugin) {
+                            $plugin->setUpdate($this->update);
+                            $plugin->setBag($this->bag);
 
-                if (method_exists($plugin, 'boot')) {
-                    yield $this->reflector->bindCallback([$plugin, 'boot']);
+                            if (method_exists($plugin, 'boot')) {
+                                yield $this->reflector->bindCallback([$plugin, 'boot']);
+                            }
+
+                            foreach ($plugin->getFilters() as $filter) {
+                                if ($filter instanceof Closure) {
+                                    $filter = $filter->bindTo($plugin);
+                                }
+
+                                if (!boolval(yield $this->reflector->bindCallback($filter))) {
+                                    return false;
+                                }
+                            }
+
+                            $response = yield $this->reflector->bindCallback($plugin->getCallback());
+
+                            $plugin->reset();
+
+                            return $response;
+                        });
+                    }, $plugins)));
+                } catch (StopPropagation $e) {
+                    break;
+                } catch (ContinuePropagation $e) {
+                    continue;
                 }
 
-                foreach ($plugin->getFilters() as $filter) {
-                    if ($filter instanceof Closure) {
-                        $filter = $filter->bindTo($plugin);
-                    }
-
-                    if (!boolval(yield $this->reflector->bindCallback($filter))) {
-                        return;
-                    }
+                if (array_some($responses, fn($response) => !is_null($response))) {
+                    break;
                 }
-
-                yield $this->reflector->bindCallback($plugin->getCallback());
-
-                $plugin->reset();
-            });
-        }, static::$plugins)));
+            }
+        });
     }
 
     public function withBag(DataBag $bag): Plugin
@@ -133,7 +155,7 @@ class Plugin
         return $plugin;
     }
 
-    public function withUpdate(Update $update)
+    public function withUpdate(Update $update): Plugin
     {
         $plugin = clone $this;
         $plugin->update = $update;

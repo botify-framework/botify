@@ -6,6 +6,8 @@ use Botify\TelegramAPI;
 use Botify\Traits\HasBag;
 use Botify\Types\Update;
 use Botify\Utils\DataBag;
+use Botify\Utils\Plugins\Exceptions\ContinuePropagation;
+use Botify\Utils\Plugins\Exceptions\StopPropagation;
 use Closure;
 
 abstract class Pluggable
@@ -17,13 +19,15 @@ abstract class Pluggable
     private DataBag $bag;
     private $callback;
     private array $filters;
+    private int $priority = 0;
 
-    final public function __construct(array $filters = [], ?callable $fn = null)
+    final public function __construct(array $filters = [], ?callable $fn = null, int $priority = 0)
     {
         $this->filters = array_filter($filters, 'is_callable');
         $this->callback = $fn instanceof Closure
             ? $fn->bindTo($this)
             : $fn;
+        $this->priority = $priority;
     }
 
     final public function __call($name, array $arguments = [])
@@ -79,5 +83,27 @@ abstract class Pluggable
     public function setUpdate(Update $update): void
     {
         $this->update = $update;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): Pluggable
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
+
+    public function stopPropagation()
+    {
+        throw new StopPropagation();
+    }
+
+    public function continuePropagation()
+    {
+        throw new ContinuePropagation();
     }
 }

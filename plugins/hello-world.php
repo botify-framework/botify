@@ -10,7 +10,7 @@ return new class() extends Pluggable {
     public function handle(Message $message)
     {
         if ($message->eq('/start')) {
-            yield $message->reply('Hello world');
+            return yield $message->reply('Hello world');
         }
     }
 };
