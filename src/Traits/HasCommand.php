@@ -16,7 +16,8 @@ trait HasCommand
         }
 
         $flags = preg_quote(implode($this->flags));
-        $prefixes = '[' . preg_quote(implode($prefixes), '/') . ']' . value(function () use ($prefixes) {
+        $_prefixes = preg_quote(implode($prefixes), '/');
+        $prefixes = empty($_prefixes) ? '' : '[' . $_prefixes . ']' . value(function () use ($prefixes) {
                 if (in_array('', $prefixes)) {
                     return '?';
                 }
