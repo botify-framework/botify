@@ -31,7 +31,7 @@ trait Stringable
      */
     private function value(): ?string
     {
-        return $this->getStringableValue();
+        return (string)$this->getStringableValue();
     }
 
     /**
