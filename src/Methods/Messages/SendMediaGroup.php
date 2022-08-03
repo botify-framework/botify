@@ -15,12 +15,13 @@ trait SendMediaGroup
      * Send multiple media as album
      *
      * @param array $args
-     * @return Promise|Message[]
+     * @return Promise<Message[]>
      */
     protected function sendMediaGroup(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->client->post('sendMediaGroup', $args);
+            $request = yield $this->client->post('sendMediaGroup', $args);
+            $response = yield $request->json();
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

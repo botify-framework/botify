@@ -24,9 +24,10 @@ trait Downloadable
                     }
 
                     if ($file = yield File\openFile($path, 'c+')) {
-                        $body = yield $this->getAPI()->client->get($link, stream: true);
+                        $body = yield $this->getAPI()->client->get($link);
+                        $stream = $body->stream();
 
-                        while (null !== $chunk = yield $body->read(1024)) {
+                        while (null !== $chunk = yield $stream->read(1024)) {
                             $file->write($chunk);
                         }
 

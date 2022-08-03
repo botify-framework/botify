@@ -15,12 +15,13 @@ trait GetChatAdministrators
      * Getting list of all administrators of a chat
      *
      * @param array $args
-     * @return Promise|ChatMember[]
+     * @return Promise<ChatMember[]>
      */
     protected function getChatAdministrators(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->client->post('getChatAdministrators', $args);
+            $request = yield $this->client->post('getChatAdministrators', $args);
+            $response = yield $request->json();
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

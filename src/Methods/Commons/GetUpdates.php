@@ -16,7 +16,7 @@ trait GetUpdates
      * @param int $limit
      * @param int $timeout
      * @param array $allowed_updates
-     * @return Promise|Update[]
+     * @return Promise<Update[]>
      */
     protected function getUpdates(
         int   $offset = -1,
@@ -31,9 +31,10 @@ trait GetUpdates
             $timeout,
             $allowed_updates
         ) {
-            $response = yield $this->client->post('getUpdates', compact(
+            $request = yield $this->client->post('getUpdates', compact(
                 'offset', 'limit', 'timeout', 'allowed_updates'
             ));
+            $response = yield $request->json();
 
             if (!empty($response['ok'])) {
                 return collect(

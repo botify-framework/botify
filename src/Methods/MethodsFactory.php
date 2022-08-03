@@ -149,7 +149,8 @@ final class MethodsFactory
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
-            $response = yield $this->client->post(... $arguments);
+            $request = yield $this->client->post(... $arguments);
+            $response = yield $request->json();
 
             if ($response['ok']) {
                 if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {

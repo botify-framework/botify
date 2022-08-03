@@ -13,12 +13,13 @@ trait GetMyCommands
 
     /**
      * @param array $args
-     * @return Promise|BotCommand[]
+     * @return Promise<BotCommand[]>
      */
     protected function getMyCommands(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->client->post('getMyCommands', $args);
+            $request = yield $this->client->post('getMyCommands', $args);
+            $response = yield $request->json();
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

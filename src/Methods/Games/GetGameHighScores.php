@@ -15,12 +15,13 @@ trait GetGameHighScores
      * Get list of high scores of a game
      *
      * @param array $args
-     * @return Promise|GameHighScore[]
+     * @return Promise<GameHighScore[]>
      */
     protected function getGameHighScores(...$args): Promise
     {
         return call(function () use ($args) {
-            $response = yield $this->client->post('getGameHighScores', $args);
+            $request = yield $this->client->post('getGameHighScores', $args);
+            $response = yield $request->json();
 
             if (isset($response['result']) && is_array($response['result'])) {
                 return collect(array_map(

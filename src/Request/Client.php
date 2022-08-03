@@ -2,10 +2,12 @@
 
 namespace Botify\Request;
 
+use Amp\ByteStream\Payload;
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
+use Amp\Http\Client\Response;
 use Amp\Promise;
 use function Amp\call;
 use function Botify\array_map_recursive;
@@ -15,46 +17,64 @@ use function Botify\tap;
 
 final class Client
 {
-    private static HttpClient $httpClient;
+    private HttpClient $httpClient;
 
     public function __construct()
     {
-        self::$httpClient ??= HttpClientBuilder::buildDefault();
+        $this->httpClient ??= HttpClientBuilder::buildDefault();
     }
 
     /**
      * @param $uri
      * @param array $attributes
-     * @param bool $stream
+     * @param array $headers
      * @return Promise
      */
-    public function delete($uri, array $attributes = [], bool $stream = false): Promise
+    public function delete($uri, array $attributes = [], array $headers = []): Promise
     {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $headers);
     }
 
     /**
      * @param $method
      * @param $uri
      * @param array $attributes
-     * @param bool $stream
+     * @param array $headers
      * @return Promise
      */
-    protected function fetch($method, $uri, array $attributes, bool $stream = false): Promise
+    protected function fetch($method, $uri, array $attributes = [], array $headers = []): Promise
     {
-        return call(function () use ($method, $uri, $attributes, $stream) {
-            $promise = yield self::$httpClient->request(
-                $this->makeRequest($method, $uri, $attributes)
+        return call(function () use ($method, $uri, $attributes, $headers) {
+            $response = yield $this->httpClient->request(
+                $this->makeRequest($method, $uri, $attributes, $headers)
             );
 
-            $body = $promise->getBody();
+            return new class($response) {
+                public function __construct(public Response $response)
+                {
+                }
 
-            if ($stream === true)
-                return $body;
+                public function json(): Promise
+                {
+                    return call(function () {
+                        $body = $this->response->getBody();
 
-            return is_json($response = yield $body->buffer()) ? json_decode(
-                $response, true
-            ) : $response;
+                        return is_json($response = yield $body->buffer()) ? json_decode(
+                            $response, true
+                        ) : $response;
+                    });
+                }
+
+                public function stream(): Payload
+                {
+                    return $this->response->getBody();
+                }
+
+                public function __call(string $name, array $arguments = [])
+                {
+                    return call_user_func_array([$this->response, $name], $arguments);
+                }
+            };
         });
     }
 
@@ -62,18 +82,20 @@ final class Client
      * @param $method
      * @param $uri
      * @param array $data
+     * @param array $headers
      * @return Request
      */
-    private function makeRequest($method, $uri, array $data = []): Request
+    private function makeRequest($method, $uri, array $data = [], array $headers = []): Request
     {
         $method = strtoupper($method);
 
-        return tap(new Request($this->generateUri($uri), $method), function (Request $request) use ($data) {
+        return tap(new Request($this->generateUri($uri), $method), function (Request $request) use ($data, $headers) {
             if (!empty($data)) {
                 $request->setBody(
                     $this->generateBody($data)
                 );
             }
+            $request->setHeaders((array)$headers);
             $request->setInactivityTimeout(config('telegram.http.inactivity_timeout') * 1000);
             $request->setTransferTimeout(config('telegram.http.transfer_timeout') * 1000);
             $request->setBodySizeLimit(config('telegram.http.body_size_limit') * 1000);
@@ -135,33 +157,33 @@ final class Client
     /**
      * @param $uri
      * @param array $attributes
-     * @param bool $stream
+     * @param array $headers
      * @return Promise
      */
-    public function get($uri, array $attributes = [], bool $stream = false): Promise
+    public function get($uri, array $attributes = [], array $headers = []): Promise
     {
-        return $this->fetch(__FUNCTION__, $this->generateUri($uri, $attributes), [], $stream);
+        return $this->fetch(__FUNCTION__, $this->generateUri($uri, $attributes), [], $headers);
     }
 
     /**
      * @param $uri
      * @param array $attributes
-     * @param bool $stream
+     * @param array $headers
      * @return Promise
      */
-    public function post($uri, array $attributes = [], bool $stream = false): Promise
+    public function post($uri, array $attributes = [], array $headers = []): Promise
     {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $headers);
     }
 
     /**
      * @param $uri
      * @param array $attributes
-     * @param bool $stream
+     * @param array $headers
      * @return Promise
      */
-    public function put($uri, array $attributes = [], bool $stream = false): Promise
+    public function put($uri, array $attributes = [], array $headers = []): Promise
     {
-        return $this->fetch(__FUNCTION__, $uri, $attributes, $stream);
+        return $this->fetch(__FUNCTION__, $uri, $attributes, $headers);
     }
 }
