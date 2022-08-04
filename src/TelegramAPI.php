@@ -27,6 +27,7 @@ use Botify\Types\Update;
 use Botify\Utils\Plugins\Plugin;
 use Exception;
 use Monolog\Logger;
+use stdClass;
 use function Amp\call;
 use const SIGINT;
 use const STDOUT;
@@ -45,7 +46,7 @@ class TelegramAPI implements ArrayAccess
     private array $initiators = [];
     private MethodsFactory $methodFactory;
     private Plugin $plugin;
-    private array $uses = [];
+    private stdClass $uses;
 
     public function __construct(array $config = [])
     {
@@ -59,6 +60,7 @@ class TelegramAPI implements ArrayAccess
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);
         $this->plugin = Plugin::factory(config('telegram.plugins_dir'));
+        $this->uses = new stdClass();
     }
 
     private function enableRedis(): void
@@ -332,6 +334,6 @@ class TelegramAPI implements ArrayAccess
 
     public function use($name, $value)
     {
-        $this->uses[$name] = $value;
+        $this->uses->{$name} = $value;
     }
 }

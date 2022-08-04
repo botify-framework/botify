@@ -2,12 +2,13 @@
 
 namespace Botify\Traits;
 
+use stdClass;
 use function Botify\array_sole;
 use function Botify\array_some;
 
 trait HasBag
 {
-    protected array $bagData = [];
+    protected stdClass $bagData;
 
     final public function __get(string $name)
     {
@@ -29,13 +30,14 @@ trait HasBag
     private function get(string $name)
     {
         return array_sole($this->getBagData(), function ($bag) use ($name) {
-            return $bag[$name] ?? false;
+            return $bag->{$name} ?? false;
         });
     }
 
     private function set(mixed $name, mixed $value)
     {
-        $this->bagData[$name] = $value;
+        $this->bagData ??= new stdClass();
+        $this->bagData->{$name} = $value;
     }
 
     final public function __unset(string $name)
@@ -46,7 +48,7 @@ trait HasBag
     private function unset(string $name)
     {
         foreach ($this->getBagData() as $bag) {
-            unset($bag[$name]);
+            unset($bag->{$name});
         }
     }
 
