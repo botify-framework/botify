@@ -93,6 +93,11 @@ class TelegramAPI
         return call_user_func_array([$this->methodFactory, $name], $arguments);
     }
 
+    public function getBag(): array
+    {
+        return [$this->uses];
+    }
+
     public function getClient(): Client
     {
         return $this->client;
@@ -327,10 +332,5 @@ class TelegramAPI
     public function use($name, $value)
     {
         $this->uses[$name] = $value;
-    }
-
-    public function getBag(): array
-    {
-        return [$this->uses];
     }
 }

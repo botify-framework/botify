@@ -105,6 +105,7 @@ class Plugin
                     $responses = yield gather(array_filter(array_map(function (Pluggable $plugin) {
                         return call(function () use ($plugin) {
                             $plugin->setUpdate($this->update);
+                            $plugin->setAPI($this->update->getAPI());
                             $plugin->setBag($this->bag);
 
                             if (method_exists($plugin, 'boot')) {

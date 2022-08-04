@@ -106,4 +106,9 @@ abstract class Pluggable
     {
         throw new ContinuePropagation();
     }
+
+    public function setAPI(TelegramAPI $api)
+    {
+        $this->api = $api;
+    }
 }
