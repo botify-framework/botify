@@ -2,6 +2,7 @@
 
 namespace Botify\Utils\Plugins;
 
+use ArrayAccess;
 use Botify\TelegramAPI;
 use Botify\Traits\HasBag;
 use Botify\Types\Update;
@@ -10,7 +11,7 @@ use Botify\Utils\Plugins\Exceptions\ContinuePropagation;
 use Botify\Utils\Plugins\Exceptions\StopPropagation;
 use Closure;
 
-abstract class Pluggable
+abstract class Pluggable implements ArrayAccess
 {
     use HasBag;
 
