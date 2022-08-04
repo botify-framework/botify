@@ -112,4 +112,9 @@ abstract class Pluggable implements ArrayAccess
     {
         $this->api = $api;
     }
+
+    public function getAPI(): ?TelegramAPI
+    {
+        return $this->api;
+    }
 }
