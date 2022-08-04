@@ -17,6 +17,7 @@ use Amp\Redis\Config;
 use Amp\Redis\Redis;
 use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
+use ArrayAccess;
 use Botify\Events\Handler;
 use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
@@ -34,7 +35,7 @@ use const STDOUT;
  * @mixin Methods\Methods
  * @mixin MethodsDoc
  */
-class TelegramAPI
+class TelegramAPI implements ArrayAccess
 {
     use HasBag;
 
