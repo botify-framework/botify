@@ -8,7 +8,7 @@ use function Botify\array_some;
 
 trait HasBag
 {
-    protected stdClass $bagData;
+    protected ?stdClass $bagData = null;
 
     final public function __get(string $name)
     {
