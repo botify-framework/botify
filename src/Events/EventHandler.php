@@ -102,7 +102,7 @@ class EventHandler implements ArrayAccess
 
     public function getBag(): array
     {
-        return [$this->current, $this->bag];
+        return [$this->api, $this->current, $this->bag];
     }
 
     /**

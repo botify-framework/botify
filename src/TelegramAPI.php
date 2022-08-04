@@ -21,6 +21,7 @@ use Botify\Events\Handler;
 use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
+use Botify\Traits\HasBag;
 use Botify\Types\Update;
 use Botify\Utils\Plugins\Plugin;
 use Exception;
@@ -35,12 +36,15 @@ use const STDOUT;
  */
 class TelegramAPI
 {
+    use HasBag;
+
     public Client $client;
     public Utils\Logger\Logger $logger;
     public ?Redis $redis;
     private array $initiators = [];
     private MethodsFactory $methodFactory;
     private Plugin $plugin;
+    private array $uses = [];
 
     public function __construct(array $config = [])
     {
@@ -318,5 +322,15 @@ class TelegramAPI
     public function setEventHandler($eventHandler)
     {
         Handler::addHandler($eventHandler);
+    }
+
+    public function use($name, $value)
+    {
+        $this->uses[$name] = $value;
+    }
+
+    public function getBag(): array
+    {
+        return [$this->uses];
     }
 }

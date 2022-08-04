@@ -50,7 +50,7 @@ abstract class Pluggable
 
     public function getBag(): array
     {
-        return [$this->update, $this->bag];
+        return [$this->api, $this->update, $this->bag];
     }
 
     public function setBag(DataBag $bag)
