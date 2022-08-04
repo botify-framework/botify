@@ -7,9 +7,18 @@ use function Botify\array_some;
 
 trait HasBag
 {
+    protected array $bagData = [];
+
     final public function __get(string $name)
     {
         return $this->get($name);
+    }
+
+    public function getBagData()
+    {
+        $data = $this->getBag();
+        $data[] = $this->bagData;
+        return $data;
     }
 
     final public function __set(mixed $name, mixed $value)
@@ -19,16 +28,14 @@ trait HasBag
 
     private function get(string $name)
     {
-        return array_sole($this->getBag(), function ($bag) use ($name) {
+        return array_sole($this->getBagData(), function ($bag) use ($name) {
             return $bag[$name] ?? false;
         });
     }
 
     private function set(mixed $name, mixed $value)
     {
-        foreach ($this->getBag() as &$bag) {
-            $bag[$name] = $value;
-        }
+        $this->bagData[$name] = $value;
     }
 
     final public function __unset(string $name)
@@ -38,7 +45,7 @@ trait HasBag
 
     private function unset(string $name)
     {
-        foreach ($this->getBag() as $bag) {
+        foreach ($this->getBagData() as $bag) {
             unset($bag[$name]);
         }
     }
@@ -52,7 +59,7 @@ trait HasBag
 
     private function isset(string $name): bool
     {
-        return array_some($this->getBag(), fn($bag) => isset($bag[$name]));
+        return array_some($this->getBagData(), fn($bag) => isset($bag[$name]));
     }
 
     final public function offsetGet(mixed $offset): mixed
