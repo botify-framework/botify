@@ -6,7 +6,7 @@ use Amp\Promise;
 use Amp\Redis\Redis;
 use ArrayAccess;
 use Botify\TelegramAPI;
-use Botify\Traits\HasBag;
+use Botify\Traits\Accessible;
 use Botify\Types\Map\CallbackQuery;
 use Botify\Types\Map\ChatJoinRequest;
 use Botify\Types\Map\ChatMemberUpdated;
@@ -16,7 +16,7 @@ use Botify\Types\Map\Message;
 use Botify\Types\Map\PreCheckoutQuery;
 use Botify\Types\Map\ShippingQuery;
 use Botify\Types\Update;
-use Botify\Utils\DataBag;
+use Botify\Utils\Bag;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use function Amp\call;
@@ -24,13 +24,13 @@ use function Botify\gather;
 
 class EventHandler implements ArrayAccess
 {
-    use HasBag;
+    use Accessible;
 
     public ?TelegramAPI $api = null;
     public $current;
     public LoggerInterface $logger;
     public ?Redis $redis = null;
-    private DataBag $bag;
+    private Bag $bag;
     private ?Update $update = null;
 
     /**
@@ -100,7 +100,7 @@ class EventHandler implements ArrayAccess
         });
     }
 
-    public function getBag(): array
+    public function getAccessibles(): array
     {
         return [$this->api, $this->current, $this->bag];
     }
@@ -209,10 +209,10 @@ class EventHandler implements ArrayAccess
      * Set TelegramAPI instance
      *
      * @param Update $update
-     * @param DataBag $bag
+     * @param Bag $bag
      * @return EventHandler
      */
-    final public function register(Update $update, DataBag $bag): EventHandler
+    final public function register(Update $update, Bag $bag): EventHandler
     {
         $this->update = $update;
         $this->api = $update->getAPI();

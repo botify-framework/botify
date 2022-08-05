@@ -4,7 +4,7 @@ namespace Botify\Utils\Plugins;
 
 use Amp\Promise;
 use Botify\Types\Update;
-use Botify\Utils\DataBag;
+use Botify\Utils\Bag;
 use Botify\Utils\Plugins\Exceptions\ContinuePropagation;
 use Botify\Utils\Plugins\Exceptions\StopPropagation;
 use Closure;
@@ -17,9 +17,9 @@ use function Botify\gather;
 class Plugin
 {
     private static array $plugins = [];
-    public DataBag $bag;
+    public ?Bag $bag;
     public $reflector;
-    public Update $update;
+    public ?Update $update;
 
     public function __construct($directory)
     {
@@ -124,7 +124,7 @@ class Plugin
 
                             $response = yield $this->reflector->bindCallback($plugin->getCallback());
 
-                            $plugin->reset();
+                            $plugin->close();
 
                             return $response;
                         });
@@ -142,7 +142,7 @@ class Plugin
         });
     }
 
-    public function withBag(DataBag $bag): Plugin
+    public function withBag(Bag $bag): Plugin
     {
         $plugin = clone $this;
         $plugin->bag = $bag;

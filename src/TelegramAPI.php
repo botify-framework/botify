@@ -22,7 +22,7 @@ use Botify\Events\Handler;
 use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
-use Botify\Traits\HasBag;
+use Botify\Traits\Accessible;
 use Botify\Types\Update;
 use Botify\Utils\Plugins\Plugin;
 use Exception;
@@ -38,7 +38,7 @@ use const STDOUT;
  */
 class TelegramAPI implements ArrayAccess
 {
-    use HasBag;
+    use Accessible;
 
     public Client $client;
     public Utils\Logger\Logger $logger;
@@ -96,7 +96,7 @@ class TelegramAPI implements ArrayAccess
         return call_user_func_array([$this->methodFactory, $name], $arguments);
     }
 
-    public function getBag(): array
+    public function getAccessibles(): array
     {
         return [$this->uses];
     }

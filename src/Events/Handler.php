@@ -6,7 +6,7 @@ use Amp\Promise;
 use Amp\Success;
 use Botify\TelegramAPI;
 use Botify\Types\Update;
-use Botify\Utils\DataBag;
+use Botify\Utils\Bag;
 use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -96,7 +96,8 @@ class Handler
                     return new Success();
                 }
             };
-            $bag = new DataBag($update->getAPI());
+            $bag = new Bag();
+            $bag->setAPI($update->getAPI());
             $promises = [];
 
             foreach ($update->getAPI()->getInitiators() as $initiator) {
@@ -141,6 +142,8 @@ class Handler
             } catch (Throwable $e) {
                 $update->getAPI()->getLogger()->critical($e);
             }
+
+            unset($bag, $privateHandler, $plugins);
         });
     }
 }

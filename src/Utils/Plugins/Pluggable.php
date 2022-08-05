@@ -4,23 +4,23 @@ namespace Botify\Utils\Plugins;
 
 use ArrayAccess;
 use Botify\TelegramAPI;
-use Botify\Traits\HasBag;
+use Botify\Traits\Accessible;
 use Botify\Types\Update;
-use Botify\Utils\DataBag;
+use Botify\Utils\Bag;
 use Botify\Utils\Plugins\Exceptions\ContinuePropagation;
 use Botify\Utils\Plugins\Exceptions\StopPropagation;
 use Closure;
 
 abstract class Pluggable implements ArrayAccess
 {
-    use HasBag;
+    use Accessible;
 
     public ?Update $update;
     private ?TelegramAPI $api;
-    private DataBag $bag;
+    private ?Bag $bag;
     private $callback;
     private array $filters;
-    private int $priority = 0;
+    private int $priority;
 
     final public function __construct(array $filters = [], ?callable $fn = null, int $priority = 0)
     {
@@ -49,12 +49,12 @@ abstract class Pluggable implements ArrayAccess
         return $this;
     }
 
-    public function getBag(): array
+    public function getAccessibles(): array
     {
         return [$this->api, $this->update, $this->bag];
     }
 
-    public function setBag(DataBag $bag)
+    public function setBag(Bag $bag)
     {
         $this->bag = $bag;
     }
@@ -72,10 +72,12 @@ abstract class Pluggable implements ArrayAccess
         return $this->filters;
     }
 
-    public function reset()
+    public function close()
     {
         $this->api = null;
         $this->update = null;
+        $this->bag = null;
+        $this->resetBag();
     }
 
     /**

@@ -6,7 +6,7 @@ use stdClass;
 use function Botify\array_sole;
 use function Botify\array_some;
 
-trait HasBag
+trait Accessible
 {
     protected ?stdClass $bagData = null;
 
@@ -17,7 +17,7 @@ trait HasBag
 
     public function getBagData()
     {
-        $data = $this->getBag();
+        $data = $this->getAccessibles();
         $data[] = $this->bagData;
         return $data;
     }
@@ -52,7 +52,7 @@ trait HasBag
         }
     }
 
-    abstract public function getBag(): array;
+    abstract public function getAccessibles(): array;
 
     final public function offsetExists(mixed $offset): bool
     {
@@ -77,5 +77,10 @@ trait HasBag
     final public function offsetUnset(mixed $offset): void
     {
         $this->unset($offset);
+    }
+
+    final public function resetBag()
+    {
+        $this->bagData = null;
     }
 }

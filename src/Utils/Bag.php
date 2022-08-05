@@ -5,12 +5,16 @@ namespace Botify\Utils;
 use ArrayAccess;
 use Botify\TelegramAPI;
 
-class DataBag implements ArrayAccess
+class Bag implements ArrayAccess
 {
     protected array $attributes = [];
+    private TelegramAPI $api;
 
-    public function __construct(public TelegramAPI $api)
+    public function setAPI(TelegramAPI $api)
     {
+        $this->api = $api;
+
+        return $this;
     }
 
     public function __call($method, array $arguments = [])
