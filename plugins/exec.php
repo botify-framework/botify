@@ -64,11 +64,10 @@ return new class($filters) extends Pluggable {
         mb_internal_encoding('UTF-8');
 
         if (mb_strlen($result, 'utf8') > 4096) {
-
             $file = new FileSystem(storage_path(sprintf(
                 'result.%s', is_json($buffers) ? 'json' : 'txt'
             )));
-            yield $file->put($buffers);
+            yield $file->write($buffers);
             yield $message->replyDocument($file);
             return yield $file->delete();
         } else {

@@ -2,8 +2,9 @@
 
 namespace Botify\Utils;
 
+use Amp\File;
 use Amp\Promise;
-use function Amp\File\{deleteFile,move,write,read};
+use function Amp\call;
 use function Botify\abs_path;
 
 
@@ -12,39 +13,7 @@ class FileSystem
     /**
      * @var string
      */
-    private string $absolutePath;
-    /**
-     * @var string
-     */
-    private string $baseName;
-    /**
-     * @var string
-     */
-    private string $dirName;
-    /**
-     * @var bool
-     */
-    private bool $exists;
-    /**
-     * @var string
-     */
-    private string $extension;
-    /**
-     * @var bool
-     */
-    private bool $isDir;
-    /**
-     * @var string
-     */
     private string $path;
-    /**
-     * @var bool
-     */
-    private bool $readable;
-    /**
-     * @var bool
-     */
-    private bool $writeable;
 
     /**
      * @param string $path
@@ -52,14 +21,34 @@ class FileSystem
     public function __construct(string $path)
     {
         $this->path = $path;
-        $this->baseName = basename($path);
-        $this->dirName = dirname($path);
-        $this->extension = pathinfo($path, PATHINFO_EXTENSION);
-        $this->absolutePath = abs_path($path);
-        $this->exists = file_exists($path);
-        $this->isDir = is_dir($path);
-        $this->writeable = is_writable($path);
-        $this->readable = is_readable($path);
+    }
+
+    public function touch(): Promise
+    {
+        return call(function () {
+            if (yield File\isDirectory($dir = $this->getDirName())) {
+                File\createDirectoryRecursively($dir, 0755);
+            }
+
+            return File\touch($this->path);
+        });
+    }
+
+    /**
+     * @return Promise
+     */
+    public function read(): Promise
+    {
+        return File\read($this->path);
+    }
+
+    /**
+     * @param string $data
+     * @return Promise
+     */
+    public function write(string $data): Promise
+    {
+        return File\write($this->path, $data);
     }
 
     /**
@@ -79,11 +68,11 @@ class FileSystem
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getAbsolutePath(): mixed
+    public function getAbsolutePath(): string
     {
-        return $this->absolutePath;
+        return abs_path($this->path);
     }
 
     /**
@@ -91,7 +80,7 @@ class FileSystem
      */
     public function getBaseName(): string
     {
-        return $this->baseName;
+        return basename($this->path);
     }
 
     /**
@@ -99,7 +88,7 @@ class FileSystem
      */
     public function getDirName(): string
     {
-        return $this->dirName;
+        return dirname($this->path);
     }
 
     /**
@@ -107,7 +96,7 @@ class FileSystem
      */
     public function getExtension(): string
     {
-        return $this->extension;
+        return pathinfo($this->path, PATHINFO_EXTENSION);
     }
 
     /**
@@ -119,19 +108,27 @@ class FileSystem
     }
 
     /**
-     * @return bool
+     * @return Promise
      */
-    public function isDir(): bool
+    public function isDir(): Promise
     {
-        return $this->isDir;
+        return File\isDirectory($this->path);
     }
 
     /**
-     * @return bool
+     * @return Promise
      */
-    public function isExists(): bool
+    public function isExists(): Promise
     {
-        return $this->exists;
+        return File\isFile($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function isSymlink(): Promise
+    {
+        return File\isSymlink($this->path);
     }
 
     /**
@@ -139,7 +136,7 @@ class FileSystem
      */
     public function isReadable(): bool
     {
-        return $this->readable;
+        return is_readable($this->path);
     }
 
     /**
@@ -147,7 +144,7 @@ class FileSystem
      */
     public function isWriteable(): bool
     {
-        return $this->writeable;
+        return is_writable($this->path);
     }
 
     /**
@@ -183,5 +180,80 @@ class FileSystem
     public function get(): Promise
     {
         return read($this->path);
+    }
+
+    /**
+     * @param string $link
+     * @return Promise
+     */
+    public function createSymlink(string $link): Promise
+    {
+        return File\createSymlink($this->path, $link);
+    }
+
+    /**
+     * @param string $link
+     * @return Promise
+     */
+    public function createHardLink(string $link): Promise
+    {
+        return File\createHardlink($this->path, $link);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function getStatus(): Promise
+    {
+        return File\getStatus($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function getLinkStatus(): Promise
+    {
+        return File\getLinkStatus($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function createdAt(): Promise
+    {
+        return File\getCreationTime($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function modifiedAt(): Promise
+    {
+        return File\getModificationTime($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function accessedAt(): Promise
+    {
+        return File\getAccessTime($this->path);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function getSize(): Promise
+    {
+        return File\getSize($this->path);
+    }
+
+    /**
+     * @param string $mode
+     * @return Promise
+     */
+    public function open(string $mode): Promise
+    {
+        return File\openFile($this->path, $mode);
     }
 }

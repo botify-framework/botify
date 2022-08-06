@@ -16,6 +16,9 @@ use function Botify\array_some;
 use function Botify\config;
 use function Botify\value;
 
+/**
+ * @mixin MethodsDoc
+ */
 final class MethodsFactory
 {
     use Methods;

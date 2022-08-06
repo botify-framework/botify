@@ -33,8 +33,7 @@ use const SIGINT;
 use const STDOUT;
 
 /**
- * @mixin Methods\Methods
- * @mixin MethodsDoc
+ * @mixin Methods\MethodsFactory
  */
 class TelegramAPI implements ArrayAccess
 {
