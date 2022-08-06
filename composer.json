@@ -18,7 +18,7 @@
   "require-dev": {
     "symfony/var-dumper": "^6.1",
     "amphp/phpunit-util": "^1",
-    "phpunit/phpunit": "^9.5"
+    "phpunit/phpunit": "^7 | ^8 | ^9"
   },
   "require": {
     "amphp/http-server": "^2.1",
