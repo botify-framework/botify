@@ -10,17 +10,8 @@
       "src/functions.php"
     ]
   },
-  "autoload-dev": {
-    "psr-4": {
-      "Botify\\Test\\": "Tests"
-    }
-  },
   "require-dev": {
-    "symfony/var-dumper": "^6.1",
-    "amphp/php-cs-fixer-config": "dev-master",
-    "react/promise": "^2",
-    "phpunit/phpunit": "^7 | ^8 | ^9",
-    "jetbrains/phpstorm-stubs": "^2019.3"
+    "symfony/var-dumper": "^6.1"
   },
   "require": {
     "amphp/http-server": "^2.1",
@@ -40,8 +31,6 @@
   "scripts": {
     "post-install-cmd": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-    ],
-    "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit",
-    "code-style": "@php ./vendor/bin/php-cs-fixer fix"
+    ]
   }
 }
