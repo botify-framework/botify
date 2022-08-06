@@ -494,14 +494,25 @@ if (!function_exists('Botify\\array_first')) {
     /**
      * Getting first element of array
      * @param array $array
+     * @param callable|null $fn
+     * @param mixed|null $default
      * @return mixed
-     * @example
-     * array_first(some_function_returns_array());
-     *
+     * @example array_first(some_function_returns_array());
      */
-    function array_first(array $array): mixed
+    function array_first(array $array, callable $fn = null, mixed $default = null): mixed
     {
-        return reset($array);
+
+        if (is_null($fn)) {
+            return empty($array) ? value($default) : reset($default);
+        }
+
+        foreach ($array as $key => $value) {
+            if ($fn($value, $key)) {
+                return $value;
+            }
+        }
+
+        return value($default);
     }
 }
 
@@ -509,14 +520,18 @@ if (!function_exists('Botify\\array_last')) {
     /**
      * Getting last element of array
      * @param array $array
+     * @param callable|null $fn
+     * @param mixed|null $default
      * @return mixed
-     * @example
-     * array_last(some_function_returns_array());
-     *
+     * @example array_last(some_function_returns_array());
      */
-    function array_last(array $array): mixed
+    function array_last(array $array, callable $fn = null, mixed $default = null): mixed
     {
-        return end($array);
+        if (is_null($fn)) {
+            return empty($array) ? value($default) : end($array);
+        }
+
+        return array_first(array_reverse($array, false), $fn, $default);
     }
 }
 
