@@ -1,38 +1,34 @@
 name: Continuous Integration
 
 on:
-  # Triggers the workflow on every pull request to master branch
-  push:
-    branches: [ Mahdi,master ]
-  pull_request:
-    branches: [ Mahdi,master ]
+  - push
+  - pull_request
+
 jobs:
   tests:
     strategy:
       matrix:
         include:
           - operating-system: 'ubuntu-latest'
-            php-version: '7.1'
-
-          - operating-system: 'ubuntu-latest'
-            php-version: '7.2'
-
-          - operating-system: 'ubuntu-latest'
-            php-version: '7.3'
-
-          - operating-system: 'ubuntu-latest'
-            php-version: '7.4'
-
-          - operating-system: 'ubuntu-latest'
             php-version: '8.0'
-            composer-flags: '--ignore-platform-req=php'
 
           - operating-system: 'windows-latest'
-            php-version: '7.4'
+            php-version: '8.0'
             job-description: 'on Windows'
 
           - operating-system: 'macos-latest'
-            php-version: '7.4'
+            php-version: '8.0'
+            
+            job-description: 'on macOS'
+          - operating-system: 'ubuntu-latest'
+            php-version: '8.1'
+
+          - operating-system: 'windows-latest'
+            php-version: '8.1'
+            job-description: 'on Windows'
+
+          - operating-system: 'macos-latest'
+            php-version: '8.1'
             job-description: 'on macOS'
 
     name: PHP ${{ matrix.php-version }} ${{ matrix.job-description }}
@@ -76,11 +72,13 @@ jobs:
             composer update --optimize-autoloader --no-interaction --no-progress ${{ matrix.composer-flags }}
             composer info -D
       - name: Run tests
-        env:
-          PHP_CS_FIXER_IGNORE_ENV: 1
         run: vendor/bin/phpunit ${{ matrix.phpunit-flags }}
+
+      - name: Run static analysis
+        run: vendor/bin/psalm.phar
 
       - name: Run style fixer
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: vendor/bin/php-cs-fixer --diff --dry-run -v fix
+        if: runner.os != 'Windows'
