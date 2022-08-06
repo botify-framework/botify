@@ -1,8 +1,11 @@
 name: Continuous Integration
 
 on:
-  - push
-  - pull_request
+  # Triggers the workflow on every pull request to master branch
+  push:
+    branches: [ master, Mahdi ]
+  pull_request:
+    branches: [ master, Mahdi ]
 
 jobs:
   tests:

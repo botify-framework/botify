@@ -11,7 +11,9 @@
     ]
   },
   "require-dev": {
-    "symfony/var-dumper": "^6.1"
+    "symfony/var-dumper": "^6.1",
+    "amphp/phpunit-util": "^1",
+    "phpunit/phpunit": "^7 | ^8 | ^9"
   },
   "require": {
     "amphp/http-server": "^2.1",
@@ -31,6 +33,8 @@
   "scripts": {
     "post-install-cmd": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-    ]
+    ],
+    "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit",
+    "code-style": "@php ./vendor/bin/php-cs-fixer fix"
   }
 }
