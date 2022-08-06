@@ -64,9 +64,10 @@ return new class($filters) extends Pluggable {
         mb_internal_encoding('UTF-8');
 
         if (mb_strlen($result, 'utf8') > 4096) {
-            yield Botify\file_put_contents($file = new FileSystem(storage_path(sprintf(
+            $file = new FileSystem(storage_path(sprintf(
                 'result.%s', is_json($buffers) ? 'json' : 'txt'
-            ))), $buffers);
+            )));
+            yield $file->write($buffers);
             yield $message->replyDocument($file);
             return yield $file->delete();
         } else {
