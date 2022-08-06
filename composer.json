@@ -17,8 +17,10 @@
   },
   "require-dev": {
     "symfony/var-dumper": "^6.1",
-    "amphp/phpunit-util": "^1",
-    "phpunit/phpunit": "^7 | ^8 | ^9"
+    "amphp/php-cs-fixer-config": "dev-master",
+    "react/promise": "^2",
+    "phpunit/phpunit": "^7 | ^8 | ^9",
+    "jetbrains/phpstorm-stubs": "^2019.3"
   },
   "require": {
     "amphp/http-server": "^2.1",
