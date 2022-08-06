@@ -10,6 +10,11 @@
       "src/functions.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Botify\\Test\\": "Tests"
+    }
+  },
   "require-dev": {
     "symfony/var-dumper": "^6.1",
     "amphp/phpunit-util": "^1",
