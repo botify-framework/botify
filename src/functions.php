@@ -503,7 +503,7 @@ if (!function_exists('Botify\\array_first')) {
     {
 
         if (is_null($fn)) {
-            return empty($array) ? value($default) : reset($default);
+            return empty($array) ? value($default) : reset($array);
         }
 
         foreach ($array as $key => $value) {
