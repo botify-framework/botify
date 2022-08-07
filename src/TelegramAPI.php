@@ -331,4 +331,14 @@ class TelegramAPI implements ArrayAccess
     {
         $this->uses->{$name} = $value;
     }
+
+    public function loop(callable $callback)
+    {
+        Loop::run($callback);
+    }
+
+    public function call(callable $callback, ...$args): Promise
+    {
+        return call($callback, ... $args);
+    }
 }
