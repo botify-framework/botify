@@ -64,7 +64,7 @@ class FileSystem
      */
     public function delete(): Promise
     {
-        return deleteFile($this->path);
+        return File\deleteFile($this->path);
     }
 
     /**
