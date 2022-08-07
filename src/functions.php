@@ -11,30 +11,58 @@ use Botify\Utils\Config;
 use Botify\Utils\Dotty;
 use Closure;
 use Exception;
+use function Amp\call;
+use function Amp\coroutine;
 use function Amp\File\read;
 use function Amp\File\write;
 
 if (!function_exists('Botify\\retry')) {
     /**
-     * @param $times
+     * Retry an operation a given number of times.
+     *
+     * @param int|array $times
      * @param callable $callback
-     * @param int $sleep
+     * @param int|Closure $sleepMilliseconds
+     * @param callable|null $when
      * @return mixed
+     *
      * @throws Exception
      */
-    function retry($times, callable $callback, int $sleep = 0): mixed
+    function retry($times, callable $callback, $sleepMilliseconds = 0, $when = null): mixed
     {
-        static $attempts = 0;
-        beginning:
-        $attempts++;
-        $times--;
-        try {
-            return $callback($attempts);
-        } catch (Exception $e) {
-            if ($times < 1) throw $e;
-            $sleep && sleep($sleep);
-            goto beginning;
-        }
+        return call(function () use ($times, $callback, $when, $sleepMilliseconds) {
+            $attempts = 0;
+
+            $backoff = [];
+
+            $callback = coroutine($callback);
+
+            if (is_array($times)) {
+                $backoff = $times;
+
+                $times = count($times) + 1;
+            }
+
+            beginning:
+            $attempts++;
+            $times--;
+
+            try {
+                return yield $callback($attempts);
+            } catch (Exception $e) {
+                if ($times < 1 || ($when && !$when($e))) {
+                    throw $e;
+                }
+
+                $sleepMilliseconds = $backoff[$attempts - 1] ?? $sleepMilliseconds;
+
+                if ($sleepMilliseconds) {
+                    yield ausleep(value($sleepMilliseconds, $attempts, $e) * 1000);
+                }
+
+                goto beginning;
+            }
+        });
     }
 }
 
