@@ -8,8 +8,8 @@ return Plugin::apply(function (Message $message) {
     if ($message->command(['id', 'info', 'me'])) {
         $message = $message['reply_to_message'] ?? $message;
         $message = $message['reply_to_message'] ?? $message;
-        $id = match(true){
-            isset($message['entities'])  && $user = Botify\array_first($message['entities'], fn ($entity) => $entity['type'] === 'text_mention') => $user['user']['id'],
+        $id = match (true) {
+            isset($message['entities']) && $user = array_first($message['entities'], fn($entity) => $entity['type'] === 'text_mention') => $user['user']['id'],
             isset($message->matches[1]) => $message->matches[1],
             default => $message['from']['id']
         };
