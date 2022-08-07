@@ -126,71 +126,24 @@ class User extends LazyJsonMapper
      *
      * @param int $offset
      * @param int $limit
-     * @return Promise
+     * @return Producer
      */
-    public function downloadProfilePhotos(int $offset = 0, int $limit = 10): Promise
+    public function downloadProfilePhotos(int $offset = 0, int $limit = 10): Producer
     {
-        if ($limit <= 100) {
-            return call(function ($limit, &$offset) {
-                $profiles = yield $this->getAPI()->getUserProfilePhotos([
-                    'user_id' => $this->id,
-                    'offset' => $offset,
-                    'limit' => $limit,
-                ]);
-
-                if ($profiles->isSuccess()) {
-                    return collect(yield gather(array_map(
-                        fn(array $photos) => call(fn() => end($photos)->download()),
-                        $profiles->photos
-                    )));
-                }
-
-                return $profiles;
-            }, $limit, $offset);
-        }
-
-        return call(function () use ($limit) {
-            return new Producer(function (callable $emit) use ($limit) {
-                $current = 0;
-                $offset = 0;
-                $total = abs($limit) ?: (1 << 31) - 1;
-                $limit = min(100, $total);
-
-                while (true) {
-                    if (($chunk = yield $this->getChunk($offset, $limit)) && [$totalCount, $photos] = $chunk) {
-                        $offset += count($photos);
-
-                        foreach ($photos as $photo) {
-                            yield $emit($photo);
-
-                            $current++;
-
-                            if ($current >= $totalCount || $current >= $total) {
-                                return;
-                            }
-                        }
-                    } else {
-                        return;
-                    }
-                }
-            });
-        });
+        return $this->getProfilePhotos($offset, $limit, true);
     }
 
     private function getChunk($offset, $limit): Promise
     {
         return call(function () use ($limit, $offset) {
-            $profiles = yield $this->getAPI()->getUserProfilePhotos([
+            $profile = yield $this->getAPI()->getUserProfilePhotos([
                 'user_id' => $this->id,
                 'offset' => $offset,
                 'limit' => $limit,
             ]);
 
-            if ($profiles->isSuccess()) {
-                return [$profiles->total_count, collect(yield gather(array_map(
-                    fn(array $photos) => call(fn() => end($photos)->download()),
-                    $profiles->photos
-                )))];
+            if ($profile->isSuccess() && $totalCount = $profile->total_count) {
+                return [$totalCount, collect($profile->photos)];
             }
 
             return false;
@@ -200,22 +153,38 @@ class User extends LazyJsonMapper
     /**
      * @param int $offset
      * @param int $limit
-     * @return Promise
+     * @param bool $download
+     * @return Producer
      */
-    public function getProfilePhotos(int $offset = 0, int $limit = 10): Promise
+    public function getProfilePhotos(int $offset = 0, int $limit = 10, bool $download = false): Producer
     {
-        return call(function () use ($limit, $offset) {
-            $profiles = yield $this->getAPI()->getUserProfilePhotos([
-                'user_id' => $this->id,
-                'offset' => $offset,
-                'limit' => $limit,
-            ]);
+        return new Producer(function (callable $emit) use ($download, $limit) {
+            $current = 0;
+            $offset = 0;
+            $total = abs($limit) ?: (1 << 31) - 1;
+            $limit = min(100, $total);
 
-            if ($profiles->isSuccess()) {
-                return collect($profiles->photos);
+            while (true) {
+                if (($chunk = yield $this->getChunk($offset, $limit)) && [$totalCount, $photos] = $chunk) {
+                    $offset += count($photos);
+
+                    if ($download === true) {
+                        $photos = yield gather(array_map(fn($photos) => end($photos)->download(), $photos));
+                    }
+
+                    foreach ($photos as $photo) {
+                        yield $emit($photo);
+
+                        $current++;
+
+                        if ($current >= $totalCount || $current >= $total) {
+                            return;
+                        }
+                    }
+                } else {
+                    return;
+                }
             }
-
-            return collect([]);
         });
     }
 
