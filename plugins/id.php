@@ -2,11 +2,10 @@
 
 use Botify\Types\Map\Message;
 use Botify\Utils\Plugins\Plugin;
-use function Botify\{sprintln,array_first};
+use function Botify\{sprintln, array_first};
 
 return Plugin::apply(function (Message $message) {
     if ($message->command(['id', 'info', 'me'])) {
-        $message = $message['reply_to_message'] ?? $message;
         $message = $message['reply_to_message'] ?? $message;
         $id = match (true) {
             isset($message['entities']) && $user = array_first($message['entities'], fn($entity) => $entity['type'] === 'text_mention') => $user['user']['id'],
