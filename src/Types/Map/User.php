@@ -158,9 +158,8 @@ class User extends LazyJsonMapper
      */
     public function getProfilePhotos(int $offset = 0, int $limit = 10, bool $download = false): Producer
     {
-        return new Producer(function (callable $emit) use ($download, $limit) {
+        return new Producer(function (callable $emit) use ($offset, $download, $limit) {
             $current = 0;
-            $offset = 0;
             $total = abs($limit) ?: (1 << 31) - 1;
             $limit = min(100, $total);
 
