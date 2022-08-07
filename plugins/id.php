@@ -2,7 +2,7 @@
 
 use Botify\Types\Map\Message;
 use Botify\Utils\Plugins\Plugin;
-use function Botify\{sprintln, array_first};
+use function Botify\{array_last, sprintln, array_first};
 
 return Plugin::apply(function (Message $message) {
     if ($message->command(['id', 'info', 'me'])) {
@@ -13,7 +13,14 @@ return Plugin::apply(function (Message $message) {
             !empty($message->matches[1]) => $message->matches[1],
             default => $message['from']['id']
         })) {
-            $photos = yield $user->getProfilePhotos(limit: 10);
+            $photos = $user->getProfilePhotos(limit: 10);
+            $media = [];
+            while (yield $photos->advance()) {
+                $media[] = [
+                    'type' => 'photo',
+                    'media' => array_last($photos->getCurrent())['file_id'],
+                ];
+            }
             $caption = sprintln('User Information');
             $caption .= sprintln('First name: ' . $user['first_name']);
             $caption .= isset($user['last_name']) ? sprintln('Last name: ' . $user['last_name']) : '';
@@ -28,13 +35,7 @@ return Plugin::apply(function (Message $message) {
                 $caption .= sprintln('ID: ' . $chat['id']);
             }
 
-            if ($photos->isNotEmpty()) {
-                $media = $photos->map(function ($photo) {
-                    return [
-                        'type' => 'photo',
-                        'media' => end($photo)['file_id'],
-                    ];
-                })->toArray();
+            if (!empty($media)) {
                 $media[array_key_last($media)]['caption'] = $caption;
 
                 return yield $message->replyMediaGroup($media, caption: $caption);
