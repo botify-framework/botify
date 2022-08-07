@@ -174,7 +174,7 @@ final class MethodsFactory
             }, function ($attempts, $exception) use ($name) {
                 if ($exception instanceof RetryException) {
                     $retryAfter = $exception->getRetryAfter();
-                    $this->logger->notice(sprintf('Waiting for %d seconds before continuing (required by "%s")', $retryAfter, $name));
+                    $this->logger->notice(sprintf('[%d] Waiting for %d seconds before continuing (required by "%s")', config('telegram.user_id'), $retryAfter, $name));
                     return $retryAfter;
                 }
             });
