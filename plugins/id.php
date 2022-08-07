@@ -2,16 +2,18 @@
 
 use Botify\Types\Map\Message;
 use Botify\Utils\Plugins\Plugin;
-use function Botify\sprintln;
+use function Botify\{sprintln,array_first};
 
 return Plugin::apply(function (Message $message) {
     if ($message->command(['id', 'info', 'me'])) {
         $message = $message['reply_to_message'] ?? $message;
-        $user = !empty($message->matches[1])
-            ? yield $this->getUser($message->matches[1])
-            : yield $this->getUser($message['from']['id']);
-
-        if ($user) {
+        $message = $message['reply_to_message'] ?? $message;
+        $id = match(true){
+            isset($message['entities'])  && $user = Botify\array_first($message['entities'], fn ($entity) => $entity['type'] === 'text_mention') => $user['user']['id'],
+            isset($message->matches[1]) => $message->matches[1],
+            default => $message['from']['id']
+        };
+        if ($user = yield $this->getUser($id)) {
             $photos = yield $user->getProfilePhotos(limit: 10);
             $caption = sprintln('User Information');
             $caption .= sprintln('First name: ' . $user['first_name']);
