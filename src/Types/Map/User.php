@@ -169,7 +169,7 @@ class User extends LazyJsonMapper
                     $offset += count($photos);
 
                     if ($download === true) {
-                        $photos = yield gather(array_map(fn($photos) => end($photos)->download(), $photos));
+                        $photos = yield gather($photos->map(fn($photos) => end($photos)->download())->toArray());
                     }
 
                     foreach ($photos as $photo) {
