@@ -64,7 +64,7 @@ class FileSystem
      */
     public function delete(): Promise
     {
-        return File\deleteFile($this->path);
+        return deleteFile($this->path);
     }
 
     /**
@@ -162,7 +162,24 @@ class FileSystem
      */
     public function move($to): Promise
     {
-        return File\move($this->path, $to);
+        return move($this->path, $to);
+    }
+
+    /**
+     * @param string $contents
+     * @return Promise
+     */
+    public function put(string $contents): Promise
+    {
+        return write($this->path,$contents);
+    }
+
+    /**
+     * @return Promise 
+     */
+    public function get(): Promise
+    {
+        return read($this->path);
     }
 
     /**
