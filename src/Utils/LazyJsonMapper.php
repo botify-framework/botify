@@ -44,6 +44,14 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     }
 
     /**
+     * @return bool
+     */
+    public function isFailed(): bool
+    {
+        return !$this->isSuccess();
+    }
+
+    /**
      * @param mixed $offset
      * @return bool
      */
