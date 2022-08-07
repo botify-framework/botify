@@ -154,13 +154,13 @@ final class MethodsFactory
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
-            return retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($times, $cast, $arguments) {
+            return yield retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($times, $cast, $arguments) {
                 $request = yield $this->client->post(... $arguments);
                 $response = yield $request->json();
 
                 if (empty($response['ok'])) {
                     if (isset($response['error_code']) && $response['error_code'] === 429 && $attempts < $times) {
-                        throw new RetryException($response['parameters']['retry_after']);
+                        throw new RetryException($response['parameters']['retry_after'], $response['description']);
                     }
                 } else {
                     if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
@@ -171,11 +171,11 @@ final class MethodsFactory
                 }
 
                 return new FallbackResponse($response);
+            }, function ($attempts, $exception) {
+                if ($exception instanceof RetryException) {
+                    return $exception->getRetryAfter();
+                }
             });
-        }, function ($attempts, $exception) {
-            if ($exception instanceof RetryException) {
-                return $exception->getRetryAfter();
-            }
         });
     }
 
