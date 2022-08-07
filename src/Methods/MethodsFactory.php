@@ -104,7 +104,7 @@ final class MethodsFactory
         ]
     ];
 
-    public function __construct(TelegramAPI $api)
+    public function __construct(public TelegramAPI $api)
     {
         $this->client = $api->getClient();
         $this->redis = $api->getRedis();
@@ -153,7 +153,7 @@ final class MethodsFactory
 
         $cast = $mapped[strtolower($name)] ?? false;
 
-        return call(function () use ($arguments, $cast) {
+        return call(function () use ($name, $arguments, $cast) {
             return yield retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($times, $cast, $arguments) {
                 $request = yield $this->client->post(... $arguments);
                 $response = yield $request->json();
@@ -171,9 +171,11 @@ final class MethodsFactory
                 }
 
                 return new FallbackResponse($response);
-            }, function ($attempts, $exception) {
+            }, function ($attempts, $exception) use ($name) {
                 if ($exception instanceof RetryException) {
-                    return $exception->getRetryAfter();
+                    $retryAfter = $exception->getRetryAfter();
+                    $this->logger->notice(sprintf('Waiting for %d seconds before continuing (required by "%s")', $retryAfter, $name));
+                    return $retryAfter;
                 }
             });
         });

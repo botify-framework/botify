@@ -24,6 +24,7 @@ use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
 use Botify\Traits\Accessible;
 use Botify\Types\Update;
+use Botify\Utils\LazyJsonMapper;
 use Botify\Utils\Plugins\Plugin;
 use Exception;
 use Monolog\Logger;
@@ -55,6 +56,7 @@ class TelegramAPI implements ArrayAccess
             )
         ]);
         $this->enableRedis();
+        LazyJsonMapper::setAPI($this);
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
         $this->client = new Client();
         $this->methodFactory = new MethodsFactory($this);
@@ -168,10 +170,8 @@ class TelegramAPI implements ArrayAccess
                     }
 
                     $this->finish();
-                    $update = new Update(json_decode(file_get_contents('php://input'), true) ?? []);
-                    yield Handler::dispatch(tap($update, function ($update) {
-                        $update->setAPI($this);
-                    }));
+                    $update = new Update(json_decode(yield file_get_contents('php://input'), true) ?? []);
+                    yield Handler::dispatch($update);
                     break;
                 case Handler::UPDATE_TYPE_POLLING:
                     $forceRunIn('cli');
@@ -184,9 +184,7 @@ class TelegramAPI implements ArrayAccess
 
                         if (is_collection($updates) && $updates->isNotEmpty()) {
                             foreach ($updates as $update) {
-                                Handler::dispatch(tap($update, function ($update) {
-                                    $update->setAPI($this);
-                                }));
+                                Handler::dispatch($update);
 
                                 $offset = $update->update_id + 1;
                             }
@@ -254,9 +252,7 @@ class TelegramAPI implements ArrayAccess
                             $update = new Update(
                                 json_decode(yield $request->getBody()->buffer(), true) ?? []
                             );
-                            Handler::dispatch(tap($update, function ($update) {
-                                $update->setAPI($this);
-                            }));
+                            Handler::dispatch($update);
                             return new Response(Status::OK, stringOrStream: 'HTTP Ok');
                         }),
                         $middleware

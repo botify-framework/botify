@@ -88,7 +88,7 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
         $this->_unsetProperty($offset);
     }
 
-    public function setApi(TelegramAPI $api)
+    public static function setAPI(TelegramAPI $api)
     {
         static::$api ??= $api;
     }

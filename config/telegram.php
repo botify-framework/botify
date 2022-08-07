@@ -5,9 +5,7 @@ use function Botify\env;
 
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
-    'token' => $token = env(/**
-     * @throws Exception
-     */ 'BOT_TOKEN', function () {
+    'token' => $token = env('BOT_TOKEN', function () {
         throw new Exception('You must provide a token');
     }),
     'user_id' => (int)env('BOT_USER_ID', explode('/', $token, 2)[0] ?? null),
@@ -36,5 +34,5 @@ return [
     'plugins_dir' => base_path('plugins'),
     'typing_mode' => env('TYPING_MODE', false),
     'allowed_updates' => ['message', 'edited_message', 'callback_query', 'inline_query', 'poll', 'poll_answer'],
-    'sleep_threshold' => env('SLEEP_THRESHOLD', 3),
+    'sleep_threshold' => env('SLEEP_THRESHOLD', 30),
 ];
