@@ -89,7 +89,7 @@ class Logger extends AbstractLogger
         }
 
         if ($this->type & static::ECHO_TYPE) {
-            echo Colorize::log($level, $log);
+            \Botify\file_put_contents('php://input', Colorize::log($level, $log));
         }
 
         if ($this->type & static::FILE_TYPE) {
