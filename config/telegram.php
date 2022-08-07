@@ -35,5 +35,6 @@ return [
     'cache_messages' => env('CACHE_MESSAGES', true),
     'plugins_dir' => base_path('plugins'),
     'typing_mode' => env('TYPING_MODE', false),
-    'allowed_updates' => ['message', 'edited_message', 'callback_query', 'inline_query', 'poll', 'poll_answer']
+    'allowed_updates' => ['message', 'edited_message', 'callback_query', 'inline_query', 'poll', 'poll_answer'],
+    'sleep_threshold' => env('SLEEP_THRESHOLD', 3),
 ];

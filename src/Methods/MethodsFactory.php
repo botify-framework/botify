@@ -4,6 +4,7 @@ namespace Botify\Methods;
 
 use Amp\Promise;
 use Amp\Redis\Redis;
+use Botify\Exceptions\RetryException;
 use Botify\Request\Client;
 use Botify\TelegramAPI;
 use Botify\Types\Map;
@@ -14,6 +15,7 @@ use Exception;
 use function Amp\call;
 use function Botify\array_some;
 use function Botify\config;
+use function Botify\retry;
 use function Botify\value;
 
 /**
@@ -152,18 +154,28 @@ final class MethodsFactory
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($arguments, $cast) {
-            $request = yield $this->client->post(... $arguments);
-            $response = yield $request->json();
+            return retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($times, $cast, $arguments) {
+                $request = yield $this->client->post(... $arguments);
+                $response = yield $request->json();
 
-            if ($response['ok']) {
-                if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
-                    return $response['result'];
+                if (empty($response['ok'])) {
+                    if (isset($response['error_code']) && $response['error_code'] === 429 && $attempts < $times) {
+                        throw new RetryException($response['parameters']['retry_after']);
+                    }
+                } else {
+                    if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
+                        return $response['result'];
+                    }
+
+                    return new $cast($response['result']);
                 }
 
-                return new $cast($response['result']);
+                return new FallbackResponse($response);
+            });
+        }, function ($attempts, $exception) {
+            if ($exception instanceof RetryException) {
+                return $exception->getRetryAfter();
             }
-
-            return new FallbackResponse($response);
         });
     }
 
