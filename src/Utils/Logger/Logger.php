@@ -9,6 +9,7 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 use Throwable;
+use function Botify\array_some;
 use function Botify\base_path;
 use function Botify\config;
 use function Botify\env;
@@ -25,10 +26,6 @@ class Logger extends AbstractLogger
     const FILE_TYPE = 2;
     const DEFAULT_TYPE = self::ECHO_TYPE;
 
-    const COLORABLE_TYPES = [
-        self::ECHO_TYPE
-    ];
-
     protected static array $levels = [
         LogLevel::DEBUG => 0,
         LogLevel::INFO => 1,
@@ -38,6 +35,10 @@ class Logger extends AbstractLogger
         LogLevel::CRITICAL => 5,
         LogLevel::ALERT => 6,
         LogLevel::EMERGENCY => 7,
+    ];
+
+    protected array $excepts = [
+        'stream_socket_accept(): Accept failed: Connection timed out',
     ];
 
     protected int $minLevel;
@@ -66,11 +67,14 @@ class Logger extends AbstractLogger
         $this->type = $type;
 
         set_error_handler(function ($code, $message, $file, $line) {
-            $this->error(new ErrorException($message, 0, $code, $file, $line));
+            if (!array_some($this->excepts, fn($error) => str_contains($message, $error)))
+                $this->error(new ErrorException($message, 0, $code, $file, $line));
         });
 
         set_exception_handler(function ($e) {
-            $this->critical($e);
+            $message = $e->getMessage();
+            if (!array_some($this->excepts, fn($error) => str_contains($message, $error)))
+                $this->critical($e);
         });
     }
 
