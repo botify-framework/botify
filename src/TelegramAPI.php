@@ -52,7 +52,7 @@ class TelegramAPI implements ArrayAccess
     {
         config([
             'telegram' => array_merge(
-                config('telegram'), $config
+                config('telegram', []), $config
             )
         ]);
         $this->enableRedis();
