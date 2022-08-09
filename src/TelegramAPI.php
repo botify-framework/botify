@@ -19,17 +19,18 @@ use Amp\Redis\RemoteExecutor;
 use Amp\Socket;
 use ArrayAccess;
 use Botify\Events\Handler;
-use Botify\Methods\MethodsDoc;
 use Botify\Methods\MethodsFactory;
 use Botify\Request\Client;
 use Botify\Traits\Accessible;
 use Botify\Types\Update;
 use Botify\Utils\LazyJsonMapper;
+use Botify\Utils\Logger\Logger;
 use Botify\Utils\Plugins\Plugin;
 use Exception;
-use Monolog\Logger;
 use stdClass;
 use function Amp\call;
+use function Amp\File\createSymlink;
+use function Amp\File\isSymlink;
 use const SIGINT;
 use const STDOUT;
 
@@ -152,6 +153,7 @@ class TelegramAPI implements ArrayAccess
                         }
                 }
             };
+            (yield isSymlink($staticPath = rtrim(static_path(), '/'))) ?: yield createSymlink(storage_path('/static'), $staticPath);
 
             switch ($updateType) {
                 case Handler::UPDATE_TYPE_WEBHOOK:
@@ -217,11 +219,9 @@ class TelegramAPI implements ArrayAccess
                         Socket\Server::listen('[::]:' . $port),
                     ];
 
-                    $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
-                    $logHandler->setFormatter(new ConsoleFormatter);
-                    $logger = new Logger('server');
-                    $logger->pushHandler($logHandler);
+                    $logger = new Logger();
                     $router = new Server\Router();
+                    $router->setFallback(new Server\StaticContent\DocumentRoot(static_path()));
 
                     $middleware = new class implements Server\Middleware {
                         public function handleRequest(Request $request, RequestHandler $requestHandler): Promise

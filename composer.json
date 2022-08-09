@@ -26,7 +26,8 @@
     "amphp/file": "^2.0",
     "lazyjsonmapper/lazyjsonmapper": "^2.0",
     "amphp/redis": "^1.0",
-    "ext-pcntl": "*"
+    "ext-pcntl": "*",
+    "amphp/http-server-static-content": "^1.0"
   },
   "scripts": {
     "post-install-cmd": [

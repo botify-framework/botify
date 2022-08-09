@@ -178,7 +178,7 @@ if (!function_exists('Botify\\config_path')) {
 if (!function_exists('Botify\\static_path')) {
     function static_path($path = ''): string
     {
-        return config('app.static_folder') . '/' . trim($path, '/');
+        return config('app.static_folder', base_path('static')) . '/' . trim($path, '/');
     }
 }
 

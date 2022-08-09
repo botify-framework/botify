@@ -22,9 +22,7 @@ trait GetDownloadableLink
             if ($file->isSuccess()) {
                 return [
                     $file->file_path,
-                    sprintf(
-                        '%s/file/bot%s/%s', rtrim(config('telegram.base_uri')), config('telegram.token'), $file->file_path
-                    )
+                    sprintf('%s/file/bot%s/%s', rtrim(config('telegram.base_uri')), config('telegram.token'), $file->file_path)
                 ];
             }
 

@@ -13,4 +13,5 @@ return [
     'logger_file' => storage_path('logs/botify.log'),
     'logger_max_size' => (int)env('LOGGER_MAX_SIZE', 1024),
     'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'static_folder' => env('STATIC_FOLDER'),
 ];
