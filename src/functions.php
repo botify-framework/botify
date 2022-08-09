@@ -175,6 +175,20 @@ if (!function_exists('Botify\\config_path')) {
     }
 }
 
+if (!function_exists('Botify\\static_path')) {
+    function static_path($path = ''): string
+    {
+        return config('app.static_folder') . '/' . trim($path, '/');
+    }
+}
+
+if (!function_exists('Botify\\plugin_path')) {
+    function plugin_path($path = ''): string
+    {
+        return config('telegram.plugins_dir') . '/' . trim($path, '/');
+    }
+}
+
 if (!function_exists('Botify\\env')) {
     function env($key, $default = null)
     {
