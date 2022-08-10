@@ -26,9 +26,11 @@ use Botify\Types\Update;
 use Botify\Utils\LazyJsonMapper;
 use Botify\Utils\Logger\Logger;
 use Botify\Utils\Plugins\Plugin;
+use Closure;
 use Exception;
 use stdClass;
 use function Amp\call;
+use function Amp\coroutine;
 use function Amp\File\createSymlink;
 use function Amp\File\isSymlink;
 use const SIGINT;
@@ -47,6 +49,7 @@ class TelegramAPI implements ArrayAccess
     private array $initiators = [];
     private MethodsFactory $methodFactory;
     private Plugin $plugin;
+    private bool $runningInLoop = false;
     private stdClass $uses;
 
     public function __construct(array $config = [])
@@ -133,11 +136,12 @@ class TelegramAPI implements ArrayAccess
      *
      * @param int $updateType
      * @param string $uri
-     * @throws Exception
      */
     public function hear(int $updateType = Handler::UPDATE_TYPE_WEBHOOK, string $uri = '/')
     {
-        Loop::run(function () use ($updateType, $uri) {
+        $container = coroutine($this->runningInLoop ? '\\Amp\\call' : [Loop::class, 'run']);
+
+        return $container(function () use ($updateType, $uri) {
             $forceRunIn = function ($mode) {
                 $isCli = env('APP_RUNNING_IN_CONSOLE') || in_array(PHP_SAPI, ['cli', 'php-dbg']);
 
@@ -332,9 +336,25 @@ class TelegramAPI implements ArrayAccess
         $this->uses->{$name} = $value;
     }
 
-    public function loop(callable $callback)
+    public function loopAndHear($updateType = Handler::UPDATE_TYPE_WEBHOOK)
     {
-        Loop::run($callback);
+        $this->loop(function (...$args) use ($updateType) {
+            dump($args);
+            yield $this->hear($updateType);
+        });
+    }
+
+    public function loop(Closure|TelegramAPI $callback)
+    {
+        $this->runningInLoop = true;
+
+        Loop::run(function (...$args) use ($callback) {
+            if ($callback instanceof Closure) {
+                $callback->bindTo($this);
+            }
+
+            yield call($callback, ... $args);
+        });
     }
 
     public function call(callable $callback, ...$args): Promise
