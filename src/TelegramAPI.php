@@ -350,7 +350,7 @@ class TelegramAPI implements ArrayAccess
 
         Loop::run(function (...$args) use ($callback) {
             if ($callback instanceof Closure) {
-                $callback->bindTo($this);
+                $callback = $callback->bindTo($this);
             }
 
             yield call($callback, ... $args);
