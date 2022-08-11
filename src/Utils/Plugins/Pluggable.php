@@ -49,14 +49,32 @@ abstract class Pluggable implements ArrayAccess
         return $this;
     }
 
+    public function close()
+    {
+        $this->api = null;
+        $this->update = null;
+        $this->bag = null;
+        $this->resetBag();
+    }
+
+    public function continuePropagation()
+    {
+        throw new ContinuePropagation();
+    }
+
+    public function getAPI(): ?TelegramAPI
+    {
+        return $this->api;
+    }
+
+    public function setAPI(TelegramAPI $api)
+    {
+        $this->api = $api;
+    }
+
     public function getAccessibles(): array
     {
         return [$this->api, $this->update, $this->bag];
-    }
-
-    public function setBag(Bag $bag)
-    {
-        $this->bag = $bag;
     }
 
     final public function getCallback(): callable
@@ -72,22 +90,6 @@ abstract class Pluggable implements ArrayAccess
         return $this->filters;
     }
 
-    public function close()
-    {
-        $this->api = null;
-        $this->update = null;
-        $this->bag = null;
-        $this->resetBag();
-    }
-
-    /**
-     * @param Update $update
-     */
-    public function setUpdate(Update $update): void
-    {
-        $this->update = $update;
-    }
-
     public function getPriority(): int
     {
         return $this->priority;
@@ -100,23 +102,21 @@ abstract class Pluggable implements ArrayAccess
         return $this;
     }
 
+    public function setBag(Bag $bag)
+    {
+        $this->bag = $bag;
+    }
+
+    /**
+     * @param Update $update
+     */
+    public function setUpdate(Update $update): void
+    {
+        $this->update = $update;
+    }
+
     public function stopPropagation()
     {
         throw new StopPropagation();
-    }
-
-    public function continuePropagation()
-    {
-        throw new ContinuePropagation();
-    }
-
-    public function setAPI(TelegramAPI $api)
-    {
-        $this->api = $api;
-    }
-
-    public function getAPI(): ?TelegramAPI
-    {
-        return $this->api;
     }
 }

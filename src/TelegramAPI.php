@@ -101,6 +101,11 @@ class TelegramAPI implements ArrayAccess
         return call_user_func_array([$this->methodFactory, $name], $arguments);
     }
 
+    public function call(callable $callback, ...$args): Promise
+    {
+        return call($callback, ... $args);
+    }
+
     public function getAccessibles(): array
     {
         return [$this->uses];
@@ -129,6 +134,26 @@ class TelegramAPI implements ArrayAccess
     public function getRedis(): ?Redis
     {
         return $this->redis;
+    }
+
+    public function loopAndHear($updateType = Handler::UPDATE_TYPE_WEBHOOK)
+    {
+        $this->loop(function () use ($updateType) {
+            yield $this->hear($updateType);
+        });
+    }
+
+    public function loop(Closure|TelegramAPI $callback)
+    {
+        $this->runningInLoop = true;
+
+        Loop::run(function (...$args) use ($callback) {
+            if ($callback instanceof Closure) {
+                $callback = $callback->bindTo($this);
+            }
+
+            yield call($callback, ... $args);
+        });
     }
 
     /**
@@ -334,31 +359,5 @@ class TelegramAPI implements ArrayAccess
     public function use($name, $value)
     {
         $this->uses->{$name} = $value;
-    }
-
-    public function loopAndHear($updateType = Handler::UPDATE_TYPE_WEBHOOK)
-    {
-        $this->loop(function (...$args) use ($updateType) {
-            dump($args);
-            yield $this->hear($updateType);
-        });
-    }
-
-    public function loop(Closure|TelegramAPI $callback)
-    {
-        $this->runningInLoop = true;
-
-        Loop::run(function (...$args) use ($callback) {
-            if ($callback instanceof Closure) {
-                $callback = $callback->bindTo($this);
-            }
-
-            yield call($callback, ... $args);
-        });
-    }
-
-    public function call(callable $callback, ...$args): Promise
-    {
-        return call($callback, ... $args);
     }
 }

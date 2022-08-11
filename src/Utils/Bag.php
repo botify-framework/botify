@@ -10,13 +10,6 @@ class Bag implements ArrayAccess
     protected array $attributes = [];
     private TelegramAPI $api;
 
-    public function setAPI(TelegramAPI $api)
-    {
-        $this->api = $api;
-
-        return $this;
-    }
-
     public function __call($method, array $arguments = [])
     {
         return $this->api->{$method}(... $arguments);
@@ -52,5 +45,12 @@ class Bag implements ArrayAccess
     public function offsetUnset(mixed $offset): void
     {
         unset($this->attributes[$offset]);
+    }
+
+    public function setAPI(TelegramAPI $api): Bag
+    {
+        $this->api = $api;
+
+        return $this;
     }
 }

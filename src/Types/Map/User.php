@@ -133,23 +133,6 @@ class User extends LazyJsonMapper
         return $this->getProfilePhotos($offset, $limit, true);
     }
 
-    private function getChunk($offset, $limit): Promise
-    {
-        return call(function () use ($limit, $offset) {
-            $profile = yield $this->getAPI()->getUserProfilePhotos([
-                'user_id' => $this->id,
-                'offset' => $offset,
-                'limit' => $limit,
-            ]);
-
-            if ($profile->isSuccess() && $totalCount = $profile->total_count) {
-                return [$totalCount, collect($profile->photos)];
-            }
-
-            return false;
-        });
-    }
-
     /**
      * @param int $offset
      * @param int $limit
@@ -184,6 +167,23 @@ class User extends LazyJsonMapper
                     return;
                 }
             }
+        });
+    }
+
+    private function getChunk($offset, $limit): Promise
+    {
+        return call(function () use ($limit, $offset) {
+            $profile = yield $this->getAPI()->getUserProfilePhotos([
+                'user_id' => $this->id,
+                'offset' => $offset,
+                'limit' => $limit,
+            ]);
+
+            if ($profile->isSuccess() && $totalCount = $profile->total_count) {
+                return [$totalCount, collect($profile->photos)];
+            }
+
+            return false;
         });
     }
 

@@ -10,6 +10,11 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
 {
     private static TelegramAPI $api;
 
+    public static function setAPI(TelegramAPI $api)
+    {
+        static::$api ??= $api;
+    }
+
     /**
      * Convert correct object to collection
      *
@@ -38,17 +43,17 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     /**
      * @return bool
      */
-    public function isSuccess(): bool
+    public function isFailed(): bool
     {
-        return $this->ok ?? true;
+        return !$this->isSuccess();
     }
 
     /**
      * @return bool
      */
-    public function isFailed(): bool
+    public function isSuccess(): bool
     {
-        return !$this->isSuccess();
+        return $this->ok ?? true;
     }
 
     /**
@@ -86,10 +91,5 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     public function offsetUnset(mixed $offset): void
     {
         $this->_unsetProperty($offset);
-    }
-
-    public static function setAPI(TelegramAPI $api)
-    {
-        static::$api ??= $api;
     }
 }

@@ -15,13 +15,6 @@ trait Accessible
         return $this->get($name);
     }
 
-    public function getBagData()
-    {
-        $data = $this->getAccessibles();
-        $data[] = $this->bagData;
-        return $data;
-    }
-
     final public function __set(mixed $name, mixed $value)
     {
         $this->set($name, $value);
@@ -32,6 +25,13 @@ trait Accessible
         return array_sole($this->getBagData(), function ($bag) use ($name) {
             return $bag->{$name} ?? false;
         });
+    }
+
+    public function getBagData()
+    {
+        $data = $this->getAccessibles();
+        $data[] = $this->bagData;
+        return $data;
     }
 
     private function set(mixed $name, mixed $value)

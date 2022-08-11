@@ -92,6 +92,16 @@ class Config implements ArrayAccess
     }
 
     /**
+     * @param $key
+     * @param null $default
+     * @return array|mixed
+     */
+    public function get($key, $default = null): mixed
+    {
+        return value(static::$items[$key] ?? $default);
+    }
+
+    /**
      * Load specified key data from config
      *
      * @param $key
@@ -131,6 +141,21 @@ class Config implements ArrayAccess
         }
     }
 
+    /**
+     * @param $keys
+     * @param null $value
+     * @return Config
+     */
+    public function set($keys, $value = null): Config
+    {
+        $keys = is_array($keys) ? $keys : [$keys => $value];
+
+        foreach ($keys as $key => $value)
+            static::$items[$key] = $value;
+
+        return $this;
+    }
+
     public function offsetUnset(mixed $offset): void
     {
         unset(static::$items[$offset]);
@@ -152,35 +177,10 @@ class Config implements ArrayAccess
 
     /**
      * @param $key
-     * @param null $default
-     * @return array|mixed
-     */
-    public function get($key, $default = null): mixed
-    {
-        return value(static::$items[$key] ?? $default);
-    }
-
-    /**
-     * @param $keys
-     * @param null $value
-     * @return Config
-     */
-    public function set($keys, $value = null): Config
-    {
-        $keys = is_array($keys) ? $keys : [$keys => $value];
-
-        foreach ($keys as $key => $value)
-            static::$items[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param $key
      * @param $default
-     * @return array|mixed|null
+     * @return mixed
      */
-    public function pull($key, $default = null)
+    public function pull($key, $default = null): mixed
     {
         return static::$items->pull($key, $default);
     }
@@ -190,7 +190,7 @@ class Config implements ArrayAccess
      * @param $value
      * @return Config
      */
-    public function push($key, $value)
+    public function push($key, $value): Config
     {
         static::$items->push($key, $value);
 
