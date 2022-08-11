@@ -57,6 +57,14 @@ class LazyJsonMapper extends \LazyJsonMapper\LazyJsonMapper implements ArrayAcce
     }
 
     /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->toArray());
+    }
+
+    /**
      * @param mixed $offset
      * @return bool
      */

@@ -430,7 +430,10 @@ class Message extends LazyJsonMapper
     {
         parent::_init();
 
-        $this->_setProperty('id', $this->_getProperty('message_id'));
+        if ($id = $this->_getProperty('message_id')) {
+            $this->_setProperty('id', $id);
+        }
+
         if ($reply = $this->_getProperty('reply_to_message')) {
             $this->_setProperty('reply', $reply);
         }
@@ -663,7 +666,7 @@ class Message extends LazyJsonMapper
                 'message_id' => $this->id,
             ]);
 
-            if (empty($message['id'])) {
+            if ($message->isEmpty()) {
                 $message = $this;
             }
 
