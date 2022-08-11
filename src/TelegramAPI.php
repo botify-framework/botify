@@ -34,7 +34,6 @@ use function Amp\coroutine;
 use function Amp\File\createSymlink;
 use function Amp\File\isSymlink;
 use const SIGINT;
-use const STDOUT;
 
 /**
  * @mixin Methods\MethodsFactory
