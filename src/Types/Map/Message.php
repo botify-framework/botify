@@ -8,6 +8,7 @@ use Botify\Traits\HasCommand;
 use Botify\Traits\Notifiable;
 use Botify\Traits\Stringable;
 use Botify\Utils\LazyJsonMapper;
+use Throwable;
 use function Amp\call;
 use function Botify\{array_first, button, collect, config, gather};
 
@@ -446,6 +447,7 @@ class Message extends LazyJsonMapper
 
         $this->bindDownloadable();
 
+
         call(function () {
             if (config('telegram.typing_mode')) {
                 if (isset($this->from['is_self']) && $this->from['is_self']) {
@@ -454,10 +456,27 @@ class Message extends LazyJsonMapper
             }
 
             if (config('telegram.cache_messages')) {
-                if (isset($this->chat['id'])) {
-                    yield $this->getAPI()->redis?->getMap($key = 'messages:' . $this->chat->id)
-                        ->setValue($this->id, (string)$this);
-                    yield $this->getAPI()->redis?->expireAt($key, strtotime('+48 hours'));
+                try {
+                    if (isset($this->chat['id'])) {
+                        if ($redis = $this->getAPI()->getRedis()) {
+                            $message = $this->toArray();
+                            $map = $redis->getMap($key = 'messages:' . $this->chat['id']);
+                            $field = $this->id;
+
+                            if (yield $map->hasKey($field)) {
+                                $message = array_merge(
+                                    json_decode(yield $map->getValue($field), true), $message
+                                );
+                            }
+
+                            unset($message['id'], $message['reply']);
+
+                            yield $map->setValue($field, json_encode($message));
+                            yield $this->getAPI()->redis?->expireAt($key, strtotime('+48 hours'));
+                        }
+                    }
+                } catch (Throwable $e) {
+                    $this->getAPI()->getLogger()->warning($e->getMessage());
                 }
             }
         });
