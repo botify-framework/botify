@@ -647,12 +647,20 @@ class Message extends LazyJsonMapper
             while (true) {
                 yield $emit($message);
                 if (isset($message['reply_to_message'])) {
-                    $message = $message['reply_to_message'];
+                    $message = yield $message['reply_to_message']->fresh();
                 } else {
                     break;
                 }
             }
         });
+    }
+
+    public function fresh(): Promise
+    {
+        return $this->getAPI()->getMessage([
+            'chat_id' => $this->chat['id'],
+            'message_id' => $this->id,
+        ]);
     }
 
     /**
