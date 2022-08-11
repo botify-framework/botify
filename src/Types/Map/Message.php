@@ -657,10 +657,18 @@ class Message extends LazyJsonMapper
 
     public function fresh(): Promise
     {
-        return $this->getAPI()->getMessage([
-            'chat_id' => $this->chat['id'],
-            'message_id' => $this->id,
-        ]);
+        return call(function () {
+            $message = yield $this->getAPI()->getMessage([
+                'chat_id' => $this->chat['id'],
+                'message_id' => $this->id,
+            ]);
+
+            if (empty($message['id'])) {
+                $message = $this;
+            }
+
+            return $message;
+        });
     }
 
     /**
