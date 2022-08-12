@@ -19,6 +19,8 @@ final class Client
 {
     private HttpClient $httpClient;
 
+    private array $uploadable_types = ['animation', 'audio', 'document', 'photo', 'sticker', 'video', 'video_note', 'voice',];
+
     public function __construct()
     {
         $this->httpClient ??= HttpClientBuilder::buildDefault();
@@ -130,8 +132,10 @@ final class Client
         $body = new FormBody();
         $files = [];
 
-        $fields = array_map_recursive(function ($field) use (&$files) {
-            if (is_string($field) && file_exists($field) && filesize($field) > 0) {
+        $fields = array_map_recursive(function ($field, $attribute) use (&$files) {
+            $attribute = strtolower($attribute);
+
+            if (is_string($field) && is_file($field) && filesize($field) > 0 && in_array($attribute, $this->uploadable_types)) {
                 $name = basename($field);
                 $files[$name] = $field;
                 return 'attach://' . $name;
