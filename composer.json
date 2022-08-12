@@ -1,5 +1,5 @@
 {
-  "name": "jove/async-php-bot",
+  "name": "botify-framework/botify",
   "description": "Create your own Telegram API bot asynchronously in PHP",
   "license": "MIT",
   "autoload": {
