@@ -132,17 +132,14 @@ final class Client
         $body = new FormBody();
         $files = [];
 
-        $fields = array_map_recursive(function ($field, $attribute) use (&$files) {
-            $attribute = strtolower($attribute);
+        array_walk_recursive($fields, function (&$value, $attribute) use (&$files) {
 
-            if (is_string($field) && is_file($field) && filesize($field) > 0 && in_array($attribute, $this->uploadable_types)) {
-                $name = basename($field);
-                $files[$name] = $field;
-                return 'attach://' . $name;
+            if (is_string($value) && is_file($value) && filesize($value) > 0 && in_array(strtolower($attribute), $this->uploadable_types)) {
+                $name = basename($value);
+                $files[$name] = $value;
+                $value = 'attach://' . $value;
             }
-
-            return $field;
-        }, $fields);
+        });
 
         foreach ($files as $fieldName => $content) {
             $body->addFile($fieldName, $content);
