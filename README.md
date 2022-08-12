@@ -6,10 +6,10 @@ Create your own Telegram API bot asynchronously in PHP
 
 ## Installation
 
-- `git clone https://github.com/LordDeveloper/async-php-bot`
-- `composer create-project --prefer-dist botify-framework/botify`
+- ``` git clone https://github.com/botify-framework/botify ```
+- ``` composer create-project --prefer-dist botify-framework/botify ```
 
-## Webhook mode
+### Webhook mode
 
 ```php
 use Botify\Events\Handler;
@@ -24,7 +24,7 @@ $bot = new TelegramAPI([
 $bot->loopAndHear(Handler::UPDATE_TYPE_WEBHOOK);
 ```
 
-## Http server mode
+### Http server mode
 
 ```php
 use Botify\Events\Handler;
@@ -39,7 +39,7 @@ $bot = new TelegramAPI([
 $bot->loopAndHear(Handler::UPDATE_TYPE_SOCKET_SERVER);
 ```
 
-## Long polling mode
+### Long polling mode
 
 ```php
 use Botify\Events\Handler;
