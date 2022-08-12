@@ -6,17 +6,20 @@ Create your own Telegram API bot asynchronously in PHP
 
 ## Installation
 
-- ** Install with git **
+- **Install with git**
 
 ``` 
 git clone https://github.com/botify-framework/botify 
 ```
 
-- ** Install with composer **
+- **Install with composer**
 
 ``` 
 composer create-project --prefer-dist botify-framework/botify 
 ```
+
+> **Note**
+> You must install the framework directly as a master project
 
 ### Webhook mode
 
