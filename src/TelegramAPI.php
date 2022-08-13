@@ -42,9 +42,9 @@ class TelegramAPI implements ArrayAccess
 {
     use Accessible;
 
-    public Client $client;
-    public Utils\Logger\Logger $logger;
-    public ?Redis $redis;
+    protected Client $client;
+    protected Utils\Logger\Logger $logger;
+    protected ?Redis $redis;
     private array $initiators = [];
     private MethodsFactory $methodFactory;
     private Plugin $plugin;
@@ -58,6 +58,7 @@ class TelegramAPI implements ArrayAccess
                 config('telegram', []), $config
             )
         ]);
+        config(['telegram.bot_user_id' => (int)array_first(explode(':', config('telegram.token')))]);
         $this->enableRedis();
         LazyJsonMapper::setAPI($this);
         $this->logger = new Utils\Logger\Logger(config('app.logger_level'), config('app.logger_type'));
