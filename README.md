@@ -67,3 +67,5 @@ $bot = new TelegramAPI([
 
 $bot->loopAndHear(Handler::UPDATE_TYPE_POLLING);
 ```
+
+[**Support group**](https://t.me/+MhwZYoLrHediNTgx)
