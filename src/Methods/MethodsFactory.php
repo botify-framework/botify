@@ -28,9 +28,9 @@ final class MethodsFactory
     private static array $meable_attributes = [
         'user_id', 'chat_id',
     ];
-    private Client $client;
-    private Logger $logger;
-    private ?Redis $redis;
+    protected Client $client;
+    protected Logger $logger;
+    protected ?Redis $redis;
     private array $responses_map = [
         Map\WebhookInfo::class => [
             'getWebhookInfo'
@@ -154,13 +154,26 @@ final class MethodsFactory
         $cast = $mapped[strtolower($name)] ?? false;
 
         return call(function () use ($name, $arguments, $cast) {
-            return yield retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($times, $cast, $arguments) {
+            return yield retry($times = config('telegram.sleep_threshold', 1), function ($attempts) use ($name, $times, $cast, $arguments) {
                 $request = yield $this->client->post(... $arguments);
                 $response = yield $request->json();
 
                 if (empty($response['ok'])) {
-                    if (isset($response['error_code']) && $response['error_code'] === 429 && $attempts < $times) {
-                        throw new RetryException($response['parameters']['retry_after'], $response['description']);
+                    if (isset($response['error_code'])) {
+                        switch ($response['error_code']) {
+                            case 429:
+                                if ($attempts > $times) {
+                                    throw new RetryException($response['parameters']['retry_after'], $response['description']);
+                                }
+                                break;
+                            case 404:
+                                throw new Exception(sprintf(
+                                    'Trying to call undefined method [%s]', $name
+                                ));
+                            case 401:
+                                throw new Exception('You must provide a valid token');
+                        }
+
                     }
                 } else {
                     if (in_array(gettype($response['result']), ['boolean', 'integer', 'string'])) {
@@ -172,11 +185,9 @@ final class MethodsFactory
 
                 return new FallbackResponse($response);
             }, function ($attempts, $exception) use ($name) {
-                if ($exception instanceof RetryException) {
-                    $retryAfter = $exception->getRetryAfter();
-                    $this->logger->notice(sprintf('[%d] Waiting for %d seconds before continuing (required by "%s")', config('telegram.user_id'), $retryAfter, $name));
-                    return $retryAfter;
-                }
+                $retryAfter = $exception->getRetryAfter();
+                $this->logger->notice(sprintf('[%d] Waiting for %d seconds before continuing (required by "%s")', config('telegram.bot_user_id'), $retryAfter, $name));
+                return $retryAfter;
             });
         });
     }
@@ -213,6 +224,6 @@ final class MethodsFactory
 
         foreach (self::$meable_attributes as $attr)
             if (isset($attributes[$attr]) && is_string($attribute = &$attributes[$attr]) && $attribute === 'me')
-                $attribute = config('telegram.user_id');
+                $attribute = config('telegram.bot_user_id');
     }
 }
