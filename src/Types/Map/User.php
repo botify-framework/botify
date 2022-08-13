@@ -114,7 +114,7 @@ class User extends LazyJsonMapper
         );
 
         $this->_setProperty(
-            'is_self', $this->id === (int)config('telegram.user_id')
+            'is_self', $this->id === config('telegram.bot_user_id')
         );
 
         if ($username = $this->getUsername())
