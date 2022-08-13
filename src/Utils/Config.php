@@ -151,7 +151,7 @@ class Config implements ArrayAccess
         $keys = is_array($keys) ? $keys : [$keys => $value];
 
         foreach ($keys as $key => $value)
-            static::$items[$key] = $value;
+            static::$items[$key] = value($value);
 
         return $this;
     }
