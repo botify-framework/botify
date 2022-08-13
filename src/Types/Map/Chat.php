@@ -7,7 +7,8 @@ use Botify\Traits\Actionable;
 use Botify\Traits\HasHistory;
 use Botify\Traits\Notifiable;
 use Botify\Utils\LazyJsonMapper;
-use function Botify\gather;
+use function Amp\call;
+use function Botify\{gather, is_collection};
 
 /**
  * Chat
@@ -153,10 +154,10 @@ class Chat extends LazyJsonMapper
      */
     public function delete($ids): Promise
     {
-        return gather(array_map(fn($id) => $this->getAPI()->deleteMessage(
-            chat_id: $this->id,
-            message_id: $id
-        ), (array)$ids));
+        return gather(array_map(fn($id) => $this->getAPI()->deleteMessage([
+            'chat_id' => $this->id,
+            'message_id' => $id,
+        ]), (array)$ids));
     }
 
     /**
@@ -167,10 +168,10 @@ class Chat extends LazyJsonMapper
      */
     public function getMember($user_id): Promise
     {
-        return $this->getAPI()->getChatMember(
-            chat_id: $this->id,
-            user_id: $user_id
-        );
+        return $this->getAPI()->getChatMember([
+            'chat_id' => $this->id,
+            'user_id' => $user_id,
+        ]);
     }
 
     /**
@@ -180,9 +181,47 @@ class Chat extends LazyJsonMapper
      */
     public function leave(): Promise
     {
-        return $this->getAPI()->leaveChat(
-            chat_id: $this->id
-        );
+        return $this->getAPI()->leaveChat([
+            'chat_id' => $this->id,
+        ]);
+    }
+
+    public function getAdministrators(): Promise
+    {
+        return $this->getAPI()->getChatAdministrators([
+            'chat_id' => $this->id,
+        ]);
+    }
+
+    public function getCreator(): Promise
+    {
+        return call(function () {
+            $administrators = yield $this->getAdministrators();
+
+            if (is_collection($administrators)) {
+                return $administrators->first(fn($administrator) => $administrator['status'] === 'creator');
+            }
+
+            return false;
+        });
+    }
+
+    public function getAdministrator($user_id): Promise
+    {
+        return call(function () use ($user_id) {
+            $administrators = yield $this->getAdministrators();
+
+            if (is_collection($administrators)) {
+                return $administrators->first(function ($administrator) use ($user_id) {
+                    return in_array($user_id, [
+                        $administrator['user']['id'],
+                        ltrim($administrator['user']['username'], '@'),
+                    ]);
+                });
+            }
+
+            return false;
+        });
     }
 
     private function getNotifiableId()
