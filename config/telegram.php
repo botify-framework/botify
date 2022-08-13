@@ -5,10 +5,8 @@ use function Botify\env;
 
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
-    'token' => $token = env('BOT_TOKEN', function () {
-        throw new Exception('You must provide a token');
-    }),
-    'user_id' => (int)env('BOT_USER_ID', explode('/', $token, 2)[0] ?? null),
+    'token' => $token = env('BOT_TOKEN'),
+    'bot_username' => env('BOT_USERNAME'),
     'secret_token' => env('SECRET_TOKEN'),
     'super_admin' => (int)env('SUPER_ADMIN'),
     'admins' => function () {
