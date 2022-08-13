@@ -127,6 +127,9 @@ class Handler
                     if ($listener === 'any') {
                         $privateHandler = clone $privateHandler;
                         $promises[] = $reflector->bindCallback($handler->bindTo($privateHandler));
+                    } elseif ($listener === 'mention') {
+                        $privateHandler = clone $privateHandler;
+                        $promises[] = $privateHandler->handleMention($handler);
                     } elseif (isset($update[$listener])) {
                         $privateHandler = clone $privateHandler;
                         $privateHandler->current = $update[$listener];

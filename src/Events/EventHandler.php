@@ -4,6 +4,7 @@ namespace Botify\Events;
 
 use Amp\Promise;
 use Amp\Redis\Redis;
+use Amp\Success;
 use ArrayAccess;
 use Botify\TelegramAPI;
 use Botify\Traits\Accessible;
@@ -75,39 +76,7 @@ class EventHandler implements ArrayAccess
                 'chat_join_request' => [[$this, 'onUpdateChatJoinRequest']],
             ];
 
-            $promises = [];
-
-            if (isset($this->update['message'])) {
-                /** @var Message $message */
-                $message = $this->update['message'];
-                if (isset($message['entities']) && array_some($message['entities'], function ($entity) {
-                        return $entity['type'] === 'mention';
-                    })) {
-                    $promises[] = call(function () use ($message) {
-                        if (!$username = config('telegram.bot_username')) {
-                            $user = yield $this->api->getMe();
-
-                            if ($user->isSuccess()) {
-                                config(['telegram.bot_username' => $username = $user['username']]);
-                            }
-                        }
-
-                        if ($message->regex("/@{$username}\b/is")) {
-                            return yield call([$this, 'onMention'], $message);
-                        }
-                    });
-                } elseif (isset($message['entities']) && $entity = array_first($message['entities'], function ($entity) {
-                        return $entity['type'] === 'text_mention' && $entity['user']['is_self'];
-                    })) {
-                    config('telegram.bot_username', fn() => config(['telegram.bot_username' => $entity['username']]));
-
-                    $promises[] = call([$this, 'onMention'], $message);
-                } elseif (isset($message['reply_to_message']['from']) && $message['reply_to_message']['from']['is_self']) {
-                    config('telegram.bot_username', fn() => config(['telegram.bot_username' => $message['reply_to_message']['from']['username']]));
-
-                    $promises[] = call([$this, 'onMention'], $message);
-                }
-            }
+            $promises = [$this->handleMention([$this, 'onMention'])];
 
             foreach ($events as $event => $listeners) {
                 foreach ($listeners as $listener) {
@@ -127,6 +96,43 @@ class EventHandler implements ArrayAccess
                 $this->logger->critical($e);
             }
         });
+    }
+
+    public function handleMention(callable $callback): Promise|Success
+    {
+        if (isset($this->update['message'])) {
+            /** @var Message $message */
+            $message = $this->update['message'];
+            if (isset($message['entities']) && array_some($message['entities'], function ($entity) {
+                    return $entity['type'] === 'mention';
+                })) {
+                return call(function () use ($callback, $message) {
+                    if (!$username = config('telegram.bot_username')) {
+                        $user = yield $this->api->getMe();
+
+                        if ($user->isSuccess()) {
+                            config(['telegram.bot_username' => $username = $user['username']]);
+                        }
+                    }
+
+                    if ($message->regex("/@{$username}\b/is")) {
+                        return yield call($callback, $message);
+                    }
+                });
+            } elseif (isset($message['entities']) && $entity = array_first($message['entities'], function ($entity) {
+                    return $entity['type'] === 'text_mention' && $entity['user']['is_self'];
+                })) {
+                config('telegram.bot_username', fn() => config(['telegram.bot_username' => $entity['username']]));
+
+                return call($callback, $message);
+            } elseif (isset($message['reply_to_message']['from']) && $message['reply_to_message']['from']['is_self']) {
+                config('telegram.bot_username', fn() => config(['telegram.bot_username' => $message['reply_to_message']['from']['username']]));
+
+                return call($callback, $message);
+            }
+        }
+
+        return new Success();
     }
 
     public function getAccessibles(): array
