@@ -29,11 +29,22 @@ trait HasCommand
             if (preg_match($pattern, $this->getText(), $matches)) {
                 $matches[] = trim($this->after($matches[0]));
 
-                $this->_setProperty('matches', array_map('trim', $matches));
+                $this->_setProperty('matches', array_filter(array_map('trim', $matches)));
 
                 return true;
             }
         });
+    }
+
+    public function regex($pattern, int $flags = 0, int $offset = 0): bool
+    {
+        if (preg_match($pattern, $this->getText(), $matches, $flags, $offset)) {
+            $this->_setProperty('matches', $matches);
+
+            return true;
+        }
+
+        return false;
     }
 
     private function getText(): string
