@@ -20,18 +20,19 @@ use Botify\Utils\Bag;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use function Amp\call;
-use function Botify\gather;
+use function Botify\{array_first, array_some, config, gather, tap};
 
 class EventHandler implements ArrayAccess
 {
     use Accessible;
 
-    public ?TelegramAPI $api = null;
+    protected ?TelegramAPI $api = null;
     public $current;
-    public LoggerInterface $logger;
-    public ?Redis $redis = null;
-    private Bag $bag;
-    private ?Update $update = null;
+    protected LoggerInterface $logger;
+    protected ?Redis $redis = null;
+    protected Bag $bag;
+    protected ?Update $update = null;
+    public bool $started = false;
 
     /**
      * Dynamic method proxy for calling TelegramAPI methods
@@ -46,9 +47,7 @@ class EventHandler implements ArrayAccess
             return $this->current->{$name}(... $arguments);
         }
 
-        return $this->api->{$name}(... $arguments) ?? trigger_error(sprintf(
-                'Trying to call undefined method [%s]', $name
-            ), E_USER_ERROR);
+        return $this->api->{$name}(... $arguments);
     }
 
     /**
@@ -76,9 +75,39 @@ class EventHandler implements ArrayAccess
                 'chat_join_request' => [[$this, 'onUpdateChatJoinRequest']],
             ];
 
-            yield call([$this, 'onStart']);
+            $promises = [];
 
-            $promises = [call([$this, 'onAny'], $this->update)];
+            if (isset($this->update['message'])) {
+                /** @var Message $message */
+                $message = $this->update['message'];
+                if (isset($message['entities']) && array_some($message['entities'], function ($entity) {
+                        return $entity['type'] === 'mention';
+                    })) {
+                    $promises[] = call(function () use ($message) {
+                        if (!$username = config('telegram.bot_username')) {
+                            $user = yield $this->api->getMe();
+
+                            if ($user->isSuccess()) {
+                                config(['telegram.bot_username' => $username = $user['username']]);
+                            }
+                        }
+
+                        if ($message->regex("/@{$username}\b/is")) {
+                            return yield call([$this, 'onMention'], $message);
+                        }
+                    });
+                } elseif (isset($message['entities']) && $entity = array_first($message['entities'], function ($entity) {
+                        return $entity['type'] === 'text_mention' && $entity['user']['is_self'];
+                    })) {
+                    config('telegram.bot_username', fn() => config(['telegram.bot_username' => $entity['username']]));
+
+                    $promises[] = call([$this, 'onMention'], $message);
+                } elseif (isset($message['reply_to_message']['from']) && $message['reply_to_message']['from']['is_self']) {
+                    config('telegram.bot_username', fn() => config(['telegram.bot_username' => $message['reply_to_message']['from']['username']]));
+
+                    $promises[] = call([$this, 'onMention'], $message);
+                }
+            }
 
             foreach ($events as $event => $listeners) {
                 foreach ($listeners as $listener) {
@@ -206,6 +235,13 @@ class EventHandler implements ArrayAccess
     }
 
     /**
+     * @param Message $message
+     */
+    public function onMention(Message $message)
+    {
+    }
+
+    /**
      * Set TelegramAPI instance
      *
      * @param Update $update
@@ -220,5 +256,12 @@ class EventHandler implements ArrayAccess
         $this->logger = $this->api->getLogger();
         $this->bag = $bag;
         return $this;
+    }
+
+    public function tapStarted(): bool
+    {
+        return tap($this->started, function () {
+            $this->started = true;
+        });
     }
 }
