@@ -5,6 +5,7 @@ namespace Botify;
 use Amp\Delayed;
 use Amp\Promise;
 use ArrayAccess;
+use Botify\Exceptions\RetryException;
 use Botify\Utils\Button;
 use Botify\Utils\Collection;
 use Botify\Utils\Config;
@@ -49,7 +50,7 @@ if (!function_exists('Botify\\retry')) {
 
             try {
                 return yield $callback($attempts);
-            } catch (Exception $e) {
+            } catch (RetryException $e) {
                 if ($times < 1 || ($when && !$when($e))) {
                     throw $e;
                 }
