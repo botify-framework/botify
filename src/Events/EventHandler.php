@@ -114,8 +114,9 @@ class EventHandler implements ArrayAccess
                             config(['telegram.bot_username' => $username = $user['username']]);
                         }
                     }
+                    $username = preg_quote($username, '/');
 
-                    if ($message->regex("/@{$username}\b/is")) {
+                    if ($message->regex("/\B@{$username}\b/i")) {
                         return yield call($callback, $message);
                     }
                 });
