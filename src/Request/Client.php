@@ -10,7 +10,6 @@ use Amp\Http\Client\Request;
 use Amp\Http\Client\Response;
 use Amp\Promise;
 use function Amp\call;
-use function Botify\array_map_recursive;
 use function Botify\config;
 use function Botify\is_json;
 use function Botify\tap;
@@ -133,11 +132,10 @@ final class Client
         $files = [];
 
         array_walk_recursive($fields, function (&$value, $attribute) use (&$files) {
-
             if (is_string($value) && is_file($value) && filesize($value) > 0 && in_array(strtolower($attribute), $this->uploadable_types)) {
                 $name = basename($value);
                 $files[$name] = $value;
-                $value = 'attach://' . $value;
+                $value = 'attach://' . $name;
             }
         });
 
