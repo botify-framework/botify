@@ -475,7 +475,7 @@ class Message extends LazyJsonMapper
                             unset($message['id'], $message['reply']);
 
                             yield $map->setValue($field, json_encode($message));
-                            yield $this->getAPI()->redis?->expireAt($key, strtotime('+48 hours'));
+                            yield $this->getAPI()->getRedis()?->expireAt($key, strtotime('+48 hours'));
                         }
                     }
                 } catch (Throwable $e) {
