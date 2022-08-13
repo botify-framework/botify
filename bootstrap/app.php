@@ -16,5 +16,6 @@ $repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
 
 $dotenv = Dotenv\Dotenv::create($repository, __BASE_DIR__, ['.env', '.env.example']);
 $dotenv->load();
+$dotenv->ifPresent('BOT_TOKEN')->allowedRegexValues('/^\d{6,12}\:[[:alnum:]\-_]{35}$/');
 
 date_default_timezone_set(config('app.timezone'));
