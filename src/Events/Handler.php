@@ -133,7 +133,18 @@ class Handler
                         $promises[] = call($handler->bindTo($privateHandler), $privateHandler->current);
                     }
                 } elseif ($handler instanceof EventHandler) {
-                    $promises[] = $handler->register($update, $bag)->fire();
+                    $handler = $handler->register($update, $bag);
+
+                    $promises[] = call(function () use ($update, $handler, $reflector) {
+                        if (!$handler->tapStarted()) {
+                            yield $reflector->bindCallback([$handler, 'onStart']);
+                        }
+
+                        yield gather([
+                            call([$handler, 'onAny'], $update),
+                            $handler->fire()
+                        ]);
+                    });
                 }
             }
 
