@@ -1,4 +1,4 @@
-# async-php-bot
+# Botify Framework
 
 Create your own Telegram API bot asynchronously in PHP
 
