@@ -1,4 +1,5 @@
 {
+    "name": "botify-framework/botify",
     "require": {
         "botify-framework/framework": "v1.0.1"
     }
