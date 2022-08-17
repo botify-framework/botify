@@ -13,7 +13,7 @@ $bot = TelegramAPI::factory();
 $bot->setEventHandler(new class extends EventHandler {
     public function onUpdateNewMessage(Message $message)
     {
-        yield $message->reply("Hi {$message['from']['id']} :)");
+        yield $message->reply("Hi {$message['from']['first_name']} :)");
     }
 });
 
