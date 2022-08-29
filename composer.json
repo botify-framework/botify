@@ -11,9 +11,6 @@
     "require": {
         "botify-framework/framework": "^v1"
     },
-    "require-dev": {
-        "botify-framework/framework": "v1.0.0-dev"
-    },
     "repositories": [
         {
             "type": "path",
