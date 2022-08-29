@@ -10,17 +10,5 @@
     },
     "require": {
         "botify-framework/framework": "^v1"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../framework",
-            "options": {
-                "symlink": true,
-                "versions": {
-                    "botify-framework/framework": "v1.0.0-dev"
-                }
-            }
-        }
-    ]
+    }
 }
