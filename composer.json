@@ -9,6 +9,6 @@
         ]
     },
     "require": {
-        "botify-framework/framework": "^v1"
+        "botify-framework/framework": "dev-master"
     }
 }
