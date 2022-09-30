@@ -15,6 +15,11 @@ $bot->setEventHandler(new class extends EventHandler {
     {
         yield $message->reply("Hi {$message['from']['first_name']} :)");
     }
+
+    public function onUpdateNewChannelMessage(Message $message)
+    {
+        var_dump($message->toArray());
+    }
 });
 
 // You can use different update handing types like UPDATE_TYPE_WEBHOOK,
