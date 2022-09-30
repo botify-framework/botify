@@ -28,8 +28,9 @@ return [
         'host' => env('SERVER_ADDRESS', '0.0.0.0'),
         'port' => env('SERVER_PORT', 8000)
     ],
+    'cache_messages' => env('CACHE_MESSAGES', true),
     'plugins_dir' => base_path('plugins'),
     'typing_mode' => env('TYPING_MODE', false),
-    'allowed_updates' => [],
+    'allowed_updates' => ['message', 'edited_message', 'callback_query', 'inline_query', 'poll', 'poll_answer'],
     'sleep_threshold' => env('SLEEP_THRESHOLD', 30),
 ];
