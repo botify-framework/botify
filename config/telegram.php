@@ -1,7 +1,6 @@
 <?php
 
-use function Botify\base_path;
-use function Botify\env;
+use function Botify\{base_path, env};
 
 return [
     'base_uri' => env('TELEGRAM_BASE_URI', 'https://api.telegram.org'),
@@ -28,7 +27,6 @@ return [
         'host' => env('SERVER_ADDRESS', '0.0.0.0'),
         'port' => env('SERVER_PORT', 8000)
     ],
-    'cache_messages' => env('CACHE_MESSAGES', true),
     'plugins_dir' => base_path('plugins'),
     'typing_mode' => env('TYPING_MODE', false),
     'allowed_updates' => ['message', 'edited_message', 'callback_query', 'inline_query', 'poll', 'poll_answer'],
